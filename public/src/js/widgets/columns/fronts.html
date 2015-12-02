@@ -1,0 +1,48 @@
+<div class="modes" data-bind="css: frontMode">
+    <a class="live-mode active" data-bind="
+        click: setModeDraft,
+        css: {active: mode() === 'draft'}">Live story package</a>
+</div>
+
+<div class="styledFront" data-bind="css: frontMode">
+    <div class="col__inner front-selector">
+        <select class="select--front" data-bind="options: $root.frontsList,
+            optionsText: 'id',
+            optionsValue: 'id',
+            value: front,
+            optionsCaption: 'choose a front...'
+        "></select>
+    </div>
+    <!-- ko if: front -->
+        <div class="front-controls">
+            <span class="front-actions" data-bind="toggleClick: controlsVisible">
+                <!-- ko if: isControlsVisible -->
+                    <i class="fa fa-ellipsis-v"></i><span data-bind="text: controlsText"></span>
+                    <div class="floating-controls dropdown fadeElement" data-bind="css: {
+                        'dropdown-open': controlsVisible,
+                        'visible': controlsVisible
+                    }">
+                        <ul class="z-depth-2">
+                            <li data-bind="click: setSparklines.bind($data, 1, 10)">Sparklines: 1h</li>
+                            <li data-bind="click: setSparklines.bind($data, 3, 30)">Sparklines: 3h</li>
+                            <li data-bind="click: setSparklines.bind($data, 6, 60)">Sparklines: 6h</li>
+                        </ul>
+                    </div>
+                <!-- /ko -->
+            </span>
+            <span class="collapse-expand-all" data-bind="css: {
+                expanded: allExpanded
+            }, click: toggleAll">
+                <span class="expand">expand all <i class="fa fa-chevron-up"></i></span>
+                <span class="collapse">collapse all <i class="fa fa-chevron-down"></i></span>
+            </span>
+        </div>
+    <!-- /ko -->
+</div>
+
+<div class="col__inner scrollable styledFront collection-container" data-bind="
+    foreach: collections,
+    css: frontMode
+">
+    <collection-widget params="context: $context"></collection-widget>
+</div>

@@ -1,0 +1,28 @@
+@(identity: Option[com.gu.pandomainauth.model.User] = None)
+
+@import switchboard.SwitchManager
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Fronts Editor</title>
+        @templates.meta()
+        <link href="/assets/css/priorities.css" rel="stylesheet">
+    </head>
+    <body class="mainFlexContainer">
+
+    @if(SwitchManager.getStatus("facia-tool-disable")) {
+        <span class="message message--important">Temporarily disabled. Please try again shortly.</span>
+    } else {
+        @templates.header(Configuration.facia.stage, identity)
+        <main class="front-priorities">
+            <div class="front-priorities--priority">
+                <a href="/editorial">Editorial Story Packages</a>
+            </div>
+            <div class="front-priorities--priority">
+                <a href="/training">Training Story Packages</a>
+            </div>
+        </main>
+    }
+    </body>
+</html>

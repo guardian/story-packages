@@ -1,0 +1,47 @@
+artifacts.zip
+
+*.csv
+*.iml
+*.box
+*.log
+*.swp
+
+.DS_Store
+.idea
+.node-version
+.sbt
+.sbt.*
+
+log
+logs
+ivy-sbt
+
+tmp
+target
+.target
+/*/bin/
+
+RUNNING_PID
+
+*.sublime-*
+
+local.sbt
+
+node_modules
+jspm_packages
+screenshots
+
+# Eclipse #
+.project
+.classpath
+.settings/
+.metadata
+.classpath
+.springBeans
+.cache
+
+# Scala test framework #
+*.local.conf
+
+#Node Version Manager
+.nvmrc

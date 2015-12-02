@@ -1,0 +1,24 @@
+{
+    "defaultStacks": ["cms-fronts"],
+    "packages":{
+        "story-packages": {
+            "type": "autoscaling",
+            "data": {
+                "port": 9000,
+                "bucket": "story-packages-dist",
+                "publicReadAcl": false
+            }
+        }
+    },
+    "recipes":{
+        "default":{
+            "depends" : ["artifactUpload", "deploy"]
+        },
+        "deploy":{
+            "actionsBeforeApp": ["story-packages.deploy"]
+        },
+        "artifactUpload":{
+            "actionsBeforeApp": ["story-packages.uploadArtifacts"]
+        }
+    }
+}

@@ -1,0 +1,93 @@
+package controllers
+
+import akka.actor.ActorSystem
+import auth.PanDomainAuthActions
+import frontsapi.model._
+import metrics.FaciaToolMetrics
+import model.{Cached, NoCache}
+import play.api.Logger
+import play.api.libs.json._
+import play.api.mvc._
+import services._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+object FaciaToolController extends Controller with PanDomainAuthActions {
+
+  override lazy val actorSystem = ActorSystem()
+
+  def priorities() = AuthAction { request =>
+    Logger.info("Doing priorities..." + request)
+    val identity = request.user
+    Cached(60) { Ok(views.html.priority(Option(identity))) }
+  }
+
+  def collectionEditor() = AuthAction { request =>
+    val identity = request.user
+    Cached(60) { Ok(views.html.admin_main(Option(identity))) }
+  }
+
+  def listCollections = APIAuthAction { request =>
+    FaciaToolMetrics.ApiUsageCount.increment()
+    NoCache { Ok(Json.toJson(S3FrontsApi.listCollectionIds)) }
+  }
+
+  def getConfig = APIAuthAction.async { request =>
+    FaciaToolMetrics.ApiUsageCount.increment()
+    FrontsApi.amazonClient.config.map { configJson =>
+      NoCache {
+        Ok(Json.toJson(configJson)).as("application/json")}}}
+
+  def getCollection(collectionId: String) = APIAuthAction.async { request =>
+    FaciaToolMetrics.ApiUsageCount.increment()
+    FrontsApi.amazonClient.collection(collectionId).map { configJson =>
+      NoCache {
+        Ok(Json.toJson(configJson)).as("application/json")}}}
+
+  def collectionEdits(): Action[AnyContent] = APIAuthAction.async { implicit request =>
+    FaciaToolMetrics.ApiUsageCount.increment()
+      request.body.asJson.flatMap (_.asOpt[FaciaToolUpdate]).map {
+        case update: Update => {
+          val identity = request.user
+
+          FaciaToolUpdatesStream.putStreamUpdate(StreamUpdate(update, identity.email))
+
+          val futureCollectionJson = UpdateActions.updateCollectionList(update.update.id, update.update, identity)
+          futureCollectionJson.map { maybeCollectionJson =>
+            val updatedCollections = maybeCollectionJson.map(update.update.id -> _).toMap
+
+            if (updatedCollections.nonEmpty)
+              Ok(Json.toJson(updatedCollections)).as("application/json")
+            else
+              NotFound
+          }
+        }
+        case remove: Remove => {
+          val identity = request.user
+          UpdateActions.updateCollectionFilter(remove.remove.id, remove.remove, identity).map { maybeCollectionJson =>
+            val updatedCollections = maybeCollectionJson.map(remove.remove.id -> _).toMap
+            Ok(Json.toJson(updatedCollections)).as("application/json")
+          }
+        }
+        case updateAndRemove: UpdateAndRemove =>  {
+          val identity = request.user
+          val futureUpdatedCollections =
+            Future.sequence(
+              List(UpdateActions.updateCollectionList(updateAndRemove.update.id, updateAndRemove.update, identity).map(_.map(updateAndRemove.update.id -> _)),
+                UpdateActions.updateCollectionFilter(updateAndRemove.remove.id, updateAndRemove.remove, identity).map(_.map(updateAndRemove.remove.id -> _))
+              )).map(_.flatten.toMap)
+
+          futureUpdatedCollections.map { updatedCollections =>
+            Ok(Json.toJson(updatedCollections)).as("application/json")
+          }
+        }
+        case _ => Future.successful(NotAcceptable)
+      } getOrElse Future.successful(NotFound)
+  }
+
+  def getLastModified(path: String) = APIAuthAction { request =>
+    val now: Option[String] = S3FrontsApi.getCollectionLastModified(path)
+    now.map(Ok(_)).getOrElse(NotFound)
+  }
+}
