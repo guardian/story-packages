@@ -99,7 +99,26 @@
                         }
                     ]
                 },
-                "Path": "/"
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "root",
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "s3:GetObject"
+                                    ],
+                                    "Resource": [
+                                        "arn:aws:s3:::story-packages-dist/*",
+                                        "arn:aws:s3:::facia-private/*"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
             }
         },
         "PanDomainPolicy": {
