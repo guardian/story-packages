@@ -72,7 +72,7 @@ describe('Alternate Drag', function () {
 
                 return {
                     latest: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/1',
                             meta: {
                                 isBreaking: true,
@@ -92,8 +92,8 @@ describe('Alternate Drag', function () {
             expect(request.data).toEqual({
                 type: 'Update',
                 update: {
-                    live: false,
-                    draft: true,
+                    live: true,
+                    draft: false,
                     id: 'latest',
                     item: 'internal-code/page/1',
                     position: 'internal-code/page/1',
@@ -114,7 +114,7 @@ describe('Alternate Drag', function () {
             var requestIndex = 0, requests = [], responses = [{
                 latest: {
                     lastUpdated: (new Date()).toISOString(),
-                    draft: [{
+                    live: [{
                         id: 'internal-code/page/4',
                             meta: {
                                 isBreaking: true,
@@ -139,7 +139,7 @@ describe('Alternate Drag', function () {
             }, {
                 latest: {
                     lastUpdated: (new Date()).toISOString() + 10,
-                    draft: [{
+                    live: [{
                         id: 'internal-code/page/4',
                             meta: {
                                 isBreaking: true,
@@ -175,8 +175,8 @@ describe('Alternate Drag', function () {
                     expect(requests[0]).toEqual({
                         type: 'Update',
                         update: {
-                            live: false,
-                            draft: true,
+                            live: true,
+                            draft: false,
                             id: 'latest',
                             item: 'internal-code/page/4',
                             position: 'internal-code/page/1',
@@ -194,8 +194,8 @@ describe('Alternate Drag', function () {
                     expect(requests[1]).toEqual({
                         type: 'Remove',
                         remove: {
-                            live: false,
-                            draft: true,
+                            live: true,
+                            draft: false,
                             id: 'latest',
                             item: 'internal-code/page/1'
                         }
@@ -218,7 +218,7 @@ describe('Alternate Drag', function () {
 
                     return {
                         latest: {
-                            draft: [{
+                            live: [{
                                 id: 'internal-code/page/4',
                                 meta: {
                                     isBreaking: true,
@@ -239,7 +239,7 @@ describe('Alternate Drag', function () {
 
                 return {
                     latest: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/4',
                             meta: {
                                 isBreaking: true,
@@ -258,8 +258,8 @@ describe('Alternate Drag', function () {
             expect(request.data).toEqual({
                 type: 'Update',
                 update: {
-                    live: false,
-                    draft: true,
+                    live: true,
+                    draft: false,
                     id: 'latest',
                     item: 'internal-code/page/4',
                     position: 'internal-code/page/4',
@@ -290,8 +290,8 @@ describe('Alternate Drag', function () {
             expect(request.data).toEqual({
                 type: 'Remove',
                 remove: {
-                    live: false,
-                    draft: true,
+                    live: true,
+                    draft: false,
                     id: 'latest',
                     item: 'internal-code/page/4'
                 }

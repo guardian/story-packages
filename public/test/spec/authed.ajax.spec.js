@@ -1,4 +1,3 @@
-import Promise from 'Promise';
 import * as ajax from 'modules/authed-ajax';
 import * as mockjax from 'test/utils/mockjax';
 import $ from 'jquery';

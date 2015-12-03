@@ -69,7 +69,7 @@ describe('Debounce', function () {
             expect(inProgress).toBe(true);
 
             // give time to the last bounced request to complete
-            return tick(200);
+            return tick(300);
         }).then(() => {
             expect(countPromises).toBe(1);
             expect(countCalls).toBe(2);

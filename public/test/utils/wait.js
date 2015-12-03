@@ -1,4 +1,3 @@
-import Promise from 'Promise';
 import mediator from 'utils/mediator';
 
 export function event (name, emitter) {

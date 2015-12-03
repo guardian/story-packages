@@ -1,4 +1,3 @@
-import Promise from 'Promise';
 import ko from 'knockout';
 import persistence from 'models/config/persistence';
 import Front from 'models/config/front';

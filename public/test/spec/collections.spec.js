@@ -34,8 +34,8 @@ describe('Collections', function () {
             expect(request.url).toEqual('/edits');
             expect(request.data.type).toEqual('Update');
             expect(request.data.update.after).toEqual(false);
-            expect(request.data.update.draft).toEqual(true);
-            expect(request.data.update.live).toEqual(false);
+            expect(request.data.update.draft).toEqual(false);
+            expect(request.data.update.live).toEqual(true);
             expect(request.data.update.id).toEqual('sport');
             expect(request.data.update.item).toEqual('internal-code/page/1');
             expect(request.data.update.itemMeta.group).toEqual('3');
@@ -46,8 +46,8 @@ describe('Collections', function () {
             expect(request.url).toEqual('/edits');
             expect(request.data.type).toEqual('Update');
             expect(request.data.update.after).toEqual(true);
-            expect(request.data.update.draft).toEqual(true);
-            expect(request.data.update.live).toEqual(false);
+            expect(request.data.update.draft).toEqual(false);
+            expect(request.data.update.live).toEqual(true);
             expect(request.data.update.id).toEqual('latest');
             expect(request.data.update.item).toEqual('internal-code/page/2');
             expect(!!request.data.update.itemMeta).toEqual(false);
@@ -59,8 +59,8 @@ describe('Collections', function () {
             expect(request.url).toEqual('/edits');
             expect(request.data.type).toEqual('Update');
             expect(request.data.update.after).toEqual(false);
-            expect(request.data.update.draft).toEqual(true);
-            expect(request.data.update.live).toEqual(false);
+            expect(request.data.update.draft).toEqual(false);
+            expect(request.data.update.live).toEqual(true);
             expect(request.data.update.id).toEqual('latest');
             expect(request.data.update.item).toEqual('internal-code/page/3');
             expect(!!request.data.update.itemMeta).toEqual(false);
@@ -72,8 +72,8 @@ describe('Collections', function () {
             expect(request.url).toEqual('/edits');
             expect(request.data.type).toEqual('Update');
             expect('after' in request.data.update).toEqual(false);
-            expect(request.data.update.draft).toEqual(true);
-            expect(request.data.update.live).toEqual(false);
+            expect(request.data.update.draft).toEqual(false);
+            expect(request.data.update.live).toEqual(true);
             expect(request.data.update.id).toEqual('latest');
             expect(request.data.update.item).toEqual('internal-code/page/3');
             expect(request.data.update.itemMeta.isBreaking).toEqual(true);
@@ -85,8 +85,8 @@ describe('Collections', function () {
             expect(request.url).toEqual('/edits');
             expect(request.data.type).toEqual('Update');
             expect(request.data.update.after).toEqual(false);
-            expect(request.data.update.draft).toEqual(true);
-            expect(request.data.update.live).toEqual(false);
+            expect(request.data.update.draft).toEqual(false);
+            expect(request.data.update.live).toEqual(true);
             expect(request.data.update.id).toEqual('latest');
             expect(request.data.update.item).toEqual('internal-code/page/3');
             expect(request.data.update.itemMeta.isBreaking).toEqual(true);
@@ -98,15 +98,15 @@ describe('Collections', function () {
             expect(request.url).toEqual('/edits');
             expect(request.data.type).toEqual('UpdateAndRemove');
             expect(request.data.update.after).toEqual(false);
-            expect(request.data.update.draft).toEqual(true);
-            expect(request.data.update.live).toEqual(false);
+            expect(request.data.update.draft).toEqual(false);
+            expect(request.data.update.live).toEqual(true);
             expect(request.data.update.id).toEqual('sport');
             expect(request.data.update.item).toEqual('internal-code/page/3');
             expect(request.data.update.itemMeta.isBreaking).toEqual(true);
             expect(request.data.update.itemMeta.group).toEqual('3');
             expect(request.data.update.position).toEqual('internal-code/page/1');
-            expect(request.data.remove.draft).toEqual(true);
-            expect(request.data.remove.live).toEqual(false);
+            expect(request.data.remove.draft).toEqual(false);
+            expect(request.data.remove.live).toEqual(true);
             expect(request.data.remove.id).toEqual('latest');
             expect(request.data.remove.item).toEqual('internal-code/page/3');
 
@@ -115,8 +115,8 @@ describe('Collections', function () {
         .then(function (request) {
             expect(request.url).toEqual('/edits');
             expect(request.data.type).toEqual('Remove');
-            expect(request.data.remove.draft).toEqual(true);
-            expect(request.data.remove.live).toEqual(false);
+            expect(request.data.remove.draft).toEqual(false);
+            expect(request.data.remove.live).toEqual(true);
             expect(request.data.remove.id).toEqual('sport');
             expect(request.data.remove.item).toEqual('internal-code/page/1');
 
@@ -125,16 +125,11 @@ describe('Collections', function () {
         .then(function (request) {
             expect(request.url).toEqual('/edits');
             expect(request.data.type).toEqual('Update');
-            expect(request.data.update.draft).toEqual(true);
-            expect(request.data.update.live).toEqual(false);
+            expect(request.data.update.draft).toEqual(false);
+            expect(request.data.update.live).toEqual(true);
             expect(request.data.update.id).toEqual('latest');
             expect(request.data.update.item).toEqual('internal-code/page/2');
             expect(request.data.update.itemMeta.supporting[0].id).toEqual('internal-code/page/5');
-
-            return publishLatestChanges();
-        })
-        .then(function (collection) {
-            expect(collection).toEqual('latest');
         })
         .then(done)
         .catch(done.fail);
@@ -146,7 +141,7 @@ describe('Collections', function () {
 
                 return {
                     sport: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/1',
                             meta: {
                                 group: 3
@@ -168,7 +163,7 @@ describe('Collections', function () {
 
                 return {
                     latest: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/1'
                         }, {
                             id: 'internal-code/page/2'
@@ -191,7 +186,7 @@ describe('Collections', function () {
 
                 return {
                     latest: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/3'
                         }, {
                             id: 'internal-code/page/1'
@@ -209,12 +204,14 @@ describe('Collections', function () {
                 var firstArticleInLatest = dom.articleInside(firstCollection, 1);
 
                 dom.click(firstArticleInLatest);
-                dom.click(firstArticleInLatest.querySelector('.editor--boolean--isBreaking'));
-                dom.click(firstArticleInLatest.querySelector('.tool--done'));
+                setTimeout(() => {
+                    dom.click(firstArticleInLatest.querySelector('.editor--boolean--isBreaking'));
+                    dom.click(firstArticleInLatest.querySelector('.tool--done'));
+                }, 50);
 
                 return {
                     latest: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/3',
                             meta: {
                                 isBreaking: true
@@ -244,7 +241,7 @@ describe('Collections', function () {
 
                 return {
                     latest: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/1'
                         }, {
                             id: 'internal-code/page/3',
@@ -277,14 +274,14 @@ describe('Collections', function () {
 
                 return {
                     latest: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/1'
                         }, {
                             id: 'internal-code/page/2'
                         }]
                     },
                     sport: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/3',
                             meta: {
                                 isBreaking: true,
@@ -310,7 +307,7 @@ describe('Collections', function () {
 
                 return {
                     sport: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/3',
                             meta: {
                                 isBreaking: true,
@@ -337,7 +334,7 @@ describe('Collections', function () {
 
                 return {
                     latest: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/1'
                         }, {
                             id: 'internal-code/page/2',
@@ -349,13 +346,6 @@ describe('Collections', function () {
                         }]
                     }
                 };
-            });
-        }
-
-        function publishLatestChanges () {
-            return publishAction(function () {
-                var launchButton = dom.collection(1).querySelector('.draft-publish');
-                dom.click(launchButton);
             });
         }
     });
@@ -403,7 +393,7 @@ describe('Collections', function () {
 
                 return {
                     latest: {
-                        draft: [{
+                        live: [{
                             id: 'internal-code/page/5',
                             meta: {
                                 group: 0
@@ -423,8 +413,8 @@ describe('Collections', function () {
             expect(request.data.type).toBe('Update');
             expect(request.data.update).toEqual({
                 after: false,
-                live: false,
-                draft: true,
+                live: true,
+                draft: false,
                 id: 'latest',
                 item: 'internal-code/page/5',
                 position: 'internal-code/page/1'

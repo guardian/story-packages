@@ -1,5 +1,4 @@
 import ko from 'knockout';
-import Promise from 'Promise';
 import _ from 'underscore';
 import $ from 'jquery';
 import * as vars from 'modules/vars';
@@ -7,7 +6,6 @@ import mediator from 'utils/mediator';
 import dates from 'test/fixtures/dates';
 import inject from 'test/utils/inject';
 import * as mockjax from 'test/utils/mockjax';
-import textInside from 'test/utils/text-inside';
 import * as wait from 'test/utils/wait';
 
 describe('Front', function () {
@@ -68,7 +66,6 @@ describe('Front', function () {
     });
 
     it('load a front from the select and toggle collection visibility', function (done) {
-        var callPresser = 0;
         this.scope({
             url: '/front/lastmodified/uk',
             responseText: { status: 200, responseText: +dates.yesterday },
@@ -81,11 +78,6 @@ describe('Front', function () {
         }, {
             url: '/collection/shared',
             status: 404
-        }, {
-            url: '/press/draft/uk',
-            method: 'POST',
-            responseText: {},
-            onAfterComplete: () => callPresser += 1
         });
 
         this.loadFront()
@@ -119,9 +111,6 @@ describe('Front', function () {
 
             // Wait for the presser action
             return wait.ms(50);
-        })
-        .then(() => {
-            expect(callPresser).toBe(1);
         })
         .then(() => {
             expect($('.collapse-expand-all').hasClass('expanded')).toBe(true);

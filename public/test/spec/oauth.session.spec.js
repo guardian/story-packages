@@ -1,4 +1,3 @@
-import Promise from 'Promise';
 import tick from 'test/utils/tick';
 import session from 'utils/oauth-session';
 import {CONST} from 'modules/vars';

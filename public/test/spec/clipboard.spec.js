@@ -118,6 +118,7 @@ describe('Clipboard', function () {
 
         injectClipboard()
         .then(pasteLink)
+        .then(() => wait.ms(10))
         .then(expectLinkAdded)
         .then(done)
         .catch(done.fail);

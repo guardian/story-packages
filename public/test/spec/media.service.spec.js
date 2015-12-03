@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import Promise from 'Promise';
 import MockVisible from 'mock/stories-visible';
 import CollectionsLoader from 'test/utils/collections-loader';
 import drag from 'test/utils/drag';
@@ -123,8 +122,8 @@ describe('Media Service', function () {
             expect(request.data).toEqual({
                 type: 'Update',
                 update: {
-                    live: false,
-                    draft: true,
+                    live: true,
+                    draft: false,
                     id: 'latest',
                     item: 'internal-code/page/1',
                     position: 'internal-code/page/1',

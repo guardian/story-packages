@@ -1,4 +1,3 @@
-import Promise from 'Promise';
 import mockjax from 'test/utils/mockjax';
 
 export default function(mockCollection, action) {

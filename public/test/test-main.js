@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import Promise from 'Promise';
 import * as vars from 'modules/vars';
 import testConfig from 'test/config';
 import $ from 'jquery';

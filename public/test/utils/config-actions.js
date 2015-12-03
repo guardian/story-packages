@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import mockjax from 'test/utils/mockjax';
-import Promise from 'Promise';
 
 export default function(mockConfig, baseModel, action) {
 

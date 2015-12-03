@@ -9,7 +9,7 @@ var originalValues = {
 var overrides = {
     imageCdnDomainExpr: new RegExp('http://' + window.location.host),
     imgIXDomainExpr: /http:\/\/imgix\//,
-    staticImageCdnDomain: 'http://' + window.location.host + '/base/test/public/fixtures/',
+    staticImageCdnDomain: 'http://' + window.location.host + '/base/public/test/fixtures/',
     imageCdnDomain: window.location.host
 };
 
@@ -27,7 +27,7 @@ function dispose () {
 }
 
 function path (image) {
-    return 'http://' + window.location.host + '/base/test/public/fixtures/' + image;
+    return 'http://' + window.location.host + '/base/public/test/fixtures/' + image;
 }
 
 function imgIX (image) {

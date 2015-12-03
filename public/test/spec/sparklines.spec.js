@@ -87,7 +87,7 @@ describe('Sparklines', function () {
             expect(onReject.called).toBe(false);
             resolvedObject = onResolve.args[0][0];
             expect(resolvedObject['/article/one/web/url'].series[0].data[0].count).toBe(50);
-            expect(resolvedObject['/article/two/web/url'].series[0].data[0].count).toBe(5000);
+            expect(resolvedObject['/article/two/web/url'].series[0].data[0].count).toBe(100);
             expectSparklinesOn(['_article_one_web_url', '_article_two_web_url']);
 
             // Load another front
@@ -113,8 +113,8 @@ describe('Sparklines', function () {
                 expect(onResolve.called).toBe(true);
                 expect(onReject.called).toBe(false);
                 resolvedObject = onResolve.args[0][0];
-                expect(resolvedObject['/article/one/web/url'].series[0].data[0].count).toBe(100);
-                expect(resolvedObject['/article/one/web/url'].series[0].data[2].count).toBe(2000);
+                expect(resolvedObject['/article/one/web/url'].series[0].data[0].count).toBe(300);
+                expect(resolvedObject['/article/one/web/url'].series[0].data[2].count).toBe(10);
                 expectSparklinesOn(['_article_one_web_url', '_fancy-url']);
 
                 finishTest();

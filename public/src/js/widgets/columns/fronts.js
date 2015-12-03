@@ -19,7 +19,7 @@ export default class Front extends ColumnWidget {
         this.previousFront = frontId;
         this.frontAge = ko.observable();
         this.collections = ko.observableArray();
-        this.mode = ko.observable(params.mode || 'draft');
+        this.mode = ko.observable('live');
         this.flattenGroups = ko.observable(params.mode === 'treats');
         this.maxArticlesInHistory = 5;
         this.controlsVisible = ko.observable(false);

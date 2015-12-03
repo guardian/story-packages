@@ -1,4 +1,3 @@
-import Promise from 'Promise';
 import ko from 'knockout';
 import modalDialog from 'modules/modal-dialog';
 import alert from 'utils/alert';
