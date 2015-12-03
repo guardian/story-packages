@@ -9,6 +9,7 @@ import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
 import services._
+import updates._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -47,11 +48,11 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
 
   def collectionEdits(): Action[AnyContent] = APIAuthAction.async { implicit request =>
     FaciaToolMetrics.ApiUsageCount.increment()
-      request.body.asJson.flatMap (_.asOpt[FaciaToolUpdate]).map {
+      request.body.asJson.flatMap (_.asOpt[UpdateMessage]).map {
         case update: Update => {
           val identity = request.user
 
-          FaciaToolUpdatesStream.putStreamUpdate(StreamUpdate(update, identity.email))
+          UpdatesStream.putStreamUpdate(StreamUpdate(update, identity.email))
 
           val futureCollectionJson = UpdateActions.updateCollectionList(update.update.id, update.update, identity)
           futureCollectionJson.map { maybeCollectionJson =>
@@ -67,6 +68,7 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
           val identity = request.user
           UpdateActions.updateCollectionFilter(remove.remove.id, remove.remove, identity).map { maybeCollectionJson =>
             val updatedCollections = maybeCollectionJson.map(remove.remove.id -> _).toMap
+            UpdatesStream.putStreamUpdate(StreamUpdate(remove, identity.email))
             Ok(Json.toJson(updatedCollections)).as("application/json")
           }
         }
@@ -79,6 +81,7 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
               )).map(_.flatten.toMap)
 
           futureUpdatedCollections.map { updatedCollections =>
+            UpdatesStream.putStreamUpdate(StreamUpdate(updateAndRemove, identity.email))
             Ok(Json.toJson(updatedCollections)).as("application/json")
           }
         }

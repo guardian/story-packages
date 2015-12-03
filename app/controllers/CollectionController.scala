@@ -5,6 +5,7 @@ import com.gu.facia.client.models.CollectionConfigJson
 import config.UpdateManager
 import play.api.libs.json.Json
 import play.api.mvc.Controller
+import updates.{CollectionCreate, CollectionUpdate, StreamUpdate, UpdatesStream}
 import util.Requests._
 
 object CollectionRequest {
@@ -28,6 +29,7 @@ object CollectionController extends Controller with PanDomainAuthActions {
       case Some(CollectionRequest(frontIds, collection)) =>
         val identity = request.user
         val collectionId = UpdateManager.addCollection(frontIds, collection, identity)
+        UpdatesStream.putStreamUpdate(StreamUpdate(CollectionCreate(frontIds, collection), identity.email))
         Ok(Json.toJson(CreateCollectionResponse(collectionId)))
 
       case None => BadRequest
@@ -39,6 +41,7 @@ object CollectionController extends Controller with PanDomainAuthActions {
       case Some(CollectionRequest(frontIds, collection)) =>
         val identity = request.user
         UpdateManager.updateCollection(collectionId, frontIds, collection, identity)
+        UpdatesStream.putStreamUpdate(StreamUpdate(CollectionUpdate(frontIds, collection), identity.email))
         Ok
 
       case None => BadRequest
