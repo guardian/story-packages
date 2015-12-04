@@ -64,8 +64,6 @@
     </div>
 
     <div class="closed" data-bind="ifnot: state.isOpen">
-        <div data-bind="sparklines: $root.isSparklinesEnabled" class="sparkline"></div>
-
         <div class="article__tools">
             <a class="tool tool--small tool--small--paste" title="Paste" data-bind="
                 visible: $root.isPasteActive && $root.isPasteActive(),

@@ -114,10 +114,6 @@ var register = _.once(() => {
         viewModel: { jspm: 'widgets/copy-paste-articles' },
         template: '<!-- copy paste articles -->'
     });
-    ko.components.register('sparklines-trails', {
-        viewModel: { jspm: 'widgets/sparklines-trails' },
-        template: '<!-- sparklines for trails -->'
-    });
     ko.components.register('config-card-types', {
         viewModel: { jspm: 'widgets/config-card-types' },
         template: '<!-- card types -->'

@@ -19,7 +19,6 @@ export default {
         columns.clipboardTrail,
         columns.packages
     ], [
-        extensions.copyPasteArticles,
-        extensions.sparklinesTrails
+        extensions.copyPasteArticles
     ])
 };

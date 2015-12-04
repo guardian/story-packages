@@ -30,9 +30,7 @@ describe('Front', function () {
                 setConfig: () => {},
                 baseModel: this.model
             },
-            switches: ko.observable({
-                'facia-tool-sparklines': false
-            }),
+            switches: ko.observable({}),
             permissions: ko.observable({}),
             isPasteActive: ko.observable(false),
             state: ko.observable({

@@ -166,11 +166,7 @@ function injectClipboard () {
     }
 
     injectedClipboard = injectColumnWidget('clipboard-widget');
-    return injectedClipboard.apply({
-        switches: ko.observable({
-            'facia-tool-sparklines': false
-        })
-    }, true);
+    return injectedClipboard.apply({}, true);
 }
 
 function getArticles () {

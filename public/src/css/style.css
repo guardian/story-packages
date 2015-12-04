@@ -1868,7 +1868,6 @@ ol.search_list > li::before {
 .narrow .article .has-playable,
 .narrow .image__overrides,
 .narrow .log-in-out,
-.narrow .sparkline,
 .narrow .list-header__timings {
     display: none;
 }
@@ -2073,12 +2072,6 @@ hr {
 
 .modalDialog .button-description {
     font-weight: bold;
-}
-
-.sparkline {
-    position: absolute;
-    right: 0;
-    top: 15px;
 }
 
 .unauthorizedMessage {

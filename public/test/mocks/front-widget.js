@@ -7,7 +7,6 @@ function createMockFront (frontId, description) {
         front = {
             front: ko.observable(frontId),
             collections: ko.observableArray(),
-            sparklinesOptions: ko.observable({}),
             _collections: {}
         }
     ;

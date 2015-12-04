@@ -4,7 +4,6 @@ import _ from 'underscore';
 import Collection from 'models/collections/collection';
 import {CONST} from 'modules/vars';
 import mediator from 'utils/mediator';
-import * as sparklines from 'utils/sparklines';
 import ColumnWidget from 'widgets/column-widget';
 
 export default class Front extends ColumnWidget {
@@ -43,16 +42,9 @@ export default class Front extends ColumnWidget {
             return CONST.previewBase + '/responsive-viewer/' + path + '/' + this.front();
         });
 
-        this.isControlsVisible = ko.observable(sparklines.isEnabled());
-        this.controlsText = ko.pureComputed(() => {
-            return 'Sparklines: ' + this.sparklinesOptions().hours + 'h';
-        });
+        this.isControlsVisible = ko.observable(false);
+        this.controlsText = ko.pureComputed(() => '');
 
-        this.ophanPerformances = ko.pureComputed(() => {
-            return CONST.ophanFrontBase + encodeURIComponent('/' + this.front());
-        });
-
-        this.alertFrontIsStale = ko.observable();
         this.uiOpenArticle = ko.observable();
 
         this.allExpanded = ko.observable(true);
@@ -85,16 +77,7 @@ export default class Front extends ColumnWidget {
         this.refreshCollections(CONST.collectionsPollMs || 60000);
         this.refreshRelativeTimes(CONST.pubTimeRefreshMs || 60000);
 
-        this.sparklinesOptions = ko.observable({
-            hours: 1,
-            interval: 10
-        });
-        if (this.authorized()) {
-            this.load(frontId);
-            sparklines.subscribe(this);
-        } else {
-            this.loaded = Promise.resolve(this);
-        }
+        this.load(frontId);
     }
 
     load(frontId) {
@@ -127,13 +110,6 @@ export default class Front extends ColumnWidget {
         this.loaded = Promise.all(
             this.collections().map(collection => collection.loaded)
         ).then(() => mediator.emit('front:loaded', this));
-    }
-
-    setSparklines(hours, interval) {
-        this.sparklinesOptions({
-            hours: hours,
-            interval: interval
-        });
     }
 
     toggleAll() {
@@ -203,7 +179,6 @@ export default class Front extends ColumnWidget {
         super.dispose();
         _.each(this.setIntervals, clearInterval);
         _.each(this.setTimeouts, clearTimeout);
-        sparklines.unsubscribe(this);
     }
 }
 

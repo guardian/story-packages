@@ -49,8 +49,7 @@ export default {
         dynamicContainers: [{ 'name':'dynamic/test' }],
         switches: {
             'story-packages-disable': false,
-            'facia-tool-draft-content': true,
-            'facia-tool-sparklines': false
+            'facia-tool-draft-content': true
         }
     }
 };
