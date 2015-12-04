@@ -1,0 +1,41 @@
+<div class="modes treats-mode">
+    <a class="treats-mode active">Manage packages</a>
+</div>
+
+<div class="styledFront treats-mode">
+    <div class="col__inner">
+        <div class="title">
+            create a package
+            <span data-bind="click: createPackage" class="linky">+</span>
+        </div>
+        <!-- ko if: creatingPackage -->
+            <div class="createPackage">
+                <div class="createPackageName">
+                    <input type="text" class="createPackageName_input" placeholder="package name" data-bind="textInput: displayName"/>
+                </div>
+                <button class="tool createPackageSave" data-bind="click: savePackage">save</button>
+            </div>
+        <!-- /ko -->
+    </div>
+</div>
+
+<div class="col__inner scrollable styledFront treats-mode">
+    <div class="title">search</div>
+    <div class="packagesSearch">
+        <input
+          class="packagesSearch_input"
+          type="text"
+          placeholder="search for packages..."
+          data-bind="
+            textInput: searchTerm
+        "/>
+    </div>
+    <ul class="packagesResults" data-bind="foreach: searchedPackages">
+        <li>
+            <a href="#" data-bind="
+                text: displayName,
+                click: $parent.displayPackage"
+            ></a>
+        </li>
+    </div>
+</div>

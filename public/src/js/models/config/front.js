@@ -206,6 +206,7 @@ export default class ConfigFront extends BaseClass {
         collection.toggleOpen();
         collection.parents.push(this);
         this.collections.items.push(collection);
+        return collection;
     }
 
     _depopulateCollection(collection) {

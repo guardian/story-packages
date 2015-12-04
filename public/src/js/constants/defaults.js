@@ -15,8 +15,6 @@ export default {
         'commercial'
     ],
 
-    detectPressFailureMs: 10000,
-
     detectPendingChangesInClipboard: 4000,
 
     defaultPriority: 'editorial',

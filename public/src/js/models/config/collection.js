@@ -114,7 +114,7 @@ export default class ConfigCollection extends DropTarget {
         this.state.apiQueryStatus(undefined);
         this.state.isOpen(false);
 
-        persistence.collection.save(this);
+        return persistence.collection.save(this);
     }
 
     updateConfig(opts) {

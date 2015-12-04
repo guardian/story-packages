@@ -4,24 +4,16 @@ describe('utils/layout-from-url', function () {
     it('gets the default configuration', function () {
         expect(fromURL.get('test')).toEqual([
             { 'type': 'latest' },
-            { 'type': 'front' }
+            { 'type': 'front' },
+            { 'type': 'packages' }
         ]);
     });
 
     it('gets the default configuration by path', function () {
         expect(fromURL.get('test', 'config')).toEqual([
-            { 'type': 'config' },
-            { 'type': 'config' }
-        ]);
-    });
-
-    it('shows treats if required', function () {
-        expect(fromURL.get('test?treats=please&front=banana&layout=front')).toEqual([
-            { 'type': 'clipboard' },
-            {
-                'type': 'treats',
-                'config': 'banana'
-            }
+            { 'type': 'latest' },
+            { 'type': 'front' },
+            { 'type': 'packages' }
         ]);
     });
 
@@ -54,26 +46,19 @@ describe('utils/layout-from-url', function () {
     it('ignores unknown parameters', function () {
         expect(fromURL.get('test?other=stuff')).toEqual([
             { 'type': 'latest' },
-            { 'type': 'front' }
+            { 'type': 'front' },
+            { 'type': 'packages' }
         ]);
     });
 
     it('respects the front parameter', function () {
-        expect(fromURL.get('test?front=banana')).toEqual([
+        expect(fromURL.get('test?storyPackage=banana')).toEqual([
             { 'type': 'latest' },
             {
                 'type': 'front',
                 'config': 'banana'
-            }
-        ]);
-    });
-
-    it('respects the front parameter for the path', function () {
-        expect(fromURL.get('test?front=banana', 'config')).toEqual([
-            {
-                'type': 'config',
-                'config': 'banana'
-            }
+            },
+            { 'type': 'packages' }
         ]);
     });
 
@@ -98,12 +83,14 @@ describe('utils/layout-from-url', function () {
 
     it('extract from an object', function () {
         expect(fromURL.get({
-            front: 'banana'
+            storyPackage: 'banana'
         })).toEqual([{
             type: 'latest'
         }, {
             type: 'front',
             config: 'banana'
+        }, {
+            type: 'packages'
         }]);
     });
 });

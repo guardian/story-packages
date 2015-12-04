@@ -44,6 +44,10 @@ describe('Layout', function () {
             title: 'Latest',
             layoutType: 'latest',
             widget: 'mock-latest-widget'
+        }, {
+            title: 'PAckages',
+            layoutType: 'packages',
+            widget: 'mock-packages-widget'
         }];
         this.layout = new Layout(this.router, this.widget);
         this.layout.CONST.addColumnTransition = CONST_TRANSITION;
@@ -81,7 +85,7 @@ describe('Layout', function () {
             expect(layout.configVisible()).toBe(false);
             expect(layout.configVisible()).toBe(false);
             expect($('.configPane', this.ko.container).is(':visible')).toBe(false);
-            expect(columnsInDOM()).toEqual(['latest', 'front']);
+            expect(columnsInDOM()).toEqual(['latest', 'front', 'packages']);
 
             layout.toggleConfigVisible();
             expect(layout.configVisible()).toBe(true);
@@ -89,54 +93,54 @@ describe('Layout', function () {
 
             saved = layout.savedState.columns();
             current = layout.currentState.columns();
-            expect(saved.length).toBe(2);
-            expect(current.length).toBe(2);
+            expect(saved.length).toBe(3);
+            expect(current.length).toBe(3);
 
             // Add an extra column in the middle
             return click('.fa-plus-circle:nth(0)');
         })
         .then(() => {
             // Plus button clones the source column
-            expect(layout.savedState.columns().length).toBe(2);
+            expect(layout.savedState.columns().length).toBe(3);
             expect(layout.savedState.columns()).toBe(saved);
-            expect(layout.currentState.columns().length).toBe(3);
-            expect($('.configPane').length).toBe(3);
-            expect(columnsInDOM()).toEqual(['latest', 'latest', 'front']);
+            expect(layout.currentState.columns().length).toBe(4);
+            expect($('.configPane').length).toBe(4);
+            expect(columnsInDOM()).toEqual(['latest', 'latest', 'front', 'packages']);
 
             // Cancel the workspace change
             return click('.cancel-layout');
         })
         .then(() => {
-            expect(layout.savedState.columns().length).toBe(2);
+            expect(layout.savedState.columns().length).toBe(3);
             expect(layout.savedState.columns()).toBe(saved);
-            expect(layout.currentState.columns().length).toBe(2);
-            expect($('.configPane').length).toBe(2);
-            expect(columnsInDOM()).toEqual(['latest', 'front']);
+            expect(layout.currentState.columns().length).toBe(3);
+            expect($('.configPane').length).toBe(3);
+            expect(columnsInDOM()).toEqual(['latest', 'front', 'packages']);
 
             // Add another column
             return click('.fa-plus-circle:nth(1)');
         })
         .then(() => {
             expect(layout.savedState.columns()).toBe(saved);
-            expect(layout.currentState.columns().length).toBe(3);
-            expect($('.configPane').length).toBe(3);
-            expect(columnsInDOM()).toEqual(['latest', 'front', 'front']);
+            expect(layout.currentState.columns().length).toBe(4);
+            expect($('.configPane').length).toBe(4);
+            expect(columnsInDOM()).toEqual(['latest', 'front', 'front', 'packages']);
 
             // Change the type of a column
             return click('.configPane:nth(2) .checkbox-latest');
         })
         .then(() => {
-            expect(columnsInDOM()).toEqual(['latest', 'front', 'latest']);
+            expect(columnsInDOM()).toEqual(['latest', 'front', 'latest', 'packages']);
 
             return click('.save-layout');
         })
         .then(() => {
-            expect(this.router.location.search).toBe('?layout=latest,front,latest');
+            expect(this.router.location.search).toBe('?layout=latest,front,latest,packages');
 
             return layout.toggleConfigVisible();
         })
         .then(() => {
-            expect(columnsInDOM()).toEqual(['latest', 'front', 'latest']);
+            expect(columnsInDOM()).toEqual(['latest', 'front', 'latest', 'packages']);
 
             // Navigate back to the previous layout
             return navigateTo(this.router, '?layout=front:banana,latest');
@@ -181,4 +185,13 @@ ko.components.register('mock-latest-widget', {
         }
     },
     template: '<div class="mock-widget latest"></div>'
+});
+ko.components.register('mock-packages-widget', {
+    viewModel: {
+        createViewModel: (params) => {
+            mediator.emit('widget:load');
+            return params;
+        }
+    },
+    template: '<div class="mock-widget packages"></div>'
 });

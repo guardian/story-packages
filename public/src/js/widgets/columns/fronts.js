@@ -2,10 +2,7 @@ import ko from 'knockout';
 import Promise from 'Promise';
 import _ from 'underscore';
 import Collection from 'models/collections/collection';
-import Presser from 'modules/presser';
 import {CONST} from 'modules/vars';
-import lastModified from 'utils/fetch-lastmodified';
-import humanTime from 'utils/human-time';
 import mediator from 'utils/mediator';
 import * as sparklines from 'utils/sparklines';
 import ColumnWidget from 'widgets/column-widget';
@@ -60,21 +57,6 @@ export default class Front extends ColumnWidget {
 
         this.allExpanded = ko.observable(true);
 
-        this.listenOn(mediator, 'presser:lastupdate', (front, date) => {
-            if (front === this.front()) {
-                this.frontAge(humanTime(date));
-                if (this.baseModel.state().defaults.env !== 'dev') {
-                    var stale = _.some(this.collections(), collection => {
-                        let update = new Date(collection.state.lastUpdated());
-                        return _.isDate(update) ? update > date : false;
-                    });
-                    if (stale) {
-                        mediator.emit('presser:stale', 'Sorry, the latest edit to the front \'' + front + '\' hasn\'t gone live.');
-                    }
-                }
-            }
-        });
-
         this.listenOn(mediator, 'ui:open', (element, article, front) => {
             if (front !== this) {
                 return;
@@ -88,9 +70,9 @@ export default class Front extends ColumnWidget {
             this.uiOpenArticle(article);
         });
 
-        this.listenOn(mediator, 'presser:live', this.pressLiveFront);
         this.listenOn(mediator, 'alert:dismiss', () => this.alertFrontIsStale(false));
         this.listenOn(mediator, 'collection:collapse', this.onCollectionCollapse);
+        this.listenOn(mediator, 'find:package', this.onFrontChange);
 
         this.subscribeOn(this.column.config, newConfig => {
             if (newConfig !== this.front()) {
@@ -103,7 +85,6 @@ export default class Front extends ColumnWidget {
         this.refreshCollections(CONST.collectionsPollMs || 60000);
         this.refreshRelativeTimes(CONST.pubTimeRefreshMs || 60000);
 
-        this.presser = new Presser();
         this.sparklinesOptions = ko.observable({
             hours: 1,
             interval: 10
@@ -143,22 +124,9 @@ export default class Front extends ColumnWidget {
             ))
         );
 
-        this.getFrontAge({ alertIfStale: true });
         this.loaded = Promise.all(
             this.collections().map(collection => collection.loaded)
         ).then(() => mediator.emit('front:loaded', this));
-    }
-
-    pressLiveFront() {
-        if (this.front()) {
-            this.presser.press('live', this.front());
-        }
-    }
-
-    pressDraftFront() {
-        if (this.front()) {
-            this.presser.press('draft', this.front());
-        }
     }
 
     setSparklines(hours, interval) {
@@ -166,19 +134,6 @@ export default class Front extends ColumnWidget {
             hours: hours,
             interval: interval
         });
-    }
-
-    getFrontAge({alertIfStale = false} = {}) {
-        if (this.front()) {
-            lastModified(this.front()).then(last => {
-                this.frontAge(last.human);
-                if (this.baseModel.state().defaults.env !== 'dev') {
-                    this.alertFrontIsStale(alertIfStale && last.stale);
-                }
-            });
-        } else {
-            this.frontAge(undefined);
-        }
     }
 
     toggleAll() {
@@ -209,7 +164,6 @@ export default class Front extends ColumnWidget {
     refreshRelativeTimes(period) {
         this.setIntervals.push(setInterval(() => {
             this.collections().forEach(list => list.refreshRelativeTimes());
-            this.getFrontAge();
         }, period));
     }
 
@@ -222,10 +176,6 @@ export default class Front extends ColumnWidget {
         this.column.setConfig(front);
 
         this.load(front);
-
-        if (this.mode() === 'draft') {
-            this.pressDraftFront();
-        }
     }
 
     onModeChange() {
@@ -233,10 +183,6 @@ export default class Front extends ColumnWidget {
             collection.closeAllArticles();
             collection.populate();
         });
-
-        if (this.mode() === 'draft') {
-            this.pressDraftFront();
-        }
     }
 
     getCollectionList(list) {
@@ -258,7 +204,6 @@ export default class Front extends ColumnWidget {
         _.each(this.setIntervals, clearInterval);
         _.each(this.setTimeouts, clearTimeout);
         sparklines.unsubscribe(this);
-        this.presser.dispose();
     }
 }
 

@@ -1,7 +1,4 @@
 export default {
-    'detectPressStale': {
-        widget: 'presser-detect-stale'
-    },
     'copyPasteArticles': {
         widget: 'copy-paste-articles'
     },

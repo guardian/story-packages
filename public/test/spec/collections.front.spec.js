@@ -67,12 +67,6 @@ describe('Front', function () {
 
     it('load a front from the select and toggle collection visibility', function (done) {
         this.scope({
-            url: '/front/lastmodified/uk',
-            responseText: { status: 200, responseText: +dates.yesterday },
-            onAfterComplete: () => {
-                setTimeout(() => mediator.emit('test:lastmodified'), 20);
-            }
-        }, {
             url: '/collection/one',
             status: 404
         }, {
@@ -84,7 +78,7 @@ describe('Front', function () {
         .then(() => {
             var options = [];
             $('.select--front option').each((i, element) => options.push($(element).text()));
-            expect(options).toEqual(['choose a front...', 'uk', 'au']);
+            expect(options).toEqual(['choose a story package...', 'uk', 'au']);
 
             // Select one front
             $('.select--front')[0].selectedIndex = 1;
@@ -103,7 +97,7 @@ describe('Front', function () {
             expect($('collection-widget:nth(1) .title').text()).toBe('Spices');
             expect($('collection-widget:nth(1) .alsoOnToggle').length).toBe(1);
 
-            return wait.event('test:lastmodified');
+            return wait.ms(50);
         })
         .then(() => {
             expect($('.collapse-expand-all').hasClass('expanded')).toBe(true);

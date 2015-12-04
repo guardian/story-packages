@@ -127,16 +127,12 @@ function replaceArticleWith (id, sourceItem, oldItem, targetGroup) {
             itemMeta: _.isEmpty(itemMeta) ? undefined : itemMeta
         };
         var remove = remover(targetContext, sourceGroup, oldItem.id());
-        var detectPressFailure = targetContext.mode() === 'live' ? function () {
-            mediator.emit('presser:detectfailures', targetContext.front());
-        } : function () {};
 
         returnValue = authedAjax.updateCollections({ update })
         .then(() => {
             return authedAjax.updateCollections({ remove });
         })
-        .then(detectPressFailure)
-        .catch(detectPressFailure);
+        .catch(() => {});
 
         if (sourceGroup && !sourceGroup.keepCopy) {
             var insertAt = sourceGroup.items().indexOf(oldItem);
@@ -269,11 +265,6 @@ function persist (sourceItem, newItems, sourceContext, sourceGroup, targetContex
             returnValue = authedAjax.updateCollections({
                 update: update,
                 remove: remove
-            })
-            .then(function () {
-                if (targetContext.mode() === 'live') {
-                    mediator.emit('presser:detectfailures', targetContext.front());
-                }
             });
         }
 

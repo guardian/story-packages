@@ -15,11 +15,10 @@ function getLoader (enabledWidgets, loadedExtensions) {
 export default {
     'fronts': getLoader([
         columns.frontsTrail,
-        columns.frontsTreats,
         columns.latestTrail,
-        columns.clipboardTrail
+        columns.clipboardTrail,
+        columns.packages
     ], [
-        extensions.detectPressStale,
         extensions.copyPasteArticles,
         extensions.sparklinesTrails
     ])

@@ -2103,3 +2103,32 @@ hr {
 .unauthorizedMessage_link {
     color: #2ea3eb;
 }
+
+.packagesSearch_input {
+    height: 30px;
+    width: 18em;
+}
+.packagesSearch {
+    margin-top: 2em;
+}
+.packagesResults {
+    list-style-type: none;
+    padding: 0;
+    line-height: 200%;
+}
+.createPackage {
+    padding-top: 1em;
+}
+.createPackageName {
+    float: left;
+}
+.createPackageName_input {
+    height: 30px;
+    width: 12em;
+}
+.createPackageSave {
+    margin-left: 0.5em;
+    height: 30px;
+    width: 5em;
+    background: #2ea3eb
+}

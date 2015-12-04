@@ -174,30 +174,22 @@ define([
         this.setPending(true);
         this.closeAllArticles();
 
-        var detectPressFailures = goLive ? function () {
-            mediator.emit('presser:detectfailures', self.front.front());
-        } : function () {};
-
         authedAjax.request({
             type: 'post',
             url: vars.CONST.apiBase + '/collection/' + (goLive ? 'publish' : 'discard') + '/' + this.id
         })
         .then(function() {
-            return self.load().then(detectPressFailures);
+            return self.load();
         })
         .catch(function () {
-            detectPressFailures();
             reportErrors(new Error('POST request while processing draft failed'));
         });
     };
 
     Collection.prototype.drop = function(item) {
-        var front = this.front.front(), mode = this.front.mode();
+        var mode = this.front.mode();
         this.setPending(true);
 
-        var detectPressFailures = mode === 'live' ? function () {
-            mediator.emit('presser:detectfailures', front);
-        } : function () {};
         authedAjax.updateCollections({
             remove: {
                 collection: this,
@@ -205,8 +197,7 @@ define([
                 mode:       mode
             }
         })
-        .then(detectPressFailures)
-        .catch(detectPressFailures);
+        .catch(function () {});
     };
 
     Collection.prototype.load = function(opts) {

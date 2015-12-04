@@ -38,6 +38,10 @@ var register = _.once(() => {
         viewModel: { jspm: 'widgets/columns/latest' },
         template: { text: 'widgets/columns/latest.html' }
     });
+    ko.components.register('packages-widget', {
+        viewModel: { jspm: 'widgets/columns/packages' },
+        template: { text: 'widgets/columns/packages.html' }
+    });
     ko.components.register('search-controls', {
         viewModel: {
             createViewModel: (params) => params.context.$data
@@ -105,10 +109,6 @@ var register = _.once(() => {
             createViewModel: (params) => params.message
         },
         template: { text: 'widgets/message.html' }
-    });
-    ko.components.register('presser-detect-stale', {
-        viewModel: { jspm: 'widgets/presser-detect-stale' },
-        template: { text: 'widgets/presser-detect-stale.html' }
     });
     ko.components.register('copy-paste-articles', {
         viewModel: { jspm: 'widgets/copy-paste-articles' },

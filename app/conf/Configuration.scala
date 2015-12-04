@@ -26,7 +26,6 @@ object Configuration {
 
   private val properties = Properties(installVars)
   private val stageFromProperties = properties.getOrElse("STAGE", "CODE")
-  private val stsRoleToAssumeFromProperties = properties.getOrElse("STS_ROLE", "unknown")
 
   private def getString(property: String): Option[String] =
     playConfiguration.getString(stageFromProperties + "." + property)
@@ -91,12 +90,6 @@ object Configuration {
     lazy val streamRole = getMandatoryString("logging.kinesis.roleArn")
     lazy val app = getMandatoryString("logging.fields.app")
     lazy val enabled = getBoolean("logging.enabled").getOrElse(false)
-  }
-
-  object faciatool {
-    lazy val frontPressToolQueue = getString("frontpress.sqs.tool_queue_url")
-    lazy val showTestContainers = getBoolean("faciatool.show_test_containers").getOrElse(false)
-    lazy val stsRoleToAssume = getString("faciatool.sts.role.to.assume").getOrElse(stsRoleToAssumeFromProperties)
   }
 
   object media {
