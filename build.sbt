@@ -13,6 +13,8 @@ scalaVersion := "2.11.7"
 import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 serverLoading in Debian := Systemd
 
+import com.twitter.scrooge._
+
 debianPackageDependencies := Seq("openjdk-8-jre-headless")
 
 def env(key: String): Option[String] = Option(System.getenv(key))
@@ -70,7 +72,14 @@ libraryDependencies ++= Seq(
     "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.2.10",
     "org.julienrf" %% "play-json-variants" % "2.0",
     "org.scalatest" %% "scalatest" % "2.2.1" % "test",
-    "org.scalatestplus" %% "play" % "1.4.0-M4" % "test"
+    "org.scalatestplus" %% "play" % "1.4.0-M4" % "test",
+    "org.apache.thrift" % "libthrift" % "0.9.2",
+    "com.twitter" %% "scrooge-core" % "3.17.0"
 )
+
+// precompile thrift
+seq(ScroogeSBT.newSettings: _*)
+
+ScroogeSBT.scroogeThriftOutputFolder in Compile := sourceManaged.value / "thrift"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
