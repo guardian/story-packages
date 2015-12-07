@@ -74,12 +74,8 @@ libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % "2.2.1" % "test",
     "org.scalatestplus" %% "play" % "1.4.0-M4" % "test",
     "org.apache.thrift" % "libthrift" % "0.9.2",
-    "com.twitter" %% "scrooge-core" % "3.17.0"
+    "com.twitter" %% "scrooge-core" % "3.17.0",
+    "com.gu" %% "thrift" % "0.1-SNAPSHOT"
 )
-
-// precompile thrift
-seq(ScroogeSBT.newSettings: _*)
-
-ScroogeSBT.scroogeThriftOutputFolder in Compile := sourceManaged.value / "thrift"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
