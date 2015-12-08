@@ -31,17 +31,53 @@ class CapiUpdates() extends ThriftSerializer {
     val collectionKey = collections.keys.head
     val articles = collections(collectionKey).live
     var headline: Option[String] = None
+    var href: Option[String] = None
+    var trailText: Option[String] = None
+    var imageSrc: Option[String] = None
+    var isBoosted: Option[Boolean] = None
+    var isBreaking: Option[Boolean] = None
+    var imageHide: Option[Boolean] = None
+    var showMainVideo: Option[Boolean] = None
+    var showKickerTag: Option[Boolean] = None
+    var showKickerSection: Option[Boolean] = None
+    var byline: Option[String] = None
+    var imageCutoutSrc: Option[String] = None
+    var showBoostedHeadline: Option[Boolean] = None
+    var showQuotedHeadline: Option[Boolean] = None
 
     val thriftArticles = articles.map((article) => {
 
       article.meta match {
         case Some(trailMetaData) => {
           headline = trailMetaData.headline
+          href = trailMetaData.href
+          trailText = trailMetaData.trailText
+          trailMetaData.imageReplace match {
+            case Some(_) => imageSrc = trailMetaData.imageSrc
+            case None => ;
+          }
+          imageSrc = trailMetaData.imageSrc
+          isBoosted = trailMetaData.isBoosted
+          isBreaking = trailMetaData.isBreaking
+          imageHide = trailMetaData.imageHide
+          showMainVideo = trailMetaData.showMainVideo
+          showKickerTag = trailMetaData.showKickerTag
+          showKickerSection = trailMetaData.showKickerSection
+          showBoostedHeadline = trailMetaData.showBoostedHeadline
+          trailMetaData.showByline match {
+            case Some(_) => byline = trailMetaData.byline
+            case None => ;
+          }
+          trailMetaData.imageCutoutReplace match {
+            case Some(_) => imageCutoutSrc = trailMetaData.imageCutoutSrc
+            case None => ;
+          }
+
         }
-        case None => println("no meta")
+        case None => ;
       }
 
-      Article(article.id, ArticleType.Article, headline)
+      Article(article.id, ArticleType.Article, headline, href, trailText, imageSrc, isBoosted, isBreaking, imageHide, showMainVideo, showKickerTag, showKickerSection, byline, imageCutoutSrc, showBoostedHeadline, showQuotedHeadline)
     })
     val event = Event(EventType.Update, collectionKey, thriftArticles)
     sendUpdate(event)
