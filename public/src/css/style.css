@@ -2039,9 +2039,13 @@ hr {
 }
 .modalDialog-message {
     padding: 10px 20px 20px;
+
 }
 .modalDialog-message h3 i {
     margin-right: 8px;
+}
+.modalDialog_messageText {
+    white-space: pre-line;
 }
 
 .modalDialog-confirm,

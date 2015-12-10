@@ -112,6 +112,10 @@ object Configuration {
     lazy val publicDSN = getString("sentry.publicDSN").getOrElse("")
   }
 
+  object storage {
+    val configTable = properties.getOrElse("TABLE_CONFIG", throw new BadConfigurationException("Missing TABLE_CONFIG property"))
+  }
+
   object switchBoard {
     val bucket = getMandatoryString("switchboard.bucket")
     val objectKey = getMandatoryString("switchboard.object")

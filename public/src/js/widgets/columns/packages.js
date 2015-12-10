@@ -1,8 +1,13 @@
 import ko from 'knockout';
 import _ from 'underscore';
-import ColumnWidget from 'widgets/column-widget';
-import Front from 'models/config/front';
+import * as authedAjax from 'modules/authed-ajax';
+import {CONST} from 'modules/vars';
+import alert from 'utils/alert';
+import debounce from 'utils/debounce';
 import mediator from 'utils/mediator';
+import ColumnWidget from 'widgets/column-widget';
+
+const bouncedSearch = Symbol();
 
 export default class Package extends ColumnWidget {
 
@@ -16,6 +21,8 @@ export default class Package extends ColumnWidget {
         this.subscribeOn(this.searchTerm, this.search);
         this.creatingPackage = ko.observable(false);
         this.displayName = ko.observable();
+
+        this[bouncedSearch] = debounce(performSearch.bind(this), CONST.searchDebounceMs);
     };
 
     populateAllPackages(state) {
@@ -28,12 +35,14 @@ export default class Package extends ColumnWidget {
     };
 
     search() {
-        var lowerCaseSearchTerm = this.searchTerm().toLowerCase().match(/\S+/g);
-        this.searchedPackages(
-            _.filter(this.allPackages, existingPackage => {
-                return existingPackage.searchTerm.indexOf(lowerCaseSearchTerm) !== -1;
-            })
-        );
+        const searchTerm = this.searchTerm().toLowerCase().trim();
+        if (searchTerm) {
+            return this[bouncedSearch](searchTerm)
+                .then(displayResuls.bind(this))
+                .catch(() => { /* TODO what to todo? */});
+        } else {
+            return Promise.resolve([]);
+        }
     }
 
     createPackage() {
@@ -45,20 +54,33 @@ export default class Package extends ColumnWidget {
     }
 
     savePackage() {
-        var front = new Front({
-            priority: this.baseModel.priority,
-            isHidden: this.baseModel.priority === 'training',
-            id: this.displayName()
-        });
-        var newPackage = front.createCollection();
-        newPackage.meta.type = 'story-package';
-        newPackage.meta.displayName = this.displayName();
-
-        var after = () => {
+        return authedAjax.request({
+            url: '/story-packages/create',
+            type: 'post',
+            data: JSON.stringify({
+                name: this.displayName(),
+                isHidden: this.baseModel.priority === 'training'
+            })
+        })
+        .then(newPackage => {
+            mediator.emit('find:package', newPackage.id);
+        })
+        .catch(response => {
+            alert('Unable to create story package:\n' + response.responseText);
+        })
+        .then(() => {
             this.creatingPackage(false);
             this.displayName(null);
-            mediator.emit('find:package', newPackage.meta.displayName);
-        };
-        return newPackage.save().then(after).catch(after);
+        });
     }
+}
+
+function performSearch(searchTerm) {
+    return authedAjax.request({
+        url: '/story-packages/search/' + encodeURIComponent(searchTerm)
+    });
+}
+
+function displayResuls(results) {
+    console.log(results);
 }

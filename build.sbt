@@ -52,7 +52,7 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 
-val awsVersion = "1.10.38"
+val awsVersion = "1.10.40"
 
 libraryDependencies ++= Seq(
     ws,
@@ -63,6 +63,7 @@ libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
+    "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
     "com.gu" %% "fapi-client" % "0.61",
     "com.gu" % "kinesis-logback-appender" % "1.1.0",
     "net.logstash.logback" % "logstash-logback-encoder" % "4.5.1",

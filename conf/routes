@@ -42,8 +42,4 @@ GET         /ophan/*path                             controllers.FaciaContentApi
 
 # Updating config
 
-POST        /config/fronts                           controllers.FrontController.create()
-POST        /config/fronts/*path                     controllers.FrontController.update(path)
-
-POST        /config/collections                      controllers.CollectionController.create()
-POST        /config/collections/*collectionId        controllers.CollectionController.update(collectionId)
+POST        /story-packages/create                   controllers.StoryPackagesController.create()
