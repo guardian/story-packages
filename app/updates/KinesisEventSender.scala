@@ -4,8 +4,8 @@ import conf.{Configuration, aws}
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
 import com.amazonaws.services.kinesis.model.{PutRecordsRequestEntry, PutRecordsRequest, PutRecordsResult}
-import thrift.{Event, EventType, ArticleType, Article}
-import something.ThriftSerializer
+import storypackage.thrift.{Event, EventType, ArticleType, Article}
+import event.ThriftSerializer
 import com.gu.facia.client.models.{CollectionJson, Trail}
 import java.nio.ByteBuffer
 import com.amazonaws.regions.Regions
