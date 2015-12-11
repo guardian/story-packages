@@ -114,6 +114,9 @@ object Configuration {
 
   object storage {
     val configTable = properties.getOrElse("TABLE_CONFIG", throw new BadConfigurationException("Missing TABLE_CONFIG property"))
+    val maxPageSize = 50
+    val maxLatestSize = 50
+    val maxLatestDays = 15
   }
 
   object switchBoard {

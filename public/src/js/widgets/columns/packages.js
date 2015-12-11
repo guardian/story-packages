@@ -77,7 +77,10 @@ export default class Package extends ColumnWidget {
 
 function performSearch(searchTerm) {
     return authedAjax.request({
-        url: '/story-packages/search/' + encodeURIComponent(searchTerm)
+        url: '/story-packages/search/' + encodeURI(searchTerm),
+        data: {
+            isHidden: this.baseModel.priority === 'training'
+        }
     });
 }
 

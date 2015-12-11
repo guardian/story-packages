@@ -268,19 +268,46 @@
                 }, {
                     "AttributeName": "name",
                     "AttributeType": "S"
+                }, {
+                    "AttributeName": "lastModify",
+                    "AttributeType": "N"
                 }],
                 "KeySchema": [{
                     "AttributeName": "id",
                     "KeyType": "HASH"
+                }, {
+                    "AttributeName": "name",
+                    "KeyType": "RANGE"
                 }],
                 "GlobalSecondaryIndexes": [{
                     "IndexName": "packageName",
                     "KeySchema": [{
                         "AttributeName": "name",
                         "KeyType": "HASH"
+                    }, {
+                        "AttributeName": "lastModify",
+                        "KeyType": "RANGE"
                     }],
                     "Projection": {
-                        "ProjectionType": "KEYS_ONLY"
+                        "NonKeyAttributes": ["isHidden"],
+                        "ProjectionType": "INCLUDE"
+                    },
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": 5,
+                        "WriteCapacityUnits": 5
+                    }
+                }, {
+                    "IndexName": "modificationDate",
+                    "KeySchema": [{
+                        "AttributeName": "id",
+                        "KeyType": "HASH"
+                    }, {
+                        "AttributeName": "lastModify",
+                        "KeyType": "RANGE"
+                    }],
+                    "Projection": {
+                        "NonKeyAttributes": ["name", "isHidden"],
+                        "ProjectionType": "INCLUDE"
                     },
                     "ProvisionedThroughput": {
                         "ReadCapacityUnits": 5,
