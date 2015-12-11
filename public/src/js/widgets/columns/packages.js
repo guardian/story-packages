@@ -1,5 +1,4 @@
 import ko from 'knockout';
-import _ from 'underscore';
 import * as authedAjax from 'modules/authed-ajax';
 import {CONST} from 'modules/vars';
 import alert from 'utils/alert';
@@ -16,31 +15,26 @@ export default class Package extends ColumnWidget {
         this.allPackages;
         this.searchedPackages = ko.observableArray();
         this.searchTerm = ko.observable('');
-        this.populateAllPackages(this.baseModel.state());
-        this.subscribeOn(this.baseModel.state, this.populateAllPackages);
+        this.searchInProgress = ko.observable(false);
         this.subscribeOn(this.searchTerm, this.search);
         this.creatingPackage = ko.observable(false);
         this.displayName = ko.observable();
+        this.searchResults = ko.observableArray();
 
         this[bouncedSearch] = debounce(performSearch.bind(this), CONST.searchDebounceMs);
-    };
-
-    populateAllPackages(state) {
-        this.allPackages = _.values(state.config.collections).map(collection => {
-            return {
-                displayName: collection.displayName,
-                searchTerm: collection.displayName.toLowerCase()
-            };
-        });
     };
 
     search() {
         const searchTerm = this.searchTerm().toLowerCase().trim();
         if (searchTerm) {
+            this.searchInProgress(true);
             return this[bouncedSearch](searchTerm)
                 .then(displayResuls.bind(this))
-                .catch(() => { /* TODO what to todo? */});
+                .catch(() => {
+                    this.searchInProgress(false);
+                });
         } else {
+            this.searchInProgress(false);
             return Promise.resolve([]);
         }
     }
@@ -84,6 +78,7 @@ function performSearch(searchTerm) {
     });
 }
 
-function displayResuls(results) {
-    console.log(results);
+function displayResuls({results} = {}) {
+    this.searchResults(results || []);
+    this.searchInProgress(false);
 }

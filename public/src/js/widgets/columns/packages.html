@@ -30,12 +30,18 @@
             textInput: searchTerm
         "/>
     </div>
-    <ul class="packagesResults" data-bind="foreach: searchedPackages">
-        <li>
-            <a href="#" data-bind="
-                text: displayName,
-                click: $parent.displayPackage"
-            ></a>
-        </li>
-    </div>
+    <!-- ko if: searchTerm() && !searchInProgress() -->
+        <!-- ko if: (searchResults().length === 0) -->
+            <span class="packagesEmptyResults">Couldn't find any story package matching the search term.</span>
+        <!-- /ko -->
+
+        <ul class="packagesResults" data-bind="foreach: searchResults">
+            <li>
+                <a href="#" data-bind="
+                    text: name,
+                    click: $parent.displayPackage"
+                ></a>
+            </li>
+        </ul>
+    <!-- /ko -->
 </div>

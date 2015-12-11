@@ -1,8 +1,8 @@
 package services
 
+import java.util.HashMap
+
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
-import com.amazonaws.services.dynamodbv2.document.utils.{NameMap, ValueMap}
 import com.amazonaws.services.dynamodbv2.document._
 import com.amazonaws.services.dynamodbv2.model.{AttributeValue, ScanRequest}
 import conf.{Configuration, aws}
@@ -10,7 +10,6 @@ import model.{StoryPackage, StoryPackageSearchResult}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 
-import java.util.HashMap
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
@@ -42,15 +41,16 @@ object Database {
   }
 
   def searchPackages(term: String, isHidden: Boolean = false): Future[StoryPackageSearchResult] = {
-    println(term, isHidden)
     val errorMessage = s"Exception in searchPackages while searching $term"
     WithExceptionHandling.searchResult(errorMessage, {
       var values = new HashMap[String, AttributeValue]
       values.put(":search_term", new AttributeValue().withS(term))
+      values.put(":is_hidden", new AttributeValue().withBOOL(isHidden))
 
+      // TODO pagination
       val scanRequest = new ScanRequest()
         .withTableName(Configuration.storage.configTable)
-        .withFilterExpression("begins_with (searchName, :search_term)")
+        .withFilterExpression("begins_with (searchName, :search_term) and isHidden = :is_hidden")
         .withExpressionAttributeValues(values)
 
       val result = client.scan(scanRequest)
@@ -61,25 +61,23 @@ object Database {
     })
   }
 
-  def latestPackages(maxResults: Int, maxAge: Int): Future[StoryPackageSearchResult] = {
-    val errorMessage = s"Exception in latestPackages fetching $maxResults packages since $maxAge days ago"
+  def latestPackages(maxAge: Int, isHidden: Boolean = false): Future[StoryPackageSearchResult] = {
+    val errorMessage = s"Exception in latestPackages fetching packages since $maxAge days ago"
     WithExceptionHandling.searchResult(errorMessage, {
       val since = new DateTime().withZone(DateTimeZone.UTC).minusDays(maxAge)
       var values = new HashMap[String, AttributeValue]
       values.put(":since", new AttributeValue().withN(since.getMillis.toString))
+      values.put(":is_hidden", new AttributeValue().withBOOL(isHidden))
 
       // TODO sort
-      // TODO limit 50
-      // TODO hide hidden
       val scanRequest = new ScanRequest()
         .withTableName(Configuration.storage.configTable)
-        .withFilterExpression("lastModify > :since")
+        .withFilterExpression("lastModify > :since and isHidden = :is_hidden")
         .withExpressionAttributeValues(values)
-//        .withLimit(3)
 
       val result = client.scan(scanRequest)
       StoryPackageSearchResult(
-        latest = Some(maxResults),
+        latest = Some(maxAge),
         results = DynamoToScala.convertToListOfStoryPackages(result.getItems)
       )
     })
@@ -140,7 +138,6 @@ object DynamoToScala {
     )
   }
   def convertToStoryPackage(item: Item): StoryPackage = {
-    println(item)
     StoryPackage(
       id = Some("id"),
       name = Some("packageName"),
