@@ -16,10 +16,6 @@
             (<span class="non-zero">updating...</span>)
         </span>
 
-        <span class="also" data-bind="if: alsoOn.length">
-            <a class="alsoOnToggle" data-bind="click: alsoOnToggle">also on&hellip;</a>
-        </span>
-
         <span class="list-header__timings" data-bind="
             css: {'has-concurrent-user': state.hasConcurrentEdits}">
             <!-- ko if: state.timeAgo -->
@@ -36,19 +32,6 @@
             <i class="fa" data-bind="css: {
                 'fa-chevron-down': !state.collapsed(),
                 'fa-chevron-up'  :  state.collapsed }"></i></a>
-    </div>
-
-    <div class="also dropdown" data-bind="
-        if: alsoOn.length,
-        css: {'dropdown-open': state.alsoOnVisible},
-        slideVisible: state.alsoOnVisible() && !state.collapsed()
-    ">
-        <ul data-bind="foreach: alsoOn">
-            <li><a class="list-header__also-on" data-bind="
-                click: $parent.front.setFront,
-                text: $data"></a>
-            </li>
-        </ul>
     </div>
 
     <div class="article-group" data-bind="slideVisible: !state.collapsed()">

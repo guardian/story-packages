@@ -49,8 +49,6 @@ define([
 
         this.groups = this.createGroups(opts.groups);
 
-        this.alsoOn = opts.alsoOn || [];
-
         this.dom = undefined;
         var onDomLoadResolve;
         var onDomLoad = new Promise(function (resolve) {
@@ -89,7 +87,6 @@ define([
             'editingConfig',
             'count',
             'timeAgo',
-            'alsoOnVisible',
             'hasExtraActions',
             'isHistoryOpen']);
 
@@ -385,10 +382,6 @@ define([
 
     Collection.prototype.getTimeAgo = function(date) {
         return date ? humanTime(date) : '';
-    };
-
-    Collection.prototype.alsoOnToggle = function () {
-        this.state.alsoOnVisible(!this.state.alsoOnVisible());
     };
 
     Collection.prototype.dispose = function () {

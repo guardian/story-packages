@@ -95,12 +95,6 @@ export default class Front extends ColumnWidget {
                     allCollections[id],
                     {
                         id: id,
-                        alsoOn: _.reduce(this.baseModel.frontsList(), (alsoOn, front) => {
-                            if (front.id !== frontId && (front.collections || []).indexOf(id) > -1) {
-                                alsoOn.push(front.id);
-                            }
-                            return alsoOn;
-                        }, []),
                         front: this
                     }
                 )
