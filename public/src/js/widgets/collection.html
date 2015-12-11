@@ -1,18 +1,16 @@
 <div class="collection" data-bind="ownerClass: $data">
-    <div class="list-header" data-bind="
-        css: {collapsed: state.collapsed() || configMeta.uneditable()}
-    ">
+    <div class="list-header">
 
         <span class="title" data-bind="
             text: configMeta.displayName() || collectionMeta.displayName() || '(no title)'"></span>
 
-        <span class="count" data-bind="if: !isPending() && !configMeta.uneditable()">
+        <span class="count" data-bind="if: !isPending()">
             (<span data-bind="
                 text: state.count() ? state.count() : 'empty',
                 css: {'non-zero':  state.count}"></span>)
         </span>
 
-        <span class="count" data-bind="if: isPending() && !configMeta.uneditable()">
+        <span class="count" data-bind="if: isPending()">
             (<span class="non-zero">updating...</span>)
         </span>
 
@@ -27,47 +25,32 @@
                 visible: state.hasConcurrentEdits,
                 ">Show edits</a>
         </span>
-
-        <a class="list-header__collapser" data-bind="click: toggleCollapsed">
-            <i class="fa" data-bind="css: {
-                'fa-chevron-down': !state.collapsed(),
-                'fa-chevron-up'  :  state.collapsed }"></i></a>
     </div>
 
-    <div class="article-group" data-bind="slideVisible: !state.collapsed()">
-        <!-- ko ifnot: front.flattenGroups -->
+    <div class="article-group">
         <div data-bind="
-                    css: {'pending': isPending()},
-                    template: {name: 'template_groups', foreach: groups}"></div>
-        <!-- /ko -->
-        <!-- ko if: front.flattenGroups() -->
-        <div data-bind="
-                    css: {'pending': isPending()},
-                    template: {name: 'template_groups', data: groups[groups.length - 1]}"></div>
-        <!-- /ko -->
-
+            css: {'pending': isPending()},
+            template: {name: 'template_groups', foreach: groups}"></div>
     </div>
 </div>
 
 <!-- ko if: state.hasExtraActions() && isHistoryEnabled() -->
-    <!-- ko if: !state.collapsed() -->
-        <hr>
+    <hr>
 
-        <div class="buttons">
-            <button data-bind="toggleClick: state.isHistoryOpen">
-                <span>Previously</span>
-                <!-- ko if: state.isHistoryOpen -->
-                    <i class="fa fa-chevron-down"></i>
-                <!-- /ko -->
-                <!-- ko ifnot: state.isHistoryOpen -->
-                    <i class="fa fa-chevron-up"></i>
-                <!-- /ko -->
-            </button>
-        </div>
-    <!-- /ko -->
+    <div class="buttons">
+        <button data-bind="toggleClick: state.isHistoryOpen">
+            <span>Previously</span>
+            <!-- ko if: state.isHistoryOpen -->
+                <i class="fa fa-chevron-down"></i>
+            <!-- /ko -->
+            <!-- ko ifnot: state.isHistoryOpen -->
+                <i class="fa fa-chevron-up"></i>
+            <!-- /ko -->
+        </button>
+    </div>
 
     <div class="history" data-bind="
-        slideVisible: state.isHistoryOpen() && !state.collapsed(),
+        slideVisible: state.isHistoryOpen(),
         makeDraggable: true
     ">
         <!-- ko foreach: history -->
@@ -78,7 +61,7 @@
 
 
 <script type="text/html" id="template_groups">
-    <!-- ko if: name && !front.flattenGroups() -->
+    <!-- ko if: name -->
         <div class="group-name" data-bind="text: name"></div>
     <!-- /ko -->
     <div class="droppable" data-bind="

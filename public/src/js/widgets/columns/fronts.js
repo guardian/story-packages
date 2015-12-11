@@ -2,7 +2,9 @@ import ko from 'knockout';
 import Promise from 'Promise';
 import _ from 'underscore';
 import Collection from 'models/collections/collection';
+import * as authedAjax from 'modules/authed-ajax';
 import {CONST} from 'modules/vars';
+import alert from 'utils/alert';
 import mediator from 'utils/mediator';
 import ColumnWidget from 'widgets/column-widget';
 
@@ -14,7 +16,7 @@ export default class Front extends ColumnWidget {
         this.front = ko.observable(frontId);
         this.previousFront = frontId;
         this.frontAge = ko.observable();
-        this.collections = ko.observableArray();
+        this.collections = ko.observableArray([]);
         this.mode = ko.observable('live');
         this.flattenGroups = ko.observable(params.mode === 'treats');
         this.maxArticlesInHistory = 5;
@@ -80,30 +82,34 @@ export default class Front extends ColumnWidget {
         this.load(frontId);
     }
 
-    load(frontId) {
-        if (frontId !== this.front()) {
-            this.front(frontId);
+    load(id) {
+        if (id !== this.front()) {
+            this.front(id);
         }
-        var allCollections = this.baseModel.state().config.collections;
+        if (!id) {
+            return;
+        }
 
         this.allExpanded(true);
-        this.collections(
-            ((this.baseModel.frontsMap()[frontId] || {}).collections || [])
-            .filter(id => allCollections[id] && !allCollections[id].uneditable)
-            .map(id => new Collection(
-                _.extend(
-                    allCollections[id],
-                    {
-                        id: id,
-                        front: this
-                    }
-                )
-            ))
-        );
 
-        this.loaded = Promise.all(
-            this.collections().map(collection => collection.loaded)
-        ).then(() => mediator.emit('front:loaded', this));
+        this.collections([new Collection({
+            id: id,
+            front: this,
+            displayName: 'Loading ...'
+        })]);
+
+        this.loaded = authedAjax.request({
+            url: '/story-package/' + id
+        })
+        .then(response => {
+            console.log(response);
+            return Promise.all(
+                this.collections().map(collection => collection.loaded)
+            ).then(() => mediator.emit('front:loaded', this));
+        })
+        .catch(response => {
+            alert('Failed loading story package ' + id + '\n' + response.responseText || response.message);
+        });
     }
 
     toggleAll() {

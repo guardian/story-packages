@@ -65,9 +65,7 @@ define([
         // properties from the config, about this collection
         this.configMeta   = asObservableProps([
             'type',
-            'displayName',
-            'hideShowMore',
-            'uneditable']);
+            'displayName']);
         populateObservables(this.configMeta, opts);
 
         // properties from the collection itself
