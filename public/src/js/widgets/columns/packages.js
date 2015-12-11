@@ -5,6 +5,7 @@ import alert from 'utils/alert';
 import debounce from 'utils/debounce';
 import mediator from 'utils/mediator';
 import ColumnWidget from 'widgets/column-widget';
+import modalDialog from 'modules/modal-dialog';
 
 const bouncedSearch = Symbol();
 
@@ -70,12 +71,32 @@ export default class Package extends ColumnWidget {
             mediator.emit('find:package', newPackage.id);
         })
         .catch(response => {
-            alert('Unable to create story package:\n' + response.responseText);
+            alert('Unable to create story package:\n' + (reponse.message || response.responseText));
         })
         .then(() => {
             this.creatingPackage(false);
             this.displayName(null);
         });
+    }
+
+    displayRemoveModal(storyPackage) {
+        return modalDialog.confirm({
+            name: 'confirm_package_delete',
+            data: {
+                packageName: storyPackage.name
+            }
+        })
+        .then(() => {
+            return removePackage(storyPackage.id)
+            .then(() => {
+                // TODO maybe splice from the list?
+                // TODO what if it's open in the fronts column?
+            })
+            .catch(error => {
+                alert('Unable to delete story package \'' + storyPackage.name + '\'\n' + (error.message || error.responseText));
+            });
+        })
+        .catch(() => {});
     }
 }
 
@@ -92,4 +113,11 @@ function displayResuls({results} = {}) {
     this.searchResults(results || []);
     this.searchInProgress(false);
     this.searchedPackages(true);
+}
+
+function removePackage(storyPackageId) {
+    return authedAjax.request({
+        url: '/story-package/' + storyPackageId,
+        type: 'delete'
+    });
 }
