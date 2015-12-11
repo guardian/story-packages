@@ -3,7 +3,7 @@ package services
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.utils.{NameMap, ValueMap}
-import com.amazonaws.services.dynamodbv2.document.{DynamoDB, Item}
+import com.amazonaws.services.dynamodbv2.document._
 import com.amazonaws.services.dynamodbv2.model.{AttributeValue, ScanRequest}
 import conf.{Configuration, aws}
 import model.{StoryPackage, StoryPackageSearchResult}
@@ -28,7 +28,8 @@ object Database {
       val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
       val dbItem = new Item()
         .withPrimaryKey("id", generatedId)
-        .withString("name", story.name.get)
+        .withString("packageName", story.name.get)
+        .withString("searchName", story.name.get.toLowerCase)
         .withBoolean("isHidden", story.isHidden.get)
         .withNumber("lastModify", modifyDate.getMillis)
 
@@ -44,36 +45,18 @@ object Database {
     println(term, isHidden)
     val errorMessage = s"Exception in searchPackages while searching $term"
     WithExceptionHandling.searchResult(errorMessage, {
-      val valueMap = new ValueMap()
-//        .withBoolean(":is_hidden", isHidden)
-        .withString(":search_term", term)
-      val nameMap = new NameMap()
-        .`with`("#n", "name")
-      val spec = new QuerySpec()
-        .withKeyConditionExpression("#n = :search_term")
-        .withValueMap(valueMap)
-        .withNameMap(nameMap)
-        .withMaxPageSize(Configuration.storage.maxPageSize)
+      var values = new HashMap[String, AttributeValue]
+      values.put(":search_term", new AttributeValue().withS(term))
 
-      val results = table.query(spec)
-      val list: List[StoryPackage] = {
-        val runningList = Nil
-        val iterator = results.iterator()
-        while (iterator.hasNext()) {
-          val result = iterator.next()
-          StoryPackage(
-            id = Some(result.getString("id")),
-            name = Some(result.getString("name")),
-            isHidden = Some(result.getBoolean("isHidden")),
-            lastModify = Some(new DateTime(result.getLong("lastModify")).withZone(DateTimeZone.UTC).toString)
-          ) +: runningList
-        }
-        runningList
-      }
-      println(list)
+      val scanRequest = new ScanRequest()
+        .withTableName(Configuration.storage.configTable)
+        .withFilterExpression("begins_with (searchName, :search_term)")
+        .withExpressionAttributeValues(values)
+
+      val result = client.scan(scanRequest)
       StoryPackageSearchResult(
         term = Some(term),
-        results = list
+        results = DynamoToScala.convertToListOfStoryPackages(result.getItems)
       )
     })
   }
@@ -82,17 +65,19 @@ object Database {
     val errorMessage = s"Exception in latestPackages fetching $maxResults packages since $maxAge days ago"
     WithExceptionHandling.searchResult(errorMessage, {
       val since = new DateTime().withZone(DateTimeZone.UTC).minusDays(maxAge)
-      var expressionAttributeValues = new HashMap[String, AttributeValue]
-      expressionAttributeValues.put(":since", new AttributeValue().withN(since.getMillis.toString))
+      var values = new HashMap[String, AttributeValue]
+      values.put(":since", new AttributeValue().withN(since.getMillis.toString))
 
+      // TODO sort
+      // TODO limit 50
+      // TODO hide hidden
       val scanRequest = new ScanRequest()
         .withTableName(Configuration.storage.configTable)
         .withFilterExpression("lastModify > :since")
-        .withExpressionAttributeValues(expressionAttributeValues)
+        .withExpressionAttributeValues(values)
 //        .withLimit(3)
 
       val result = client.scan(scanRequest)
-      println(result)
       StoryPackageSearchResult(
         latest = Some(maxResults),
         results = DynamoToScala.convertToListOfStoryPackages(result.getItems)
@@ -120,7 +105,7 @@ private object WithExceptionHandling {
 }
 
 object DynamoToScala {
-  def iterate(list: java.util.List[java.util.Map[String, AttributeValue]])(convert: java.util.Map[String, AttributeValue] => StoryPackage): List[StoryPackage] = {
+  private def iterateOnList(list: java.util.List[java.util.Map[String, AttributeValue]]): List[StoryPackage] = {
     var newList: List[StoryPackage] = Nil
     val iterator = list.iterator()
     while (iterator.hasNext()) {
@@ -129,17 +114,38 @@ object DynamoToScala {
     }
     newList
   }
+  private def iterateOnCollection(coll: ItemCollection[QueryOutcome]): List[StoryPackage] = {
+    var newList: List[StoryPackage] = Nil
+    val iterator = coll.iterator()
+    while (iterator.hasNext()) {
+      newList = convertToStoryPackage(iterator.next()) +: newList
+      None
+    }
+    newList
+  }
 
   def convertToListOfStoryPackages(list: java.util.List[java.util.Map[String, AttributeValue]]): List[StoryPackage] = {
-    iterate(list)(convertToStoryPackage)
+    iterateOnList(list)
+  }
+  def convertToListOfStoryPackages(coll: ItemCollection[QueryOutcome]): List[StoryPackage] = {
+    iterateOnCollection(coll)
   }
 
   def convertToStoryPackage(result: java.util.Map[String, AttributeValue]): StoryPackage = {
     StoryPackage(
       id = Some(result.get("id").getS),
-      name = Some(result.get("name").getS),
+      name = Some(result.get("packageName").getS),
       isHidden = Some(result.get("isHidden").getBOOL),
       lastModify = Some(new DateTime(result.get("lastModify").getN.toLong).withZone(DateTimeZone.UTC).toString)
+    )
+  }
+  def convertToStoryPackage(item: Item): StoryPackage = {
+    println(item)
+    StoryPackage(
+      id = Some("id"),
+      name = Some("packageName"),
+      isHidden = Some(true),
+      lastModify = Some("asd")
     )
   }
 }
