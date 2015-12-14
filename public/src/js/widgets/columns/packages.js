@@ -20,6 +20,7 @@ export default class Package extends ColumnWidget {
         this.creatingPackage = ko.observable(false);
         this.displayName = ko.observable();
         this.searchResults = ko.observableArray();
+        this.searchedPackages = ko.observable();
 
         this[bouncedSearch] = debounce(performSearch.bind(this), CONST.searchDebounceMs);
     };
@@ -27,12 +28,18 @@ export default class Package extends ColumnWidget {
     search() {
         const searchTerm = this.searchTerm().toLowerCase().trim();
         if (searchTerm) {
-            this.searchInProgress(true);
-            return this[bouncedSearch](searchTerm)
-                .then(displayResuls.bind(this))
-                .catch(() => {
-                    this.searchInProgress(false);
-                });
+            if (searchTerm.length > 2) {
+                this.searchInProgress(true);
+                return this[bouncedSearch](searchTerm)
+                    .then(displayResuls.bind(this))
+                    .catch(() => {
+                        this.searchInProgress(false);
+                    });
+            } else {
+                console.log('no search');
+                this.searchedPackages(false);
+                this.searchResults([]);
+            }
         } else {
             this.searchInProgress(false);
             return Promise.resolve([]);
@@ -81,4 +88,5 @@ function performSearch(searchTerm) {
 function displayResuls({results} = {}) {
     this.searchResults(results || []);
     this.searchInProgress(false);
+    this.searchedPackages(true);
 }
