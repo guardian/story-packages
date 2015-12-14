@@ -31,7 +31,7 @@
         "/>
     </div>
     <!-- ko if: searchTerm() && !searchInProgress() -->
-        <!-- ko if: (searchResults().length === 0) -->
+        <!-- ko if: (searchResults().length === 0) && searchedPackages() -->
             <span class="packagesEmptyResults">Couldn't find any story package matching the search term.</span>
         <!-- /ko -->
 
