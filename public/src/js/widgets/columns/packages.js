@@ -57,6 +57,9 @@ export default class Package extends ColumnWidget {
             })
         })
         .then(newPackage => {
+            var packages = this.baseModel.latestPackages();
+            packages.unshift(newPackage);
+            this.baseModel.latestPackages(packages);
             mediator.emit('find:package', newPackage.id);
         })
         .catch(response => {
