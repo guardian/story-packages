@@ -115,7 +115,7 @@ Modify the files
 
    > include sites-enabled/*.conf;
 
-* `/usr/local/etc/nginx/sites-enabled/fronts.conf` and add this line inside the `server` block
+* `/usr/local/etc/nginx/sites-enabled/packages.conf` and add this line inside the `server` block
 
    > merge_slashes off;
 
