@@ -6,7 +6,9 @@ case class StoryPackage(
   id: Option[String],
   name: Option[String],
   isHidden: Option[Boolean],
-  lastModify: Option[String]
+  lastModify: Option[String],
+  lastModifyBy: Option[String],
+  createdBy: Option[String]
 ) {}
 object StoryPackage {
   implicit val jsonFormat = Json.format[StoryPackage]

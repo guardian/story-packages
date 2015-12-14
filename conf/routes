@@ -25,13 +25,12 @@ GET         /                                        controllers.FaciaToolContro
 GET         /editorial                               controllers.FaciaToolController.collectionEditor()
 GET         /training                                controllers.FaciaToolController.collectionEditor()
 
-GET         /front/lastmodified/*path                controllers.FaciaToolController.getLastModified(path)
-
 GET         /collection/*collectionId                controllers.FaciaToolController.getCollection(collectionId)
 POST        /edits                                   controllers.FaciaToolController.collectionEdits
-GET         /collection                              controllers.FaciaToolController.listCollections
-GET         /config                                  controllers.FaciaToolController.getConfig
 GET         /defaults                                controllers.DefaultsController.configuration()
+
+GET         /story-package/*id                       controllers.StoryPackagesController.getPackage(id)
+
 
 # endpoints for proxying https
 GET         /api/preview/*path                       controllers.FaciaContentApiProxy.capiPreview(path)
