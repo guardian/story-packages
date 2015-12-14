@@ -1,6 +1,6 @@
 Story Packages
 ========
-Create story packages. Heavily inspired by [https://github.com/guardian/facia-tool]
+Create story packages. Heavily inspired by [facia-tool](https://github.com/guardian/facia-tool)
 
 
 New developers quick-start
