@@ -27,7 +27,7 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
   def create() = APIAuthAction.async { request =>
     request.body.asJson.flatMap(_.asOpt[StoryPackage]).map {
       case story: StoryPackage =>
-        Database.createStoryPackage(story)
+        Database.createStoryPackage(story, request.user.email)
           .flatMap(serializeSuccess)
           .recover {
             case NonFatal(e) => InternalServerError(e.getMessage)
@@ -54,6 +54,14 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
       .flatMap(serializeSuccess)
       .recover {
         case NonFatal(e) => InternalServerError(e.getMessage)
+      }
+  }
+
+  def getPackage(id: String) = APIAuthAction.async { request =>
+    Database.getPackage(id)
+      .flatMap(serializeSuccess)
+      .recover {
+        case NonFatal(e) => NotFound
       }
   }
 }

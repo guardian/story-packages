@@ -1,17 +1,19 @@
 package services
 
-import java.util.HashMap
-
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document._
-import com.amazonaws.services.dynamodbv2.model.{AttributeValue, ScanRequest}
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import conf.{Configuration, aws}
 import model.{StoryPackage, StoryPackageSearchResult}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 
+import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+
+class InvalidQueryResult(msg: String) extends Throwable(msg)
 
 object Database {
   private lazy val client = {
@@ -21,8 +23,9 @@ object Database {
   }
   private lazy val table = new DynamoDB(client).getTable(Configuration.storage.configTable)
 
-  def createStoryPackage(story: StoryPackage): Future[StoryPackage] = {
-    WithExceptionHandling.storyPackage({
+  def createStoryPackage(story: StoryPackage, email: String): Future[StoryPackage] = {
+    val errorMessage = "Exception in dynamoDB putItem while creating a story package"
+    WithExceptionHandling.storyPackage(errorMessage, {
       val generatedId = IdGeneration.nextId
       val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
       val dbItem = new Item()
@@ -31,32 +34,35 @@ object Database {
         .withString("searchName", story.name.get.toLowerCase)
         .withBoolean("isHidden", story.isHidden.get)
         .withNumber("lastModify", modifyDate.getMillis)
+        .withString("lastModifyBy", email)
+        .withString("createdBy", email)
 
       table.putItem(dbItem)
-      story.copy(
+      val newStoryPackage = story.copy(
         id = Some(generatedId),
         lastModify = Some(modifyDate.toString)
       )
+      Logger.info(s"New story package created with id:${newStoryPackage.id} -> $newStoryPackage")
+      newStoryPackage
     })
   }
 
   def searchPackages(term: String, isHidden: Boolean = false): Future[StoryPackageSearchResult] = {
     val errorMessage = s"Exception in searchPackages while searching $term"
     WithExceptionHandling.searchResult(errorMessage, {
-      var values = new HashMap[String, AttributeValue]
-      values.put(":search_term", new AttributeValue().withS(term))
-      values.put(":is_hidden", new AttributeValue().withBOOL(isHidden))
+      val values = new ValueMap()
+        .withString(":search_term", term)
+        .withBoolean(":is_hidden", isHidden)
 
       // TODO pagination
-      val scanRequest = new ScanRequest()
-        .withTableName(Configuration.storage.configTable)
+      val scanRequest = new ScanSpec()
         .withFilterExpression("begins_with (searchName, :search_term) and isHidden = :is_hidden")
-        .withExpressionAttributeValues(values)
+        .withValueMap(values)
 
-      val result = client.scan(scanRequest)
+      val results = table.scan(scanRequest)
       StoryPackageSearchResult(
         term = Some(term),
-        results = DynamoToScala.convertToListOfStoryPackages(result.getItems)
+        results = DynamoToScala.convertToListOfStoryPackages(results)
       )
     })
   }
@@ -65,33 +71,40 @@ object Database {
     val errorMessage = s"Exception in latestPackages fetching packages since $maxAge days ago"
     WithExceptionHandling.searchResult(errorMessage, {
       val since = new DateTime().withZone(DateTimeZone.UTC).minusDays(maxAge)
-      var values = new HashMap[String, AttributeValue]
-      values.put(":since", new AttributeValue().withN(since.getMillis.toString))
-      values.put(":is_hidden", new AttributeValue().withBOOL(isHidden))
+      val values = new ValueMap()
+        .withNumber(":since", since.getMillis)
+        .withBoolean(":is_hidden", isHidden)
 
       // TODO sort
-      val scanRequest = new ScanRequest()
-        .withTableName(Configuration.storage.configTable)
+      // TODO withMaxResultSize ?
+      val scanRequest = new ScanSpec()
         .withFilterExpression("lastModify > :since and isHidden = :is_hidden")
-        .withExpressionAttributeValues(values)
+        .withValueMap(values)
 
-      val result = client.scan(scanRequest)
+      val results = table.scan(scanRequest)
       StoryPackageSearchResult(
         latest = Some(maxAge),
-        results = DynamoToScala.convertToListOfStoryPackages(result.getItems)
+        results = DynamoToScala.convertToListOfStoryPackages(results)
       )
+    })
+  }
+
+  def getPackage(id: String): Future[StoryPackage] = {
+    val errorMessage = s"Unable to find story package with id $id"
+    WithExceptionHandling.storyPackage(errorMessage, {
+      val item = table.getItem("id", id)
+      DynamoToScala.convertToStoryPackage(item)
     })
   }
 }
 
 private object WithExceptionHandling {
-  def storyPackage(block: => StoryPackage): Future[StoryPackage] = {
+  def storyPackage(errorMessage: String, block: => StoryPackage): Future[StoryPackage] = {
     Try(block) match {
       case Success(newStoryPackage) =>
-        Logger.info(s"New story package created with id:${newStoryPackage.id} -> $newStoryPackage")
         Future.successful(newStoryPackage)
       case Failure(t: Throwable) =>
-        Logger.error(s"Exception in dynamoDB putItem while creating a story package", t)
+        Logger.error(errorMessage, t)
         Future.failed(t)}}
 
   def searchResult(errorMessage: String, block: => StoryPackageSearchResult): Future[StoryPackageSearchResult] = {
@@ -103,46 +116,38 @@ private object WithExceptionHandling {
 }
 
 object DynamoToScala {
-  private def iterateOnList(list: java.util.List[java.util.Map[String, AttributeValue]]): List[StoryPackage] = {
-    var newList: List[StoryPackage] = Nil
-    val iterator = list.iterator()
-    while (iterator.hasNext()) {
-      newList = convertToStoryPackage(iterator.next()) +: newList
-      None
+  implicit val codec: DynamoCodec[StoryPackage] = new DynamoCodec[StoryPackage] {
+    override def toItem(story: StoryPackage): Item = {
+      new Item()
     }
-    newList
-  }
-  private def iterateOnCollection(coll: ItemCollection[QueryOutcome]): List[StoryPackage] = {
-    var newList: List[StoryPackage] = Nil
-    val iterator = coll.iterator()
-    while (iterator.hasNext()) {
-      newList = convertToStoryPackage(iterator.next()) +: newList
-      None
+
+    override def fromItem(item: Item): StoryPackage = {
+      StoryPackage(
+        id = Option(item.getString("id")),
+        name = Option(item.getString("packageName")),
+        isHidden = Option(item.getBOOL("isHidden")),
+        lastModify = Option(item.getLong("lastModify")).map(new DateTime(_).withZone(DateTimeZone.UTC).toString),
+        lastModifyBy = Option(item.getString("lastModifyBy")),
+        createdBy = Option(item.getString("createdBy"))
+      )
     }
-    newList
   }
 
-  def convertToListOfStoryPackages(list: java.util.List[java.util.Map[String, AttributeValue]]): List[StoryPackage] = {
-    iterateOnList(list)
-  }
-  def convertToListOfStoryPackages(coll: ItemCollection[QueryOutcome]): List[StoryPackage] = {
-    iterateOnCollection(coll)
-  }
-
-  def convertToStoryPackage(result: java.util.Map[String, AttributeValue]): StoryPackage = {
-    StoryPackage(
-      id = Some(result.get("id").getS),
-      name = Some(result.get("packageName").getS),
-      isHidden = Some(result.get("isHidden").getBOOL),
-      lastModify = Some(new DateTime(result.get("lastModify").getN.toLong).withZone(DateTimeZone.UTC).toString)
-    )
-  }
   def convertToStoryPackage(item: Item): StoryPackage = {
-    StoryPackage(
-      id = Some("id"),
-      name = Some("packageName"),
-      isHidden = Some(true),
-      lastModify = Some("asd")
-    )
+    deserialize[StoryPackage](item)
   }
+
+  def convertToListOfStoryPackages(collection: ItemCollection[ScanOutcome]): List[StoryPackage] = {
+    val iterator = collection.iterator().asScala
+    iterator.map(convertToStoryPackage).toList
+  }
+
+  private def serialize[T: DynamoCodec](t: T): Item = implicitly[DynamoCodec[T]].toItem(t)
+
+  private def deserialize[T: DynamoCodec](item: Item): T = implicitly[DynamoCodec[T]].fromItem(item)
+}
+
+trait DynamoCodec[T] {
+  def toItem(t: T): Item
+  def fromItem(item: Item): T
 }

@@ -29,17 +29,6 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
     Cached(60) { Ok(views.html.admin_main(Option(identity))) }
   }
 
-  def listCollections = APIAuthAction { request =>
-    FaciaToolMetrics.ApiUsageCount.increment()
-    NoCache { Ok(Json.toJson(S3FrontsApi.listCollectionIds)) }
-  }
-
-  def getConfig = APIAuthAction.async { request =>
-    FaciaToolMetrics.ApiUsageCount.increment()
-    FrontsApi.amazonClient.config.map { configJson =>
-      NoCache {
-        Ok(Json.toJson(configJson)).as("application/json")}}}
-
   def getCollection(collectionId: String) = APIAuthAction.async { request =>
     FaciaToolMetrics.ApiUsageCount.increment()
     FrontsApi.amazonClient.collection(collectionId).map { configJson =>
@@ -87,10 +76,5 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
         }
         case _ => Future.successful(NotAcceptable)
       } getOrElse Future.successful(NotFound)
-  }
-
-  def getLastModified(path: String) = APIAuthAction { request =>
-    val now: Option[String] = S3FrontsApi.getCollectionLastModified(path)
-    now.map(Ok(_)).getOrElse(NotFound)
   }
 }
