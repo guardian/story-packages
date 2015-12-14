@@ -2,7 +2,6 @@ import ko from 'knockout';
 import _ from 'underscore';
 import {CONST} from 'modules/vars';
 import BaseClass from 'models/base-class';
-import persistence from 'models/config/persistence';
 import Layout from 'models/layout';
 import * as widgets from 'models/widgets';
 import copiedArticle from 'modules/copied-article';
@@ -43,14 +42,6 @@ export default class BaseModel extends BaseClass {
         this[droppableSym] = new Droppable();
         copiedArticle.flush();
         widgets.register();
-
-        this.listenOn(persistence, 'update:before', () => this.pending(true));
-        this.listenOn(persistence, 'update:after', () => {
-            this.emit('config:needs:update', (res) => {
-                this.update(res);
-                this.pending(false);
-            });
-        });
 
         this.loaded = waitFor(this, layout, extensions).then(() => {
             this.pending(false);
