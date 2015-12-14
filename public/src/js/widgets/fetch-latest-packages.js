@@ -8,6 +8,7 @@ export default class extends Extension {
         this.baseModel = baseModel;
         this.fetchPackages();
         this.pollPackages();
+        this.pollingId;
     }
 
     fetchPackages() {
@@ -24,7 +25,12 @@ export default class extends Extension {
     }
 
     pollPackages() {
-        setInterval(() => this.fetchPackages(), CONST.packagesPollMs);
+        this.pollingId = setInterval(() => this.fetchPackages(), CONST.packagesPollMs);
+    };
+
+    dispose() {
+        clearInterval(this.pollingId);
+        this.pollingId = null;
     };
 
 }
