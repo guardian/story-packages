@@ -118,6 +118,10 @@ var register = _.once(() => {
         viewModel: { jspm: 'widgets/config-card-types' },
         template: '<!-- card types -->'
     });
+    ko.components.register('fetch-latest-packages', {
+        viewModel: { jspm: 'widgets/fetch-latest-packages' },
+        template: '<!-- fetch-latest-packages  -->'
+    });
     ko.bindingHandlers.ownerClass = {
         init: function (element, valueAccessor) {
             var owner = valueAccessor();
