@@ -49,23 +49,16 @@ define([
 
         this.groups = this.createGroups(opts.groups);
 
-        this.dom = undefined;
         var onDomLoadResolve;
         var onDomLoad = new Promise(function (resolve) {
             onDomLoadResolve = resolve;
         });
-        this.registerElement = function (element) {
-            this.dom = element;
+        this.registerElement = function () {
             onDomLoadResolve();
         };
 
-        this.visibleStories = null;
-        this.visibleCount = ko.observable({});
-
         // properties from the config, about this collection
-        this.configMeta   = asObservableProps([
-            'type',
-            'displayName']);
+        this.configMeta   = asObservableProps(['displayName']);
         populateObservables(this.configMeta, opts);
 
         // properties from the collection itself
@@ -79,10 +72,8 @@ define([
         this.state  = asObservableProps([
             'lastUpdated',
             'hasConcurrentEdits',
-            'collapsed',
             'hasDraft',
             'pending',
-            'editingConfig',
             'count',
             'timeAgo',
             'hasExtraActions',
@@ -137,20 +128,8 @@ define([
         }).reverse(); // because groupNames is assumed to be in ascending order of importance, yet should render in descending order
     };
 
-    Collection.prototype.toggleCollapsed = function() {
-        var collapsed = !this.state.collapsed();
-        this.state.collapsed(collapsed);
-        this.closeAllArticles();
-        mediator.emit('collection:collapse', this, collapsed);
-    };
-
-    Collection.prototype.toggleEditingConfig = function() {
-        this.state.editingConfig(!this.state.editingConfig());
-    };
-
     Collection.prototype.reset = function() {
         this.closeAllArticles();
-        this.state.editingConfig(false);
         this.load();
     };
 
@@ -386,9 +365,6 @@ define([
         this.groups.forEach(function (group) {
             group.dispose();
         });
-        if (this.visibleStories) {
-            this.visibleStories.dispose();
-        }
     };
 
     return Collection;
