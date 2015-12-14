@@ -42,6 +42,12 @@ var register = _.once(() => {
         viewModel: { jspm: 'widgets/columns/packages' },
         template: { text: 'widgets/columns/packages.html' }
     });
+    ko.components.register('confirm_package_delete', {
+        viewModel: {
+            createViewModel: (params) => params
+        },
+        template: { text: 'widgets/confirm_package_delete.html' }
+    });
     ko.components.register('search-controls', {
         viewModel: {
             createViewModel: (params) => params.context.$data

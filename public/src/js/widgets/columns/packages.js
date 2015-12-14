@@ -3,6 +3,7 @@ import _ from 'underscore';
 import ColumnWidget from 'widgets/column-widget';
 import Front from 'models/config/front';
 import mediator from 'utils/mediator';
+import modalDialog from 'modules/modal-dialog';
 
 export default class Package extends ColumnWidget {
 
@@ -61,4 +62,24 @@ export default class Package extends ColumnWidget {
         };
         return newPackage.save().then(after).catch(after);
     }
+
+    displayRemoveModal(storyPackage) {
+        return modalDialog.confirm({
+            name: 'confirm_package_delete',
+            data: {
+                packageName: storyPackage.displayName
+            }
+        })
+        .then(() => removePackage(storyPackage))
+        .catch(() => {
+            return;
+        });
+
+    }
 }
+
+function removePackage(storyPackage) {
+    // TODO
+    return;
+};
+

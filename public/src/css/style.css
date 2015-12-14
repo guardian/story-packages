@@ -2125,3 +2125,14 @@ hr {
     width: 5em;
     background: #2ea3eb
 }
+
+.packageDelete.buttons {
+    padding: 0px;
+}
+
+.packageDelete > .cancelDeletion {
+    margin: 2px;
+    color: #666;
+
+}
+
