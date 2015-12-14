@@ -173,7 +173,11 @@ export default class Front extends ColumnWidget {
         return sublist || [];
     }
 
-    newItemValidator() {}
+    newItemValidator(item) {
+        if (item.meta.snapType()) {
+            return 'You cannot add snaps to packages';
+        }
+    }
 
     dispose() {
         super.dispose();
