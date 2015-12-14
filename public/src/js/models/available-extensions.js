@@ -4,5 +4,8 @@ export default {
     },
     'cardTypes': {
         widget: 'config-card-types'
+    },
+    'fetchLatestPackages': {
+        widget: 'fetch-latest-packages'
     }
 };

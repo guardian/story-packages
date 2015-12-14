@@ -4,9 +4,6 @@ import CONST from 'constants/defaults';
 import Promise from 'Promise';
 
 var endpoints = [{
-    key: 'latestPackages',
-    url: CONST.apiBase + '/story-packages/latest'
-}, {
     key: 'defaults',
     url: CONST.apiBase + '/defaults'
 }];

@@ -63,8 +63,6 @@ export default class BaseModel extends BaseClass {
     }
 
     update(res) {
-        this.latestPackages(res.latestPackages.results || []);
-
         if (!_.isEqual(this.switches(), res.defaults.switches)) {
             this.switches(res.defaults.switches);
         }
