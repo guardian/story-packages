@@ -1,6 +1,7 @@
 import Extension from 'models/extension';
 import {request} from 'modules/authed-ajax';
 import CONST from 'constants/defaults';
+import mediator from 'utils/mediator';
 
 export default class extends Extension {
     constructor(baseModel) {
@@ -20,7 +21,7 @@ export default class extends Extension {
             that.baseModel.latestPackages(response.results);
         })
         .catch(function () {
-            throw new Error('latest packages endpoint is invalid or unavailable');
+            mediator.emit('packages:alert', 'Failed to fetch latest packages');
         });
     }
 
