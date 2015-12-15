@@ -19,6 +19,7 @@ export default {
         columns.packages
     ], [
         extensions.copyPasteArticles,
-        extensions.fetchLatestPackages
+        extensions.fetchLatestPackages,
+        extensions.displayAlert
     ])
 };

@@ -7,5 +7,8 @@ export default {
     },
     'fetchLatestPackages': {
         widget: 'fetch-latest-packages'
+    },
+    'displayAlert': {
+        widget: 'display-alert'
     }
 };
