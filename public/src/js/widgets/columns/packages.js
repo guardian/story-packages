@@ -1,4 +1,5 @@
 import ko from 'knockout';
+import _ from 'underscore';
 import * as authedAjax from 'modules/authed-ajax';
 import modalDialog from 'modules/modal-dialog';
 import {CONST} from 'modules/vars';
@@ -81,7 +82,11 @@ export default class Package extends ColumnWidget {
         });
     }
 
-    displayRemoveModal(storyPackage) {
+    displayRemoveModal(deletedIndex, storyPackage) {
+        var storyPackage = storyPackage;
+        var newResults = this.searchResults();
+        newResults.splice(deletedIndex, 1);
+        this.searchResults(newResults);
         return modalDialog.confirm({
             name: 'confirm_package_delete',
             data: {
@@ -89,14 +94,11 @@ export default class Package extends ColumnWidget {
             }
         })
         .then(() => {
-            return removePackage(storyPackage.id)
-            .then(() => {
-                this.searchResults.remove(item => item.id === storyPackage.id);
-                // TODO what if it's open in the fronts column?
-            })
-            .catch(error => {
-                alert('Unable to delete story package \'' + storyPackage.name + '\'\n' + (error.message || error.responseText));
-            });
+            mediator.emit('delete:package', storyPackage.id);
+            return removePackage(storyPackage.id);
+        })
+        .catch(error => {
+            alert('Unable to delete story package \'' + storyPackage.name + '\'\n' + (error.message || error.responseText));
         })
         .catch(() => {});
     }
