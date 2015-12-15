@@ -84,9 +84,6 @@ export default class Package extends ColumnWidget {
 
     displayRemoveModal(deletedIndex, storyPackage) {
         var storyPackage = storyPackage;
-        var newResults = this.searchResults();
-        newResults.splice(deletedIndex, 1);
-        this.searchResults(newResults);
         return modalDialog.confirm({
             name: 'confirm_package_delete',
             data: {
@@ -94,8 +91,13 @@ export default class Package extends ColumnWidget {
             }
         })
         .then(() => {
-            mediator.emit('delete:package', storyPackage.id);
-            return removePackage(storyPackage.id);
+            return removePackage(storyPackage.id)
+            .then(() => {
+                var newResults = this.searchResults();
+                newResults.splice(deletedIndex, 1);
+                this.searchResults(newResults);
+                mediator.emit('delete:package', storyPackage.id);
+            });
         })
         .catch(error => {
             alert('Unable to delete story package \'' + storyPackage.name + '\'\n' + (error.message || error.responseText));
