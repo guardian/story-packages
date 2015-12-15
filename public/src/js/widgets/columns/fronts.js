@@ -72,15 +72,12 @@ export default class Front extends ColumnWidget {
                 return existingPackage.id !== storyPackage.id;
             })) {
                 var packageDate = new Date(storyPackage.lastModify);
-                for (var i = 0; i < existingPackages.length; i++) {
-                    var existingPackage = existingPackages[i];
-                    if (new Date(existingPackage.lastModify) < packageDate) {
-                        existingPackages.splice(i, 0, storyPackage);
-                        break;
-                    } else if (i === existingPackages.length -1 ) {
-                        existingPackages.push(storyPackage);
-                        break;
-                    }
+                var packageIndex = _.findIndex(existingPackages, existingPackage => new Date(existingPackage.lastModify) < packageDate);
+
+                if (packageIndex > -1) {
+                    existingPackages.splice(packageIndex, 0, storyPackage);
+                } else {
+                    existingPackages.push(storyPackage);
                 }
             }
             this.baseModel.latestPackages(existingPackages);
