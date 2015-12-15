@@ -15,7 +15,10 @@ export default class extends Extension {
     fetchPackages() {
         var that = this;
         return request({
-            url: CONST.apiBase + '/story-packages/latest'
+            url: CONST.apiBase + '/story-packages/latest',
+            data: {
+                isHidden: this.baseModel.priority === 'training'
+            }
         })
         .then(response => {
             that.baseModel.latestPackages(response.results);
