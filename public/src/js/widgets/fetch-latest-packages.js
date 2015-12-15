@@ -32,6 +32,7 @@ export default class extends Extension {
     dispose() {
         clearInterval(this.pollingId);
         this.pollingId = null;
+        super.dispose();
     };
 
 }
