@@ -56,6 +56,8 @@ export default class Package extends ColumnWidget {
     }
 
     savePackage() {
+        this.searchInProgress(false);
+        this.searchResults.removeAll();
         return authedAjax.request({
             url: '/story-packages/create',
             type: 'post',
@@ -89,7 +91,7 @@ export default class Package extends ColumnWidget {
         .then(() => {
             return removePackage(storyPackage.id)
             .then(() => {
-                // TODO maybe splice from the list?
+                this.searchResults.remove(item => item.id === storyPackage.id);
                 // TODO what if it's open in the fronts column?
             })
             .catch(error => {

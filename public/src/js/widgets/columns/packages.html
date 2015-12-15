@@ -41,10 +41,13 @@
 
             <ul class="packagesResults" data-bind="foreach: searchResults">
                 <li>
-                    <div class="article" data-bind="click: $parent.displayPackage">
+                    <div class="article" data-bind="click: $parent.displayPackage.bind($parent)">
                         <div class="closed">
                             <div class="article__tools">
-                                <a class="tool tool--small large tool--small--delete-package" title="Delete">
+                                <a class="tool tool--small large tool--small--delete-package" title="Delete" data-bind="
+                                    click: $parent.displayRemoveModal.bind($parent),
+                                    clickBubble: false
+                                ">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
