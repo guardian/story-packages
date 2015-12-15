@@ -49,11 +49,14 @@ object Database {
       val scanRequest = new ScanSpec()
         .withFilterExpression("begins_with (searchName, :search_term) and isHidden = :is_hidden")
         .withValueMap(values)
+        .withMaxResultSize(Configuration.storage.maxPageSize)
 
       val results = table.scan(scanRequest)
+
+      import model.SortByName._
       StoryPackageSearchResult(
         term = Some(term),
-        results = DynamoToScala.convertToListOfStoryPackages(results)
+        results = DynamoToScala.convertToListOfStoryPackages(results).sorted
       )
     })
   }
@@ -66,16 +69,17 @@ object Database {
         .withNumber(":since", since.getMillis)
         .withBoolean(":is_hidden", isHidden)
 
-      // TODO sort
-      // TODO withMaxResultSize ?
       val scanRequest = new ScanSpec()
         .withFilterExpression("lastModify > :since and isHidden = :is_hidden")
         .withValueMap(values)
+        .withMaxResultSize(Configuration.storage.maxLatestResults)
 
       val results = table.scan(scanRequest)
+
+      import model.SortByLastModify._
       StoryPackageSearchResult(
         latest = Some(maxAge),
-        results = DynamoToScala.convertToListOfStoryPackages(results)
+        results = DynamoToScala.convertToListOfStoryPackages(results).sorted
       )
     })
   }
@@ -129,14 +133,14 @@ object DynamoToScala {
 
   implicit val codec: DynamoCodec[StoryPackage] = new DynamoCodec[StoryPackage] {
     override def toItem(story: StoryPackage): Item = {
-      val modifyDate = story.lastModify.map(new DateTime(_)).getOrElse(new DateTime()).withZone(DateTimeZone.UTC)
+      lazy val now = new DateTime().withZone(DateTimeZone.UTC).getMillis
 
       new Item()
         .withPrimaryKey("id", story.id.getOrElse(IdGeneration.nextId))
         .withOptString("packageName", story.name)
         .withOptString("searchName", story.name.map(_.toLowerCase))
         .withBoolean("isHidden", story.isHidden.getOrElse(true))
-        .withNumber("lastModify", modifyDate.getMillis)
+        .withNumber("lastModify", story.lastModifyMillis.getOrElse(now))
         .withOptString("lastModifyBy", story.lastModifyBy)
         .withOptString("createdBy", story.createdBy)
     }
@@ -146,7 +150,7 @@ object DynamoToScala {
         id = Option(item.getString("id")),
         name = Option(item.getString("packageName")),
         isHidden = Option(item.getBOOL("isHidden")),
-        lastModify = Option(item.getLong("lastModify")).map(new DateTime(_).withZone(DateTimeZone.UTC).toString),
+        lastModifyMillis = Option(item.getLong("lastModify")),
         lastModifyBy = Option(item.getString("lastModifyBy")),
         createdBy = Option(item.getString("createdBy"))
       )
