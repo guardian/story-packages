@@ -13,16 +13,13 @@ export default class extends Extension {
     }
 
     fetchPackages() {
-        var that = this;
         return request({
             url: CONST.apiBase + '/story-packages/latest',
             data: {
                 isHidden: this.baseModel.priority === 'training'
             }
         })
-        .then(response => {
-            that.baseModel.latestPackages(response.results);
-        })
+        .then(response => this.baseModel.latestPackages(response.results))
         .catch(function () {
             mediator.emit('packages:alert', 'Failed to fetch latest packages');
         });
