@@ -18,6 +18,8 @@ export default {
         columns.clipboardTrail,
         columns.packages
     ], [
-        extensions.copyPasteArticles
+        extensions.copyPasteArticles,
+        extensions.fetchLatestPackages,
+        extensions.displayAlert
     ])
 };
