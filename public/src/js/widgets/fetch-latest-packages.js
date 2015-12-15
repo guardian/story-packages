@@ -7,7 +7,7 @@ export default class extends Extension {
     constructor(baseModel) {
         super(baseModel);
         this.baseModel = baseModel;
-        this.fetchPackages();
+        this.loaded = this.fetchPackages();
         this.pollPackages();
         this.pollingId;
     }
