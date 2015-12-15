@@ -53,7 +53,26 @@ export default class Front extends ColumnWidget {
             this.uiOpenArticle(article);
         });
 
-        this.listenOn(mediator, 'find:package', this.onFrontChange);
+        this.listenOn(mediator, 'find:package', function(storyPackage) {
+            var existingPackages = this.baseModel.latestPackages();
+            if (_.every(existingPackages, existingPackage => {
+                return existingPackage.id !== storyPackage.id;
+            })) {
+                var packageDate = new Date(storyPackage.lastModify);
+                for (var i = 0; i < existingPackages.length; i++) {
+                    var existingPackage = existingPackages[i];
+                    if (new Date(existingPackage.lastModify) < packageDate) {
+                        existingPackages.splice(i, 0, storyPackage);
+                        break;
+                    } else if (i === existingPackages.length -1 ) {
+                        existingPackages.push(storyPackage);
+                        break;
+                    }
+                }
+            }
+            this.baseModel.latestPackages(existingPackages);
+            this.onFrontChange(storyPackage.id);
+        });
 
         this.subscribeOn(this.column.config, newConfig => {
             if (newConfig !== this.front()) {

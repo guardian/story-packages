@@ -52,7 +52,7 @@ export default class Package extends ColumnWidget {
     }
 
     displayPackage(chosenPackage) {
-        mediator.emit('find:package', chosenPackage.id);
+        mediator.emit('find:package', chosenPackage);
     }
 
     savePackage() {
@@ -70,7 +70,7 @@ export default class Package extends ColumnWidget {
             var packages = this.baseModel.latestPackages();
             packages.unshift(newPackage);
             this.baseModel.latestPackages(packages);
-            mediator.emit('find:package', newPackage.id);
+            mediator.emit('find:package', newPackage);
         })
         .catch(response => {
             alert('Unable to create story package:\n' + (response.message || response.responseText));
