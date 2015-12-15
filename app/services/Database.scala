@@ -28,21 +28,15 @@ object Database {
     WithExceptionHandling.storyPackage(errorMessage, {
       val generatedId = IdGeneration.nextId
       val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
-      val dbItem = new Item()
-        .withPrimaryKey("id", generatedId)
-        .withString("packageName", story.name.get)
-        .withString("searchName", story.name.get.toLowerCase)
-        .withBoolean("isHidden", story.isHidden.get)
-        .withNumber("lastModify", modifyDate.getMillis)
-        .withString("lastModifyBy", email)
-        .withString("createdBy", email)
-
-      table.putItem(dbItem)
       val newStoryPackage = story.copy(
         id = Some(generatedId),
-        lastModify = Some(modifyDate.toString)
+        lastModify = Some(modifyDate.toString),
+        lastModifyBy = Some(email),
+        createdBy = Some(email)
       )
-      Logger.info(s"New story package created with id:${newStoryPackage.id} -> $newStoryPackage")
+
+      table.putItem(DynamoToScala.convertToItem(newStoryPackage))
+      Logger.info(s"New story package created with id:$generatedId -> $newStoryPackage")
       newStoryPackage
     })
   }
@@ -96,6 +90,11 @@ object Database {
       DynamoToScala.convertToStoryPackage(item)
     })
   }
+
+  def removePackage(id: String): Future[Unit] = {
+    val outcome = table.deleteItem("id", id)
+    Future.successful(None)
+  }
 }
 
 private object WithExceptionHandling {
@@ -116,9 +115,22 @@ private object WithExceptionHandling {
 }
 
 object DynamoToScala {
+  implicit class RichItem(val item: Item) extends AnyVal {
+    def withOptString(key: String, value: Option[String]) = {
+      value.fold(item)(v => item.withString(key, v))
+    }
+  }
+
   implicit val codec: DynamoCodec[StoryPackage] = new DynamoCodec[StoryPackage] {
     override def toItem(story: StoryPackage): Item = {
       new Item()
+        .withPrimaryKey("id", story.id)
+        .withOptString("packageName", story.name)
+        .withOptString("searchName", story.name.map(_.toLowerCase))
+        .withBoolean("isHidden", story.isHidden.getOrElse(true))
+        .withNumber("lastModify", new DateTime(story.lastModify).withZone(DateTimeZone.UTC).getMillis)
+        .withOptString("lastModifyBy", story.lastModifyBy)
+        .withOptString("createdBy", story.createdBy)
     }
 
     override def fromItem(item: Item): StoryPackage = {
@@ -135,6 +147,10 @@ object DynamoToScala {
 
   def convertToStoryPackage(item: Item): StoryPackage = {
     deserialize[StoryPackage](item)
+  }
+
+  def convertToItem(story: StoryPackage): Item = {
+    serialize(story)
   }
 
   def convertToListOfStoryPackages(collection: ItemCollection[ScanOutcome]): List[StoryPackage] = {

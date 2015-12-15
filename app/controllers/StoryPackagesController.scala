@@ -64,4 +64,8 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
         case NonFatal(e) => NotFound
       }
   }
+
+  def deletePackage(id: String) = APIAuthAction.async { request =>
+    Database.removePackage(id).map(_ => Ok)
+  }
 }
