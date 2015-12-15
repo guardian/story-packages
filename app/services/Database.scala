@@ -2,7 +2,7 @@ package services
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document._
-import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
+import com.amazonaws.services.dynamodbv2.document.spec.{ScanSpec, UpdateItemSpec}
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import conf.{Configuration, aws}
 import model.{StoryPackage, StoryPackageSearchResult}
@@ -25,25 +25,22 @@ object Database {
 
   def createStoryPackage(story: StoryPackage, email: String): Future[StoryPackage] = {
     val errorMessage = "Exception in dynamoDB putItem while creating a story package"
-    WithExceptionHandling.storyPackage(errorMessage, {
-      val generatedId = IdGeneration.nextId
-      val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
-      val newStoryPackage = story.copy(
-        id = Some(generatedId),
-        lastModify = Some(modifyDate.toString),
+    WithExceptionHandling(errorMessage, {
+      val item = DynamoToScala.convertToItem(story.copy(
         lastModifyBy = Some(email),
         createdBy = Some(email)
-      )
+      ))
 
-      table.putItem(DynamoToScala.convertToItem(newStoryPackage))
-      Logger.info(s"New story package created with id:$generatedId -> $newStoryPackage")
+      table.putItem(item)
+      val newStoryPackage = DynamoToScala.convertToStoryPackage(item)
+      Logger.info(s"New story package created with id:${newStoryPackage.id} -> $newStoryPackage")
       newStoryPackage
     })
   }
 
   def searchPackages(term: String, isHidden: Boolean = false): Future[StoryPackageSearchResult] = {
     val errorMessage = s"Exception in searchPackages while searching $term"
-    WithExceptionHandling.searchResult(errorMessage, {
+    WithExceptionHandling(errorMessage, {
       val values = new ValueMap()
         .withString(":search_term", term)
         .withBoolean(":is_hidden", isHidden)
@@ -63,7 +60,7 @@ object Database {
 
   def latestPackages(maxAge: Int, isHidden: Boolean = false): Future[StoryPackageSearchResult] = {
     val errorMessage = s"Exception in latestPackages fetching packages since $maxAge days ago"
-    WithExceptionHandling.searchResult(errorMessage, {
+    WithExceptionHandling(errorMessage, {
       val since = new DateTime().withZone(DateTimeZone.UTC).minusDays(maxAge)
       val values = new ValueMap()
         .withNumber(":since", since.getMillis)
@@ -85,30 +82,39 @@ object Database {
 
   def getPackage(id: String): Future[StoryPackage] = {
     val errorMessage = s"Unable to find story package with id $id"
-    WithExceptionHandling.storyPackage(errorMessage, {
+    WithExceptionHandling(errorMessage, {
       val item = table.getItem("id", id)
       DynamoToScala.convertToStoryPackage(item)
     })
   }
 
   def removePackage(id: String): Future[Unit] = {
-    val outcome = table.deleteItem("id", id)
-    Future.successful(None)
+    val errorMessage = s"Unable to delete story package $id"
+    WithExceptionHandling(errorMessage, {
+      val outcome = table.deleteItem("id", id)
+    })
+  }
+
+  def touchPackage(id: String, email: String): Future[Unit] = {
+    val errorMessage = s"Unable to update modification metadata for story package $id"
+    WithExceptionHandling(errorMessage, {
+      val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
+
+      val updateSpec = new UpdateItemSpec()
+        .withPrimaryKey("id", id)
+        .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.getMillis))
+        .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(email))
+
+      table.updateItem(updateSpec)
+    })
   }
 }
 
 private object WithExceptionHandling {
-  def storyPackage(errorMessage: String, block: => StoryPackage): Future[StoryPackage] = {
+  def apply[T](errorMessage: String, block: => T): Future[T] = {
     Try(block) match {
-      case Success(newStoryPackage) =>
-        Future.successful(newStoryPackage)
-      case Failure(t: Throwable) =>
-        Logger.error(errorMessage, t)
-        Future.failed(t)}}
-
-  def searchResult(errorMessage: String, block: => StoryPackageSearchResult): Future[StoryPackageSearchResult] = {
-    Try(block) match {
-      case Success(result) => Future.successful(result)
+      case Success(result) =>
+        Future.successful(result)
       case Failure(t: Throwable) =>
         Logger.error(errorMessage, t)
         Future.failed(t)}}
@@ -123,12 +129,14 @@ object DynamoToScala {
 
   implicit val codec: DynamoCodec[StoryPackage] = new DynamoCodec[StoryPackage] {
     override def toItem(story: StoryPackage): Item = {
+      val modifyDate = story.lastModify.map(new DateTime(_)).getOrElse(new DateTime()).withZone(DateTimeZone.UTC)
+
       new Item()
-        .withPrimaryKey("id", story.id)
+        .withPrimaryKey("id", story.id.getOrElse(IdGeneration.nextId))
         .withOptString("packageName", story.name)
         .withOptString("searchName", story.name.map(_.toLowerCase))
         .withBoolean("isHidden", story.isHidden.getOrElse(true))
-        .withNumber("lastModify", new DateTime(story.lastModify).withZone(DateTimeZone.UTC).getMillis)
+        .withNumber("lastModify", modifyDate.getMillis)
         .withOptString("lastModifyBy", story.lastModifyBy)
         .withOptString("createdBy", story.createdBy)
     }
