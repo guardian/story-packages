@@ -738,7 +738,7 @@ h1 {
     float: right;
 }
 
-collection-widget:first-child .collection {
+.cardContainer:first-child .collection {
     box-shadow: none;
 }
 
@@ -900,10 +900,10 @@ collection-widget:first-child .collection {
     display: none;
 }
 
-.attention .publisher {
+.packagesResults .publisher {
     color: #666666;
-    display: block;
-    text-align: left;
+    display: inline;
+    float: right;
 }
 
 
@@ -926,6 +926,10 @@ collection-widget:first-child .collection {
 
 .time__front {
     color: #46c430;
+}
+
+.packagesResults .time__publication {
+    float: left;
 }
 
 .article__overrides {
@@ -1063,26 +1067,14 @@ select {
     color: #DD4B39;
 }
 
-.attention .length--alert textarea.active {
-    background-color: #FFCDD2;
-}
-
 .editor__alert__message {
     margin-left: 4px;
     color: #DD4B39;
     display: none;
 }
 
-.attention .length--alert .editor__alert__message {
-    display: inline;
-}
-
 .editor__length {
     display: none;
-}
-
-.attention .editor__length {
-    display: block;
 }
 
 .editor--boolean {
@@ -1438,6 +1430,11 @@ button {
 
 .article__tools i {
     font-size: 14px;
+}
+
+.packagesResults .article__tools {
+    width: auto;
+    height: auto;
 }
 
 .article:hover > .closed > .article__tools {
@@ -1890,7 +1887,7 @@ ol.search_list > li::before {
     padding: 0;
 }
 
-collection-widget {
+.cardContainer {
     display: block;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 6px rgba(0, 0, 0, 0.12);
     margin: 5px 8px 16px 8px;
@@ -1898,20 +1895,8 @@ collection-widget {
     background-color: #fff;
 }
 
-collection-widget > div {
+.cardContainer > div {
     padding: 5px 10px;
-}
-
-.attention collection-widget {
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.32), 0 1px 6px rgba(0, 0, 0, 0.32);
-}
-.attention .performances,
-.attention.modes .live-mode,
-.attention.modes .draft-mode,
-.attention .preview,
-.attention .tool--small--ophan,
-.attention .time__publication {
-    display: none;
 }
 
 .fadeElement {
@@ -2111,7 +2096,8 @@ hr {
 }
 .packagesResults {
     list-style-type: none;
-    padding: 0;
+    padding: 8px;
+    margin: 0;
     line-height: 200%;
 }
 .createPackage {

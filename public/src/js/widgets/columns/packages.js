@@ -1,11 +1,12 @@
 import ko from 'knockout';
 import * as authedAjax from 'modules/authed-ajax';
+import modalDialog from 'modules/modal-dialog';
 import {CONST} from 'modules/vars';
 import alert from 'utils/alert';
 import debounce from 'utils/debounce';
+import humanTime from 'utils/human-time';
 import mediator from 'utils/mediator';
 import ColumnWidget from 'widgets/column-widget';
-import modalDialog from 'modules/modal-dialog';
 
 const bouncedSearch = Symbol();
 
@@ -37,9 +38,8 @@ export default class Package extends ColumnWidget {
                         this.searchInProgress(false);
                     });
             } else {
-                console.log('no search');
                 this.searchedPackages(false);
-                this.searchResults([]);
+                this.searchResults.removeAll();
             }
         } else {
             this.searchInProgress(false);
@@ -52,7 +52,7 @@ export default class Package extends ColumnWidget {
     }
 
     displayPackage(chosenPackage) {
-        mediator.emit('find:package', chosenPackage.displayName);
+        mediator.emit('find:package', chosenPackage.id);
     }
 
     savePackage() {
@@ -107,7 +107,11 @@ function performSearch(searchTerm) {
 }
 
 function displayResuls({results} = {}) {
-    this.searchResults(results || []);
+    this.searchResults((results || []).map(result => {
+        return Object.assign({
+            lastModifyHuman: humanTime(new Date(result.lastModify))
+        }, result);
+    }));
     this.searchInProgress(false);
     this.searchedPackages(true);
 }
