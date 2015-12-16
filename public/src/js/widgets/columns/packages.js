@@ -58,7 +58,6 @@ export default class Package extends ColumnWidget {
 
     savePackage() {
         this.searchInProgress(false);
-        this.searchResults.removeAll();
         return authedAjax.request({
             url: '/story-packages/create',
             type: 'post',
@@ -71,6 +70,7 @@ export default class Package extends ColumnWidget {
             var packages = this.baseModel.latestPackages();
             packages.unshift(newPackage);
             this.baseModel.latestPackages(packages);
+            this.search();
             mediator.emit('find:package', newPackage);
         })
         .catch(response => {
