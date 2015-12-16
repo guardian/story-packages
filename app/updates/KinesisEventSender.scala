@@ -35,7 +35,6 @@ class CapiUpdates() extends ThriftSerializer {
     var trailText: Option[String] = None
     var imageSrc: Option[String] = None
     var isBoosted: Option[Boolean] = None
-    var isBreaking: Option[Boolean] = None
     var imageHide: Option[Boolean] = None
     var showMainVideo: Option[Boolean] = None
     var showKickerTag: Option[Boolean] = None
@@ -58,7 +57,6 @@ class CapiUpdates() extends ThriftSerializer {
           }
           imageSrc = trailMetaData.imageSrc
           isBoosted = trailMetaData.isBoosted
-          isBreaking = trailMetaData.isBreaking
           imageHide = trailMetaData.imageHide
           showMainVideo = trailMetaData.showMainVideo
           showKickerTag = trailMetaData.showKickerTag
@@ -77,7 +75,7 @@ class CapiUpdates() extends ThriftSerializer {
         case None => ;
       }
 
-      Article(article.id, ArticleType.Article, headline, href, trailText, imageSrc, isBoosted, isBreaking, imageHide, showMainVideo, showKickerTag, showKickerSection, byline, imageCutoutSrc, showBoostedHeadline, showQuotedHeadline)
+      Article(article.id, ArticleType.Article, headline, href, trailText, imageSrc, isBoosted, imageHide, showMainVideo, showKickerTag, showKickerSection, byline, imageCutoutSrc, showBoostedHeadline, showQuotedHeadline)
     })
     val event = Event(EventType.Update, collectionKey, thriftArticles)
     sendUpdate(event)
