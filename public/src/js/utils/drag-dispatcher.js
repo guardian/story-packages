@@ -5,10 +5,8 @@ import * as capi from 'modules/content-api';
 import * as vars from 'modules/vars';
 import alert from 'utils/alert';
 import cleanClone from 'utils/clean-clone';
-import cloneWithKey from 'utils/clone-with-key';
 import deepGet from 'utils/deep-get';
 import findFirstById from 'utils/find-first-by-id';
-import mediator from 'utils/mediator';
 import removeById from 'utils/remove-by-id';
 import urlAbsPath from 'utils/url-abs-path';
 
@@ -46,7 +44,7 @@ function handleMedia ({sourceItem, mediaItem}, targetItem, targetGroup) {
             article.meta.imageCutoutReplace(false);
             article.meta.showMainVideo(false);
             article.meta.imageSlideshowReplace(false);
-            article.meta.imageSrc(mediaItem.file);
+            return _.find(article.editors(), editor => editor.key === 'imageSrc').dropInEditor(mediaItem.dataTransfer);
         } else {
             alert('You can only drop media into an opened article.');
         }

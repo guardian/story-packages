@@ -249,7 +249,6 @@ export default Object.freeze([
             editable: true,
             dropImage: true,
             validator: {
-                fn: 'validateListImage',
                 params: {
                     options: {
                         maxWidth: 1000,

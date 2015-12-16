@@ -74,6 +74,7 @@ export default class Front extends ColumnWidget {
             this.front(id);
         }
         if (!id) {
+            this.loaded = Promise.resolve();
             return;
         }
 
