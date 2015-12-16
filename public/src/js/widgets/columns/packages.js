@@ -56,29 +56,34 @@ export default class Package extends ColumnWidget {
     }
 
     savePackage() {
-        this.searchInProgress(false);
-        this.searchResults.removeAll();
-        return authedAjax.request({
-            url: '/story-packages/create',
-            type: 'post',
-            data: JSON.stringify({
-                name: this.displayName(),
-                isHidden: this.baseModel.priority === 'training'
+        var name = this.displayName().trim();
+        if (name.length < 3) {
+            alert('Package name needs to include at least three characters');
+        } else {
+            this.searchInProgress(false);
+            this.searchResults.removeAll();
+            return authedAjax.request({
+                url: '/story-packages/create',
+                type: 'post',
+                data: JSON.stringify({
+                    name: name,
+                    isHidden: this.baseModel.priority === 'training'
+                })
             })
-        })
-        .then(newPackage => {
-            var packages = this.baseModel.latestPackages();
-            packages.unshift(newPackage);
-            this.baseModel.latestPackages(packages);
-            mediator.emit('find:package', newPackage.id);
-        })
-        .catch(response => {
-            alert('Unable to create story package:\n' + (response.message || response.responseText));
-        })
-        .then(() => {
-            this.creatingPackage(false);
-            this.displayName(null);
-        });
+            .then(newPackage => {
+                var packages = this.baseModel.latestPackages();
+                packages.unshift(newPackage);
+                this.baseModel.latestPackages(packages);
+                mediator.emit('find:package', newPackage.id);
+            })
+            .catch(response => {
+                alert('Unable to create story package:\n' + (response.message || response.responseText));
+            })
+            .then(() => {
+                this.creatingPackage(false);
+                this.displayName(null);
+            });
+        }
     }
 
     displayRemoveModal(storyPackage) {
