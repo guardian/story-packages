@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import Article from 'models/collections/article';
-import ConfigCollection from 'models/config/collection';
 import * as authedAjax from 'modules/authed-ajax';
 import * as capi from 'modules/content-api';
 import * as vars from 'modules/vars';
@@ -159,22 +158,17 @@ function normalizeTarget (sourceItem, targetItem, targetGroup) {
 }
 
 function newItemsConstructor (sourceItem = {}, targetGroup) {
-    if (sourceItem.type === vars.CONST.draggableTypes.configCollection) {
-        var collectionConfig = cloneWithKey(vars.model.state().config.collections[sourceItem.id], sourceItem.id);
-        return [new ConfigCollection(collectionConfig)];
-    } else {
-        var items = [_.extend({}, sourceItem)];
+    var items = [_.extend({}, sourceItem)];
 
-        if (sourceItem && sourceItem.meta && sourceItem.meta.supporting) {
-            items = items.concat(sourceItem.meta.supporting);
-        }
-
-        return _.map(items, item => new Article({
-            id: item.id,
-            meta: cleanClone(item.meta),
-            group: targetGroup
-        }));
+    if (sourceItem && sourceItem.meta && sourceItem.meta.supporting) {
+        items = items.concat(sourceItem.meta.supporting);
     }
+
+    return _.map(items, item => new Article({
+        id: item.id,
+        meta: cleanClone(item.meta),
+        group: targetGroup
+    }));
 }
 
 function validate (sourceItem, newItems, context) {

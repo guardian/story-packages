@@ -52,6 +52,7 @@ export default {
     sparksRefreshMs:      300000,
     pubTimeRefreshMs:      30000,
     searchDebounceMs:        300,
+    packagesPollMs:      3600000,
 
     highFrequencyPaths:    ['uk', 'us', 'au', 'uk/sport', 'us/sport', 'au/sport'],
 

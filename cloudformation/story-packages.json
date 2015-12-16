@@ -238,6 +238,44 @@
                 "Roles": [{ "Ref": "DistributionRole" }]
             }
         },
+        "DynamoDBPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "DynamoDBPolicy",
+                "PolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Action": [
+                            "dynamodb:GetItem",
+                            "dynamodb:Query",
+                            "dynamodb:PutItem",
+                            "dynamodb:UpdateItem",
+                            "dynamodb:DeleteItem"
+                        ],
+                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:dynamodb:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":table/", { "Ref": "DynamoDBTable" } ]]}
+                    } ]
+                },
+                "Roles": [{ "Ref": "DistributionRole" }]
+            }
+        },
+        "DynamoDBTable": {
+            "Type" : "AWS::DynamoDB::Table",
+            "Properties": {
+                "AttributeDefinitions": [{
+                    "AttributeName": "id",
+                    "AttributeType": "S"
+                }],
+                "KeySchema": [{
+                    "AttributeName": "id",
+                    "KeyType": "HASH"
+                }],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": 5,
+                    "WriteCapacityUnits": 5
+                }
+            }
+        },
         "SSHSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
@@ -459,7 +497,8 @@
                                 "content": { "Fn::Join" : ["", [
                                     "STAGE=", { "Ref" : "Stage" }, "\n",
                                     "STREAM=", { "Ref" : "KinesisUpdateStream" }, "\n",
-                                    "CAPI_STREAM=", { "Ref" : "KinesisCAPIStream" }, "\n"
+                                    "CAPI_STREAM=", { "Ref" : "KinesisCAPIStream" }, "\n",
+                                    "TABLE_CONFIG=", { "Ref" : "DynamoDBTable" }, "\n"
                                 ]]}
                             }
                         }
@@ -524,6 +563,12 @@
             "Description": "Kinesis stream for content API updates",
             "Value": {
                 "Ref": "KinesisCAPIStream"
+            }
+        },
+        "DynamoTable": {
+            "Description": "Table name of DynamoDB",
+            "Value": {
+                "Ref": "DynamoDBTable"
             }
         }
     }

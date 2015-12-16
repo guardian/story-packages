@@ -5,7 +5,6 @@ import BaseModule from 'models/base-model';
 
 function getLoader (enabledWidgets, loadedExtensions) {
     return function (router, res) {
-        vars.init(res);
         var model = new BaseModule(enabledWidgets, loadedExtensions, router, res);
         vars.setModel(model);
         return model;
@@ -19,6 +18,8 @@ export default {
         columns.clipboardTrail,
         columns.packages
     ], [
-        extensions.copyPasteArticles
+        extensions.copyPasteArticles,
+        extensions.fetchLatestPackages,
+        extensions.displayAlert
     ])
 };

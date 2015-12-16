@@ -2,14 +2,12 @@ import ko from 'knockout';
 import _ from 'underscore';
 import {CONST} from 'modules/vars';
 import BaseClass from 'models/base-class';
-import persistence from 'models/config/persistence';
 import Layout from 'models/layout';
 import * as widgets from 'models/widgets';
 import copiedArticle from 'modules/copied-article';
 import Droppable from 'modules/droppable';
 import modalDialog from 'modules/modal-dialog';
 import message from 'widgets/message';
-import cloneWithKey from 'utils/clone-with-key';
 import priorityFromUrl from 'utils/priority-from-url';
 
 var droppableSym = Symbol();
@@ -26,8 +24,7 @@ export default class BaseModel extends BaseClass {
         this.modalDialog = modalDialog;
         this.message = message;
         this.state = ko.observable();
-        this.frontsList = ko.observableArray();
-        this.frontsMap = ko.observable();
+        this.latestPackages = ko.observableArray();
         this.switches = ko.observable();
         this.permissions = ko.observable();
         this.pending = ko.observable(true);
@@ -45,14 +42,6 @@ export default class BaseModel extends BaseClass {
         this[droppableSym] = new Droppable();
         copiedArticle.flush();
         widgets.register();
-
-        this.listenOn(persistence, 'update:before', () => this.pending(true));
-        this.listenOn(persistence, 'update:after', () => {
-            this.emit('config:needs:update', (res) => {
-                this.update(res);
-                this.pending(false);
-            });
-        });
 
         this.loaded = waitFor(this, layout, extensions).then(() => {
             this.pending(false);
@@ -74,19 +63,6 @@ export default class BaseModel extends BaseClass {
     }
 
     update(res) {
-        var frontsList = [], frontsMap = {};
-
-        for (let front in res.config.fronts) {
-            let frontConfig = res.config.fronts[front];
-            if (frontConfig.priority === this.priority) {
-                let frontsConfig = cloneWithKey(frontConfig, front);
-                frontsList.push(frontsConfig);
-                frontsMap[front] = frontConfig;
-            }
-        }
-        this.frontsList(_.sortBy(frontsList, 'id'));
-        this.frontsMap(frontsMap);
-
         if (!_.isEqual(this.switches(), res.defaults.switches)) {
             this.switches(res.defaults.switches);
         }

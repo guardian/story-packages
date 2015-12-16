@@ -1,6 +1,13 @@
 package updates
 
+import stream.CapiUpdates
+
 object UpdatesStream {
-  def putStreamUpdate(streamUpdate: StreamUpdate): Unit =
+
+  val capiUpdates = new CapiUpdates()
+
+  def putStreamUpdate(streamUpdate: StreamUpdateWithCollections): Unit = {
     AuditingUpdates.putStreamUpdate(streamUpdate)
+    capiUpdates.putCapiUpdate(streamUpdate.collections)
+  }
 }
