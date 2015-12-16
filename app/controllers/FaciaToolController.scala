@@ -44,12 +44,11 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
           val futureCollectionJson = UpdateActions.updateCollectionList(update.update.id, update.update, identity)
           futureCollectionJson.map { maybeCollectionJson =>
             val updatedCollections = maybeCollectionJson.map(update.update.id -> _).toMap
-            UpdatesStream.putStreamUpdate(StreamUpdateWithCollections(update, identity.email, Some(updatedCollections)))
 
 
             if (updatedCollections.nonEmpty) {
-              UpdatesStream.putStreamUpdate(StreamUpdate(update, identity.email))
-              Database.touchPackage(update.update.id, identity)
+              UpdatesStream.putStreamUpdate(StreamUpdateWithCollections(update, identity.email, Some(updatedCollections)))
+              Database.touchPackage(update.update.id, identity.email)
               Ok(Json.toJson(updatedCollections)).as("application/json")
             } else
               NotFound
