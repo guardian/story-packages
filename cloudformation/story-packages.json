@@ -61,13 +61,17 @@
                 "MinSize": 3,
                 "MaxSize": 6,
                 "DesiredCapacity": 3,
-                "InstanceType": "c3.large"
+                "InstanceType": "c3.large",
+                "ReadThroughput": 10,
+                "WriteThroughput": 10
             },
             "CODE": {
                 "MinSize": 1,
                 "MaxSize": 2,
                 "DesiredCapacity": 1,
-                "InstanceType": "m3.medium"
+                "InstanceType": "m3.medium",
+                "ReadThroughput": 5,
+                "WriteThroughput": 5
             }
         }
     },
@@ -271,8 +275,12 @@
                     "KeyType": "HASH"
                 }],
                 "ProvisionedThroughput": {
-                    "ReadCapacityUnits": 5,
-                    "WriteCapacityUnits": 5
+                    "ReadCapacityUnits": {
+                        "Fn::FindInMap": ["StageMap", { "Ref": "Stage" }, "ReadThroughput" ]
+                    },
+                    "WriteCapacityUnits": {
+                        "Fn::FindInMap": ["StageMap", { "Ref": "Stage" }, "WriteThroughput" ]
+                    }
                 }
             }
         },
