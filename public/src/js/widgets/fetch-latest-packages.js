@@ -34,6 +34,5 @@ export default class extends Extension {
         this.pollingId = null;
         super.dispose();
     };
-
 }
 
