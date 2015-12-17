@@ -121,13 +121,6 @@ export default Object.freeze([
         type: 'text'
     },
     {
-        key: 'isBreaking',
-        editable: true,
-        singleton: 'kicker',
-        label: 'breaking news',
-        type: 'boolean'
-    },
-    {
         key: 'showLivePlayable',
         editable: true,
         omitForSupporting: true,
@@ -228,36 +221,5 @@ export default Object.freeze([
         key: 'snapCss',
         label: 'snap class',
         type: 'text'
-    },
-    {
-        key: 'imageSlideshowReplace',
-        omitForSupporting: true,
-        editable: true,
-        label: 'slideshow',
-        singleton: 'images',
-        type: 'boolean'
-    },
-    {
-        key: 'slideshow',
-        editable: true,
-        omitForSupporting: true,
-        visibleWhen: 'imageSlideshowReplace',
-        type: 'list',
-        length: CONST.maxSlideshowImages,
-        item: {
-            type: 'image',
-            editable: true,
-            dropImage: true,
-            validator: {
-                params: {
-                    options: {
-                        maxWidth: 1000,
-                        minWidth: 400,
-                        widthAspectRatio: 5,
-                        heightAspectRatio: 3
-                    }
-                }
-            }
-        }
     }
 ]);

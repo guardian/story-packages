@@ -43,7 +43,6 @@ function handleMedia ({sourceItem, mediaItem}, targetItem, targetGroup) {
             // Singleton images
             article.meta.imageCutoutReplace(false);
             article.meta.showMainVideo(false);
-            article.meta.imageSlideshowReplace(false);
             return _.find(article.editors(), editor => editor.key === 'imageSrc').dropInEditor(mediaItem.dataTransfer);
         } else {
             alert('You can only drop media into an opened article.');
