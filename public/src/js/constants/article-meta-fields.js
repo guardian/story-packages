@@ -11,7 +11,6 @@ export default Object.freeze([
         key: 'trailText',
         editable: true,
         ifState: 'enableContentOverrides',
-        omitForSupporting: true,
         label: 'trail text',
         type: 'text'
     },
@@ -20,7 +19,6 @@ export default Object.freeze([
         editable: true,
         ifState: 'enableContentOverrides',
         visibleWhen: 'showByline',
-        omitForSupporting: true,
         label: 'byline',
         type: 'text'
     },
@@ -40,7 +38,6 @@ export default Object.freeze([
         key: 'imageSrc',
         editable: true,
         dropImage: true,
-        omitForSupporting: true,
         visibleWhen: 'imageReplace',
         label: 'replacement image URL',
         validator: {
@@ -82,7 +79,6 @@ export default Object.freeze([
         key: 'imageCutoutSrc',
         editable: true,
         dropImage: true,
-        omitForSupporting: true,
         visibleWhen: 'imageCutoutReplace',
         label: 'replacement cutout image URL',
         validator: {
@@ -121,7 +117,6 @@ export default Object.freeze([
     {
         key: 'showLivePlayable',
         editable: true,
-        omitForSupporting: true,
         ifState: 'isLiveBlog',
         label: 'show updates',
         type: 'boolean'
@@ -129,7 +124,6 @@ export default Object.freeze([
     {
         key: 'showMainVideo',
         editable: true,
-        omitForSupporting: true,
         ifState: 'hasMainVideo',
         singleton: 'images',
         label: 'show video',
@@ -138,28 +132,24 @@ export default Object.freeze([
     {
         key: 'showBoostedHeadline',
         editable: true,
-        omitForSupporting: true,
         label: 'large headline',
         type: 'boolean'
     },
     {
         key: 'showQuotedHeadline',
         editable: true,
-        omitForSupporting: true,
         label: 'quote headline',
         type: 'boolean'
     },
     {
         key: 'showByline',
         editable: true,
-        omitForSupporting: true,
         label: 'byline',
         type: 'boolean'
     },
     {
         key: 'imageCutoutReplace',
         editable: true,
-        omitForSupporting: true,
         singleton: 'images',
         label: 'cutout image',
         type: 'boolean'
@@ -167,7 +157,6 @@ export default Object.freeze([
     {
         key: 'imageReplace',
         editable: true,
-        omitForSupporting: true,
         singleton: 'images',
         label: 'replace image',
         omitIfNo: 'imageSrc',
@@ -176,7 +165,6 @@ export default Object.freeze([
     {
         key: 'imageHide',
         editable: true,
-        omitForSupporting: true,
         singleton: 'images',
         label: 'hide image',
         type: 'boolean'

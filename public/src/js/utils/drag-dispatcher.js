@@ -52,6 +52,11 @@ function handleMedia ({sourceItem, mediaItem}, targetItem, targetGroup) {
 
 function handleInternalClass ({sourceItem, sourceGroup}, targetItem, targetGroup) {
 
+    if (targetGroup.parentType === 'Article') {
+        alert('You cannot add sublinks to story packages');
+        return;
+    }
+
     var {position, target, isAfter} = normalizeTarget(sourceItem, targetItem, targetGroup);
 
     var insertAt = 0;

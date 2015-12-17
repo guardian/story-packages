@@ -44,12 +44,6 @@ export default class Front extends ColumnWidget {
             if (front !== this) {
                 return;
             }
-            var openArticle = this.uiOpenArticle();
-            if (openArticle && openArticle.group &&
-                openArticle.group.parentType === 'Article' &&
-                openArticle !== article) {
-                openArticle.close();
-            }
             this.uiOpenArticle(article);
         });
 

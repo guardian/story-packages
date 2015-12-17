@@ -18,7 +18,6 @@ describe('Collections', function () {
         .then(insertMetadataOnTopOfTheList)
         .then(moveFirstItemBelow)
         .then(removeItemFromGroup)
-        .then(addSublinkInArticle)
         .then(copyPasteAboveArticle)
         .then(done)
         .catch(done.fail);
@@ -205,40 +204,6 @@ describe('Collections', function () {
             .done;
         }
 
-        function addSublinkInArticle () {
-            return testPage.actions.edit(() => {
-                return testPage.regions.front().collection(1).group(1).trail(2).open()
-                .then(trail => {
-                    return testPage.regions.latest().trail(5).dropTo(trail.innerDroppable())
-                        .then(() => trail.save());
-                });
-            })
-            .assertRequest(request => {
-                expect(request.url).toEqual('/edits');
-                expect(request.data.type).toEqual('Update');
-                expect(request.data.update.draft).toEqual(false);
-                expect(request.data.update.live).toEqual(true);
-                expect(request.data.update.id).toEqual('story-2');
-                expect(request.data.update.item).toEqual('internal-code/page/2');
-                expect(request.data.update.itemMeta.supporting[0].id).toEqual('internal-code/page/5');
-            })
-            .respondWith({
-                'story-2': {
-                    live: [{
-                        id: 'internal-code/page/1'
-                    }, {
-                        id: 'internal-code/page/2',
-                        meta: {
-                            supporting: [{
-                                id: 'internal-code/page/5'
-                            }]
-                        }
-                    }]
-                }
-            })
-            .done;
-        }
-
         function copyPasteAboveArticle () {
             return testPage.actions.edit(() => {
                 const regions = testPage.regions;
@@ -264,12 +229,7 @@ describe('Collections', function () {
                     }, {
                         id: 'internal-code/page/1'
                     }, {
-                        id: 'internal-code/page/2',
-                        meta: {
-                            supporting: [{
-                                id: 'internal-code/page/5'
-                            }]
-                        }
+                        id: 'internal-code/page/2'
                     }]
                 }
             })

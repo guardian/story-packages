@@ -12,19 +12,14 @@ describe('Alternate Drag', function () {
         this.testPage.dispose(done);
     });
 
-    it('replace article and drags sublinks', function (done) {
+    it('replace article', function (done) {
         var mockScope = this.scope, testPage = this.testPage;
         openFirstArticle()
         .then(trail => trail.toggleMetadata('showBoostedHeadline'))
-        .then(dropSublink)
-        .then(copyPasteSublink)
         .then(saveArticle)
         .then(openFirstArticle)
         .then(alternateDrag)
         .then(expectItemSwapped)
-        .then(openFirstArticle)
-        .then(deleteOneSublink)
-        .then(saveArticleWithOneSublink)
         .then(deleteEntireArticle)
         .then(done)
         .catch(done.fail);
@@ -32,15 +27,6 @@ describe('Alternate Drag', function () {
 
         function openFirstArticle () {
             return testPage.regions.front().collection(1).group(1).trail(1).open();
-        }
-        function dropSublink (trail) {
-            return testPage.regions.latest().trail(2).dropTo(trail.innerDroppable())
-            .then(() => trail);
-        }
-        function copyPasteSublink (trail) {
-            return testPage.regions.latest().trail(3).copy().then(() => {
-                return trail.pasteOver();
-            });
         }
         function saveArticle (trail) {
             return testPage.actions.edit(() => {
@@ -57,12 +43,7 @@ describe('Alternate Drag', function () {
                         item: 'internal-code/page/1',
                         position: 'internal-code/page/1',
                         itemMeta: {
-                            group: '0',
-                            showBoostedHeadline: true,
-                            supporting: [
-                                { id: 'internal-code/page/2' },
-                                { id: 'internal-code/page/3' }
-                            ]
+                            showBoostedHeadline: true
                         }
                     }
                 });
@@ -72,11 +53,7 @@ describe('Alternate Drag', function () {
                     live: [{
                         id: 'internal-code/page/1',
                         meta: {
-                            showBoostedHeadline: true,
-                            supporting: [
-                                { id: 'internal-code/page/2' },
-                                { id: 'internal-code/page/3' }
-                            ]
+                            showBoostedHeadline: true
                         }
                     }]
                 }
@@ -91,20 +68,12 @@ describe('Alternate Drag', function () {
                     live: [{
                         id: 'internal-code/page/4',
                             meta: {
-                                showBoostedHeadline: true,
-                                supporting: [
-                                    { id: 'internal-code/page/2' },
-                                    { id: 'internal-code/page/3' }
-                                ]
+                                showBoostedHeadline: true
                             }
                     }, {
                         id: 'internal-code/page/1',
                             meta: {
-                                showBoostedHeadline: true,
-                                supporting: [
-                                    { id: 'internal-code/page/2' },
-                                    { id: 'internal-code/page/3' }
-                                ]
+                                showBoostedHeadline: true
                             }
                     }]
                 }
@@ -114,11 +83,7 @@ describe('Alternate Drag', function () {
                     live: [{
                         id: 'internal-code/page/4',
                             meta: {
-                                showBoostedHeadline: true,
-                                supporting: [
-                                    { id: 'internal-code/page/2' },
-                                    { id: 'internal-code/page/3' }
-                                ]
+                                showBoostedHeadline: true
                             }
                     }]
                 }
@@ -152,11 +117,7 @@ describe('Alternate Drag', function () {
                             position: 'internal-code/page/1',
                             after: false,
                             itemMeta: {
-                                showBoostedHeadline: true,
-                                supporting: [
-                                    { id: 'internal-code/page/2' },
-                                    { id: 'internal-code/page/3' }
-                                ]
+                                showBoostedHeadline: true
                             }
                         }
                     });
@@ -178,83 +139,6 @@ describe('Alternate Drag', function () {
             mockScope.clear();
             const trail = testPage.regions.front().collection(1).group(1).trail(1);
             expect(trail.fieldText('headline')).toBe('Santa Claus is a real thing');
-        }
-        function deleteOneSublink (trail) {
-            // Sublink need populating from CAPI
-            return wait.ms(50).then(() => {
-                return testPage.actions.edit(() => trail.sublink(2).remove())
-                .assertRequest(request => {
-                    expect(request.data).toEqual({
-                        type: 'Update',
-                        update: {
-                            live: true,
-                            draft: false,
-                            id: 'story-1',
-                            item: 'internal-code/page/4',
-                            position: 'internal-code/page/4',
-                            itemMeta: {
-                                showBoostedHeadline: true,
-                                supporting: [
-                                    { id: 'internal-code/page/2' }
-                                ],
-                                group: '0'
-                            }
-                        }
-                    });
-                })
-                .respondWith({
-                    'story-1': {
-                        live: [{
-                            id: 'internal-code/page/4',
-                            meta: {
-                                showBoostedHeadline: true,
-                                supporting: [
-                                    { id: 'internal-code/page/2' }
-                                ]
-                            }
-                        }]
-                    }
-                })
-                .done;
-            });
-        }
-        function saveArticleWithOneSublink () {
-            const trail = testPage.regions.front().collection(1).group(1).trail(1);
-            return testPage.actions.edit(() => trail.save())
-            .assertRequest(request => {
-                expect(request.url).toBe('/edits');
-                expect(request.data).toEqual({
-                    type: 'Update',
-                    update: {
-                        live: true,
-                        draft: false,
-                        id: 'story-1',
-                        item: 'internal-code/page/4',
-                        position: 'internal-code/page/4',
-                        itemMeta: {
-                            group: '0',
-                            showBoostedHeadline: true,
-                            supporting: [
-                                { id: 'internal-code/page/2' }
-                            ]
-                        }
-                    }
-                });
-            })
-            .respondWith({
-                'story-1': {
-                    live: [{
-                        id: 'internal-code/page/4',
-                        meta: {
-                            showBoostedHeadline: true,
-                            supporting: [
-                                { id: 'internal-code/page/2' }
-                            ]
-                        }
-                    }]
-                }
-            })
-            .done;
         }
         function deleteEntireArticle () {
             const trail = testPage.regions.front().collection(1).group(1).trail(1);

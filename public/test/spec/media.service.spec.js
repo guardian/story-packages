@@ -99,7 +99,6 @@ describe('Media Service', function () {
                         item: 'internal-code/page/1',
                         position: 'internal-code/page/1',
                         itemMeta: {
-                            group: '0',
                             imageCutoutSrc: images.path('squarefour.png'),
                             imageCutoutSrcHeight: '400',
                             imageCutoutSrcWidth: '400',
