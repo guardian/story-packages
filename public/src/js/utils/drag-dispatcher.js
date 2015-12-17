@@ -53,6 +53,11 @@ function handleMedia ({sourceItem, mediaItem}, targetItem, targetGroup) {
 
 function handleInternalClass ({sourceItem, sourceGroup}, targetItem, targetGroup) {
 
+    if (targetGroup.parentType === 'Article') {
+        alert('You cannot paste article sublinks into collections');
+        return;
+    }
+
     var {position, target, isAfter} = normalizeTarget(sourceItem, targetItem, targetGroup);
 
     var insertAt = 0;
