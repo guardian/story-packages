@@ -45,6 +45,10 @@
             "Description": "Role to access panda bucket",
             "Type": "String",
             "Default": "arn:aws:iam::753338109777:role/Fronts-panda-IAM-FaciaToolRole-NKNXCYEGL0F6"
+        },
+        "ContentAPIAccountId": {
+            "Description": "Content API account ID, needed for Assume role",
+            "Type": "String"
         }
     },
     "Mappings": {
@@ -123,6 +127,22 @@
                         }
                     }
                 ]
+            }
+        },
+        "ContentAPIRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Action": "sts:AssumeRole",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": { "Fn::Join": [ "", [
+                                "arn:aws:iam::", { "Ref": "ContentAPIAccountId" }, ":root"
+                            ]]}
+                        }
+                    }]
+                }
             }
         },
         "PanDomainPolicy": {
@@ -219,7 +239,10 @@
                         "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisCAPIStream" } ]]}
                     } ]
                 },
-                "Roles": [{ "Ref": "DistributionRole" }]
+                "Roles": [
+                    { "Ref": "DistributionRole" },
+                    { "Ref": "ContentAPIRole" }
+                ]
             }
         },
         "StoryPackagesPolicy": {
