@@ -1,6 +1,6 @@
 package updates
 
-import com.gu.facia.client.models.{CollectionConfigJson, FrontJson, TrailMetaData}
+import com.gu.facia.client.models.{CollectionConfigJson, CollectionJson, FrontJson, TrailMetaData}
 import julienrf.variants.Variants
 import org.joda.time.DateTime
 import play.api.libs.json._
@@ -85,7 +85,7 @@ object UpdateMessage {
 }
 
 /* Kinesis messages */
-case class StreamUpdate(update: UpdateMessage, email: String) {
+case class StreamUpdate(update: UpdateMessage, email: String, collections: Map[String, CollectionJson]) {
   val fronts: Set[String] = update.affectedFronts
   val dateTime: DateTime = new DateTime()
 }

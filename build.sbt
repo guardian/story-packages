@@ -13,6 +13,8 @@ scalaVersion := "2.11.7"
 import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 serverLoading in Debian := Systemd
 
+import com.twitter.scrooge._
+
 debianPackageDependencies := Seq("openjdk-8-jre-headless")
 
 def env(key: String): Option[String] = Option(System.getenv(key))
@@ -50,7 +52,7 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 
-val awsVersion = "1.10.40"
+val awsVersion = "1.10.42"
 
 libraryDependencies ++= Seq(
     ws,
@@ -67,8 +69,11 @@ libraryDependencies ++= Seq(
     "net.logstash.logback" % "logstash-logback-encoder" % "4.5.1",
     "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.2.10",
     "org.julienrf" %% "play-json-variants" % "2.0",
-    "org.scalatest" %% "scalatest" % "2.2.1" % "test",
-    "org.scalatestplus" %% "play" % "1.4.0-M4" % "test"
+    "org.scalatest" %% "scalatest" % "2.2.5" % "test",
+    "org.scalatestplus" %% "play" % "1.4.0-M4" % "test",
+    "org.apache.thrift" % "libthrift" % "0.9.2",
+    "com.twitter" %% "scrooge-core" % "3.20.0",
+    "com.gu" %% "story-packages-model" % "0.0.2"
 )
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)

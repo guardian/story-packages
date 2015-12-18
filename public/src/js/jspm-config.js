@@ -52,15 +52,10 @@ System.config({
     "npm:core-js@1.2.6": {
       "fs": "github:jspm/nodelibs-fs@0.1.2",
       "path": "github:jspm/nodelibs-path@0.1.0",
-      "process": "github:jspm/nodelibs-process@0.1.2",
-      "systemjs-json": "github:systemjs/plugin-json@0.1.0"
+      "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:font-awesome@4.4.0": {
       "css": "github:systemjs/plugin-css@0.1.20"
-    },
-    "npm:formatio@1.1.1": {
-      "process": "github:jspm/nodelibs-process@0.1.2",
-      "samsam": "npm:samsam@1.1.2"
     },
     "npm:inherits@2.0.1": {
       "util": "github:jspm/nodelibs-util@0.1.0"
@@ -75,12 +70,6 @@ System.config({
     "npm:knockout@3.3.0": {
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
-    "npm:native-promise-only@0.8.1": {
-      "child_process": "github:jspm/nodelibs-child_process@0.1.0",
-      "fs": "github:jspm/nodelibs-fs@0.1.2",
-      "path": "github:jspm/nodelibs-path@0.1.0",
-      "process": "github:jspm/nodelibs-process@0.1.2"
-    },
     "npm:numeral@1.5.3": {
       "fs": "github:jspm/nodelibs-fs@0.1.2"
     },
@@ -93,13 +82,6 @@ System.config({
     "npm:raven-js@1.1.22": {
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
-    },
-    "npm:sinon@1.17.2": {
-      "formatio": "npm:formatio@1.1.1",
-      "lolex": "npm:lolex@1.3.2",
-      "process": "github:jspm/nodelibs-process@0.1.2",
-      "samsam": "npm:samsam@1.1.2",
-      "util": "npm:util@0.10.3"
     },
     "npm:util@0.10.3": {
       "inherits": "npm:inherits@2.0.1",

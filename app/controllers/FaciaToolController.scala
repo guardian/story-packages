@@ -46,7 +46,7 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
             val updatedCollections = maybeCollectionJson.map(update.update.id -> _).toMap
 
             if (updatedCollections.nonEmpty) {
-              UpdatesStream.putStreamUpdate(StreamUpdate(update, identity.email))
+              UpdatesStream.putStreamUpdate(StreamUpdate(update, identity.email, updatedCollections))
               Database.touchPackage(update.update.id, identity)
               Ok(Json.toJson(updatedCollections)).as("application/json")
             } else
@@ -57,7 +57,7 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
           val identity = request.user
           UpdateActions.updateCollectionFilter(remove.remove.id, remove.remove, identity).map { maybeCollectionJson =>
             val updatedCollections = maybeCollectionJson.map(remove.remove.id -> _).toMap
-            UpdatesStream.putStreamUpdate(StreamUpdate(remove, identity.email))
+            UpdatesStream.putStreamUpdate(StreamUpdate(remove, identity.email, updatedCollections))
             Database.touchPackage(remove.remove.id, identity)
             Ok(Json.toJson(updatedCollections)).as("application/json")
           }
@@ -71,7 +71,7 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
               )).map(_.flatten.toMap)
 
           futureUpdatedCollections.map { updatedCollections =>
-            UpdatesStream.putStreamUpdate(StreamUpdate(updateAndRemove, identity.email))
+            UpdatesStream.putStreamUpdate(StreamUpdate(updateAndRemove, identity.email, updatedCollections))
             Database.touchPackage(updateAndRemove.update.id, identity)
             Database.touchPackage(updateAndRemove.remove.id, identity)
             Ok(Json.toJson(updatedCollections)).as("application/json")
