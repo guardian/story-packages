@@ -256,7 +256,6 @@ define([
                 display = opts.editable;
                 display = display && (this.meta[opts.key] || function() {})();
                 display = display && (opts.omitIfNo ? _.some(all, function(editor) { return editor.key === opts.omitIfNo && self.meta[editor.key](); }) : true);
-                display = display && (opts.omitForSupporting ? this.group.parentType !== 'Article' : true);
 
                 label = _.chain([
                     opts.label,
@@ -378,20 +377,11 @@ define([
                 }, {})
                 .value();
 
-            if (this.group && this.group.parentType === 'Collection') {
-                cleanMeta.group = this.group.index + '';
-            }
-
             return _.isEmpty(cleanMeta) ? undefined : cleanMeta;
         };
 
         Article.prototype.save = function() {
             if (!this.group.parent) {
-                return;
-            }
-
-            if (this.group.parentType === 'Article') {
-                this.group.parent.save();
                 return;
             }
 

@@ -96,7 +96,6 @@ export default class Editor extends BaseClass {
 
         display = display && (this.article.state.enableContentOverrides() || this.key === 'customKicker');
         display = display && (this.opts.ifState ? this.article.state[this.opts.ifState]() : true);
-        display = display && (this.opts.omitForSupporting ? this.article.group.parentType !== 'Article' : true);
 
         return display;
     }
