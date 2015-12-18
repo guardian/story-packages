@@ -1,10 +1,9 @@
 package updates
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream, OutputStream, IOException}
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
-import scala.annotation.tailrec
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, IOException, InputStream, OutputStream}
+import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
+import scala.annotation.tailrec
 
 sealed trait CompressionType
 case object NoneType extends CompressionType

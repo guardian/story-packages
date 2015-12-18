@@ -1,18 +1,16 @@
 package updates
 
-import conf.{Configuration, aws}
-import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
-import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
-import com.amazonaws.services.kinesis.model.{PutRecordsRequestEntry, PutRecordsRequest, PutRecordsResult}
-import storypackage.thrift.{Event, EventType, ArticleType, Article}
-import com.gu.facia.client.models.{CollectionJson, Trail}
 import java.nio.ByteBuffer
+
 import com.amazonaws.regions.Regions
+import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
+import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry}
+import com.gu.facia.client.models.CollectionJson
+import conf.{Configuration, aws}
 import play.api.Logger
-import services.ConfigAgent
+import storypackage.thrift.{Article, ArticleType, Event, EventType}
 
-
-class CapiUpdates() extends ThriftSerializer {
+object CapiUpdates extends ThriftSerializer {
 
   val streamName: String = Configuration.updates.capi
   val maxDataSize = Configuration.updates.maxDataSize
@@ -81,24 +79,21 @@ class CapiUpdates() extends ThriftSerializer {
   }
 
   def sendUpdate(event: Event) {
-
-
     val request = new PutRecordsRequest().withStreamName(streamName)
 
     val bytes = serializeToBytes(event)
-      if (bytes.length > maxDataSize) {
-        Logger.error(s"${streamName} - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size(${maxDataSize})")
-      } else {
-        Logger.info(s"${streamName} - sending with size of ${bytes.length} bytes")
-        val record = new PutRecordsRequestEntry()
-          .withPartitionKey(event.packageId)
-          .withData(ByteBuffer.wrap(bytes))
-          request.withRecords(record)
+    if (bytes.length > maxDataSize) {
+      Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size($maxDataSize)")
+    } else {
+      Logger.info(s"$streamName - sending with size of ${bytes.length} bytes")
+      val record = new PutRecordsRequestEntry()
+        .withPartitionKey(event.packageId)
+        .withData(ByteBuffer.wrap(bytes))
+        request.withRecords(record)
 
-        /* Send the request to Kinesis*/
-        client.putRecordsAsync(request)
-      }
+      /* Send the request to Kinesis*/
+      client.putRecordsAsync(request)
+    }
 
   }
 }
-

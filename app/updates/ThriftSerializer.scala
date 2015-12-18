@@ -1,9 +1,10 @@
 package updates
 
+import java.lang.{Byte => JByte}
+
 import com.twitter.scrooge.ThriftStruct
 import org.apache.thrift.protocol.TCompactProtocol
 import org.apache.thrift.transport.TMemoryBuffer
-import java.lang.{Byte => JByte}
 
 trait ThriftSerializer {
   import ThriftSerializer._
