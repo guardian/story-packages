@@ -4,7 +4,7 @@ import auth.PanDomainAuthActions
 import com.gu.facia.client.models.FrontJson
 import config.UpdateManager
 import play.api.mvc.Controller
-import updates.{CreateFront, StreamUpdate, UpdateFront, UpdatesStream}
+import updates.{CreateFront, StreamUpdateWithCollections, UpdateFront, UpdatesStream}
 import util.Requests._
 
 object FrontController extends Controller with PanDomainAuthActions {
@@ -13,7 +13,7 @@ object FrontController extends Controller with PanDomainAuthActions {
       case Some(createFrontRequest) =>
         val identity = request.user
         val newCollectionId = UpdateManager.createFront(createFrontRequest, identity)
-        UpdatesStream.putStreamUpdate(StreamUpdate(createFrontRequest, identity.email))
+        UpdatesStream.putStreamUpdate(StreamUpdateWithCollections(createFrontRequest, identity.email))
         Ok
 
       case None => BadRequest
@@ -25,7 +25,7 @@ object FrontController extends Controller with PanDomainAuthActions {
       case Some(front) =>
         val identity = request.user
         UpdateManager.updateFront(frontId, front, identity)
-        UpdatesStream.putStreamUpdate(StreamUpdate(UpdateFront(frontId, front), identity.email))
+        UpdatesStream.putStreamUpdate(StreamUpdateWithCollections(UpdateFront(frontId, front), identity.email))
         Ok
 
       case None => BadRequest

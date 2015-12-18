@@ -45,9 +45,10 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
           futureCollectionJson.map { maybeCollectionJson =>
             val updatedCollections = maybeCollectionJson.map(update.update.id -> _).toMap
 
+
             if (updatedCollections.nonEmpty) {
-              UpdatesStream.putStreamUpdate(StreamUpdate(update, identity.email))
-              Database.touchPackage(update.update.id, identity)
+              UpdatesStream.putStreamUpdate(StreamUpdateWithCollections(update, identity.email, Some(updatedCollections)))
+              Database.touchPackage(update.update.id, identity.email)
               Ok(Json.toJson(updatedCollections)).as("application/json")
             } else
               NotFound
@@ -57,8 +58,8 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
           val identity = request.user
           UpdateActions.updateCollectionFilter(remove.remove.id, remove.remove, identity).map { maybeCollectionJson =>
             val updatedCollections = maybeCollectionJson.map(remove.remove.id -> _).toMap
-            UpdatesStream.putStreamUpdate(StreamUpdate(remove, identity.email))
-            Database.touchPackage(remove.remove.id, identity)
+            UpdatesStream.putStreamUpdate(StreamUpdateWithCollections(remove, identity.email, Some(updatedCollections)))
+            Database.touchPackage(remove.remove.id, identity.email)
             Ok(Json.toJson(updatedCollections)).as("application/json")
           }
         }
@@ -71,9 +72,9 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
               )).map(_.flatten.toMap)
 
           futureUpdatedCollections.map { updatedCollections =>
-            UpdatesStream.putStreamUpdate(StreamUpdate(updateAndRemove, identity.email))
-            Database.touchPackage(updateAndRemove.update.id, identity)
-            Database.touchPackage(updateAndRemove.remove.id, identity)
+            UpdatesStream.putStreamUpdate(StreamUpdateWithCollections(updateAndRemove, identity.email, Some(updatedCollections)))
+            Database.touchPackage(updateAndRemove.update.id, identity.email)
+            Database.touchPackage(updateAndRemove.remove.id, identity.email)
             Ok(Json.toJson(updatedCollections)).as("application/json")
           }
         }

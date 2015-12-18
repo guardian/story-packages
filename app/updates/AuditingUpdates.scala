@@ -28,7 +28,7 @@ object AuditingUpdates {
     c
   }
 
-  def putStreamUpdate(streamUpdate: StreamUpdate): Unit =
+  def putStreamUpdate(streamUpdate: StreamUpdateWithCollections): Unit =
     Json.toJson(streamUpdate.update).transform[JsObject](Reads.JsObjectReads) match {
       case JsSuccess(jsonObject, _)  => putString(Json.stringify(jsonObject +
         ("email", JsString(streamUpdate.email)) +
