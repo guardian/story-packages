@@ -1,6 +1,4 @@
 import _ from 'underscore';
-import * as vars from 'modules/vars';
-import testConfig from 'test/config';
 import $ from 'jquery';
 
 window.jQuery = $;
@@ -30,8 +28,6 @@ export function run (filterTests, allFiles) {
             .filter(filterSpecFiles)
             .filter(filterLoadedTests)
             .value();
-
-        vars.init(testConfig);
 
         return Promise.all(_.map(tests, function (test) {
             return System.import(test);

@@ -42,6 +42,12 @@ var register = _.once(() => {
         viewModel: { jspm: 'widgets/columns/packages' },
         template: { text: 'widgets/columns/packages.html' }
     });
+    ko.components.register('confirm_package_delete', {
+        viewModel: {
+            createViewModel: (params) => params
+        },
+        template: { text: 'widgets/confirm_package_delete.html' }
+    });
     ko.components.register('search-controls', {
         viewModel: {
             createViewModel: (params) => params.context.$data
@@ -117,6 +123,14 @@ var register = _.once(() => {
     ko.components.register('config-card-types', {
         viewModel: { jspm: 'widgets/config-card-types' },
         template: '<!-- card types -->'
+    });
+    ko.components.register('fetch-latest-packages', {
+        viewModel: { jspm: 'widgets/fetch-latest-packages' },
+        template: '<!-- fetch-latest-packages  -->'
+    });
+    ko.components.register('display-alert', {
+        viewModel: { jspm: 'widgets/display-alerts' },
+        template: { text: 'widgets/display-alerts.html' }
     });
     ko.bindingHandlers.ownerClass = {
         init: function (element, valueAccessor) {

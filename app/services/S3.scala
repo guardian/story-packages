@@ -105,7 +105,6 @@ object S3FrontsApi extends S3 {
   def getMasterConfig: Option[String] = get(s"$location/config/config.json")
   def getBlock(id: String) = get(s"$location/collection/$id/collection.json")
   def listConfigsIds: List[String] = getConfigIds(s"$location/config/")
-  def listCollectionIds: List[String] = getCollectionIds(s"$location/collection/")
   def putCollectionJson(id: String, json: String) = {
     val putLocation: String = s"$location/collection/$id/collection.json"
     putPrivate(putLocation, json, "application/json")
@@ -139,7 +138,6 @@ object S3FrontsApi extends S3 {
   }
 
   def getConfigIds(prefix: String): List[String] = getListing(prefix, "/config.json")
-  def getCollectionIds(prefix: String): List[String] = getListing(prefix, "/collection.json")
 
   def getCollectionLastModified(path: String): Option[String] =
     getLastModified(s"/collection/$path/collection.json").map(_.toString)

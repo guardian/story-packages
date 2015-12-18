@@ -1,8 +1,9 @@
 import ko from 'knockout';
-import Promise from 'Promise';
 import _ from 'underscore';
 import Collection from 'models/collections/collection';
+import * as authedAjax from 'modules/authed-ajax';
 import {CONST} from 'modules/vars';
+import alert from 'utils/alert';
 import mediator from 'utils/mediator';
 import ColumnWidget from 'widgets/column-widget';
 
@@ -13,10 +14,8 @@ export default class Front extends ColumnWidget {
         var frontId = params.column.config();
         this.front = ko.observable(frontId);
         this.previousFront = frontId;
-        this.frontAge = ko.observable();
-        this.collections = ko.observableArray();
+        this.collection = ko.observable();
         this.mode = ko.observable('live');
-        this.flattenGroups = ko.observable(params.mode === 'treats');
         this.maxArticlesInHistory = 5;
         this.controlsVisible = ko.observable(false);
         this.authorized = ko.observable(isAuthorized(this.baseModel, frontId));
@@ -36,35 +35,48 @@ export default class Front extends ColumnWidget {
             return classes.join(' ');
         });
 
-        this.previewUrl = ko.pureComputed(() => {
-            var path = this.mode() === 'live' ? 'http://' + CONST.mainDomain : CONST.previewBase;
-
-            return CONST.previewBase + '/responsive-viewer/' + path + '/' + this.front();
-        });
-
         this.isControlsVisible = ko.observable(false);
         this.controlsText = ko.pureComputed(() => '');
 
         this.uiOpenArticle = ko.observable();
 
-        this.allExpanded = ko.observable(true);
-
         this.listenOn(mediator, 'ui:open', (element, article, front) => {
             if (front !== this) {
                 return;
             }
-            var openArticle = this.uiOpenArticle();
-            if (openArticle && openArticle.group &&
-                openArticle.group.parentType === 'Article' &&
-                openArticle !== article) {
-                openArticle.close();
-            }
             this.uiOpenArticle(article);
         });
 
-        this.listenOn(mediator, 'alert:dismiss', () => this.alertFrontIsStale(false));
-        this.listenOn(mediator, 'collection:collapse', this.onCollectionCollapse);
-        this.listenOn(mediator, 'find:package', this.onFrontChange);
+        this.listenOn(mediator, 'delete:package', function(storyPackageId) {
+            var existingPackages = this.baseModel.latestPackages();
+            if (this.front() === storyPackageId) {
+                this.front(null);
+                this.collection(null);
+            }
+            var index = _.findIndex(existingPackages, existingPackage => existingPackage.id === storyPackageId);
+            if (index !== -1) {
+                existingPackages.splice(index, 1);
+                this.baseModel.latestPackages(existingPackages);
+            }
+        });
+
+        this.listenOn(mediator, 'find:package', function(storyPackage) {
+            var existingPackages = this.baseModel.latestPackages();
+            if (_.every(existingPackages, existingPackage => {
+                return existingPackage.id !== storyPackage.id;
+            })) {
+                var packageDate = new Date(storyPackage.lastModify);
+                var packageIndex = _.findIndex(existingPackages, existingPackage => new Date(existingPackage.lastModify) < packageDate);
+
+                if (packageIndex > -1) {
+                    existingPackages.splice(packageIndex, 0, storyPackage);
+                } else {
+                    existingPackages.push(storyPackage);
+                }
+            }
+            this.baseModel.latestPackages(existingPackages);
+            this.onFrontChange(storyPackage.id);
+        });
 
         this.subscribeOn(this.column.config, newConfig => {
             if (newConfig !== this.front()) {
@@ -80,66 +92,50 @@ export default class Front extends ColumnWidget {
         this.load(frontId);
     }
 
-    load(frontId) {
-        if (frontId !== this.front()) {
-            this.front(frontId);
+    load(id) {
+        if (id !== this.front()) {
+            this.front(id);
         }
-        var allCollections = this.baseModel.state().config.collections;
-
-        this.allExpanded(true);
-        this.collections(
-            ((this.baseModel.frontsMap()[frontId] || {}).collections || [])
-            .filter(id => allCollections[id] && !allCollections[id].uneditable)
-            .map(id => new Collection(
-                _.extend(
-                    allCollections[id],
-                    {
-                        id: id,
-                        alsoOn: _.reduce(this.baseModel.frontsList(), (alsoOn, front) => {
-                            if (front.id !== frontId && (front.collections || []).indexOf(id) > -1) {
-                                alsoOn.push(front.id);
-                            }
-                            return alsoOn;
-                        }, []),
-                        front: this
-                    }
-                )
-            ))
-        );
-
-        this.loaded = Promise.all(
-            this.collections().map(collection => collection.loaded)
-        ).then(() => mediator.emit('front:loaded', this));
-    }
-
-    toggleAll() {
-        var state = !this.allExpanded();
-        this.allExpanded(state);
-        _.each(this.collections(), collection => collection.state.collapsed(!state));
-    }
-
-    onCollectionCollapse(collection, collectionState) {
-        if (collection.front !== this) {
+        if (!id) {
+            this.loaded = Promise.resolve();
             return;
         }
-        var differentState = _.find(this.collections(), collection => collection.state.collapsed() !== collectionState);
-        if (!differentState) {
-            this.allExpanded(!collectionState);
-        }
+
+        this.loaded = authedAjax.request({
+            url: '/story-package/' + id
+        })
+        .then(response => {
+            const newCollection = new Collection({
+                id: id,
+                front: this,
+                displayName: response.name,
+                lastUpdated: response.lastModify,
+                updatedBy: response.lastModifyByName,
+                updatedEmail: response.lastModifyBy
+            });
+            this.collection(newCollection);
+
+            return newCollection.loaded;
+        })
+        .then(() => mediator.emit('front:loaded', this))
+        .catch(response => {
+            alert('Failed loading story package ' + id + '\n' + response.responseText || response.message);
+        });
     }
 
     refreshCollections(period) {
-        var length = this.collections().length || 1;
         this.setIntervals.push(setInterval(() => {
-            this.collections().forEach((list, index) => {
-                this.setTimeouts.push(setTimeout(() => list.refresh(), index * period / length)); // stagger requests
-            });
+            if (this.collection()) {
+                this.collection().refresh();
+            }
         }, period));
     }
 
     refreshRelativeTimes(period) {
         this.setIntervals.push(setInterval(() => {
-            this.collections().forEach(list => list.refreshRelativeTimes());
+            if (this.collection()) {
+                this.collection().refreshRelativeTimes();
+            }
         }, period));
     }
 
@@ -155,10 +151,11 @@ export default class Front extends ColumnWidget {
     }
 
     onModeChange() {
-        _.each(this.collections(), function(collection) {
+        var collection = this.collection();
+        if (collection) {
             collection.closeAllArticles();
             collection.populate();
-        });
+        }
     }
 
     getCollectionList(list) {
@@ -173,7 +170,11 @@ export default class Front extends ColumnWidget {
         return sublist || [];
     }
 
-    newItemValidator() {}
+    newItemValidator(item) {
+        if (item.meta.snapType()) {
+            return 'You cannot add snaps to packages';
+        }
+    }
 
     dispose() {
         super.dispose();

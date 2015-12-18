@@ -19,7 +19,7 @@
     </div>
 </div>
 
-<div class="col__inner scrollable styledFront treats-mode">
+<div class="col__inner styledFront treats-mode">
     <div class="title">search</div>
     <div class="packagesSearch">
         <input
@@ -30,12 +30,43 @@
             textInput: searchTerm
         "/>
     </div>
-    <ul class="packagesResults" data-bind="foreach: searchedPackages">
-        <li>
-            <a href="#" data-bind="
-                text: displayName,
-                click: $parent.displayPackage"
-            ></a>
-        </li>
-    </div>
+</div>
+
+<div class="styledFront treats-mode scrollable">
+    <!-- ko if: searchTerm() && !searchInProgress() -->
+        <div class="cardContainer">
+            <!-- ko if: (searchResults().length === 0) && searchedPackages() -->
+                <span class="packagesEmptyResults">Couldn't find any story package matching the search term.</span>
+            <!-- /ko -->
+
+            <ul class="packagesResults" data-bind="foreach: searchResults">
+                <li>
+                    <div class="article" data-bind="click: $parent.displayPackage.bind($parent)">
+                        <div class="closed">
+                            <div class="article__tools">
+                                <a class="tool tool--small large tool--small--delete-package" title="Delete" data-bind="
+                                    click: $parent.displayRemoveModal.bind($parent, $index()),
+                                    clickBubble: false
+                                ">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </div>
+                            <div class="article__content">
+                                <a class="element element__headline" data-bind="
+                                    text: name,
+                                    attr: { href: '/story-package/' + id }
+                                "></a>
+                                <div class="article__ammends">
+                                    <div class="article__times">
+                                        <span class="time__publication" data-bind="text: lastModifyHuman"></span>
+                                        <span class="publisher" data-bind="text: lastModifyByName"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    <!-- /ko -->
 </div>

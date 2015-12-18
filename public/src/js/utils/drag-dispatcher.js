@@ -1,15 +1,12 @@
 import _ from 'underscore';
 import Article from 'models/collections/article';
-import ConfigCollection from 'models/config/collection';
 import * as authedAjax from 'modules/authed-ajax';
 import * as capi from 'modules/content-api';
 import * as vars from 'modules/vars';
 import alert from 'utils/alert';
 import cleanClone from 'utils/clean-clone';
-import cloneWithKey from 'utils/clone-with-key';
 import deepGet from 'utils/deep-get';
 import findFirstById from 'utils/find-first-by-id';
-import mediator from 'utils/mediator';
 import removeById from 'utils/remove-by-id';
 import urlAbsPath from 'utils/url-abs-path';
 
@@ -46,8 +43,7 @@ function handleMedia ({sourceItem, mediaItem}, targetItem, targetGroup) {
             // Singleton images
             article.meta.imageCutoutReplace(false);
             article.meta.showMainVideo(false);
-            article.meta.imageSlideshowReplace(false);
-            article.meta.imageSrc(mediaItem.file);
+            return _.find(article.editors(), editor => editor.key === 'imageSrc').dropInEditor(mediaItem.dataTransfer);
         } else {
             alert('You can only drop media into an opened article.');
         }
@@ -55,6 +51,11 @@ function handleMedia ({sourceItem, mediaItem}, targetItem, targetGroup) {
 }
 
 function handleInternalClass ({sourceItem, sourceGroup}, targetItem, targetGroup) {
+
+    if (targetGroup.parentType === 'Article') {
+        alert('You cannot add sublinks to story packages');
+        return;
+    }
 
     var {position, target, isAfter} = normalizeTarget(sourceItem, targetItem, targetGroup);
 
@@ -159,22 +160,17 @@ function normalizeTarget (sourceItem, targetItem, targetGroup) {
 }
 
 function newItemsConstructor (sourceItem = {}, targetGroup) {
-    if (sourceItem.type === vars.CONST.draggableTypes.configCollection) {
-        var collectionConfig = cloneWithKey(vars.model.state().config.collections[sourceItem.id], sourceItem.id);
-        return [new ConfigCollection(collectionConfig)];
-    } else {
-        var items = [_.extend({}, sourceItem)];
+    var items = [_.extend({}, sourceItem)];
 
-        if (sourceItem && sourceItem.meta && sourceItem.meta.supporting) {
-            items = items.concat(sourceItem.meta.supporting);
-        }
-
-        return _.map(items, item => new Article({
-            id: item.id,
-            meta: cleanClone(item.meta),
-            group: targetGroup
-        }));
+    if (sourceItem && sourceItem.meta && sourceItem.meta.supporting) {
+        items = items.concat(sourceItem.meta.supporting);
     }
+
+    return _.map(items, item => new Article({
+        id: item.id,
+        meta: cleanClone(item.meta),
+        group: targetGroup
+    }));
 }
 
 function validate (sourceItem, newItems, context) {

@@ -1,17 +1,8 @@
 import _ from 'underscore';
 import {request} from 'modules/authed-ajax';
 import CONST from 'constants/defaults';
-import Promise from 'Promise';
 
 var endpoints = [{
-    key: 'config',
-    url: CONST.apiBase + '/config',
-    validate: function (response) {
-        if (!_.isObject(response.fronts) || !_.isObject(response.collections)) {
-            return new Error('The config is invalid.');
-        }
-    }
-}, {
     key: 'defaults',
     url: CONST.apiBase + '/defaults'
 }];

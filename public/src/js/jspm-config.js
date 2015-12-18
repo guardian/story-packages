@@ -15,22 +15,20 @@ System.config({
 
   map: {
     "EventEmitter": "npm:wolfy87-eventemitter@4.3.0",
-    "Promise": "npm:native-promise-only@0.8.1",
-    "babel": "npm:babel-core@5.8.25",
-    "babel-runtime": "npm:babel-runtime@5.8.25",
-    "core-js": "npm:core-js@1.2.1",
-    "css": "github:systemjs/plugin-css@0.1.18",
-    "es5-shim": "github:es-shims/es5-shim@4.1.14",
+    "babel": "npm:babel-core@5.8.34",
+    "babel-runtime": "npm:babel-runtime@5.8.34",
+    "core-js": "npm:core-js@1.2.6",
+    "css": "github:systemjs/plugin-css@0.1.20",
+    "es5-shim": "github:es-shims/es5-shim@4.4.1",
     "font-awesome": "npm:font-awesome@4.4.0",
     "grid-util-js": "npm:grid-util-js@1.0.5",
     "jquery": "npm:jquery@2.1.4",
     "jquery-mockjax": "npm:jquery-mockjax@2.0.1",
-    "jquery-ui": "github:jquery/jquery-ui@1.11.3",
+    "jquery-ui": "github:jquery/jquery-ui@1.11.4",
     "knockout": "npm:knockout@3.3.0",
     "numeral": "npm:numeral@1.5.3",
-    "panda-session": "github:guardian/panda-session@0.1.5",
+    "panda-session": "github:guardian/panda-session@0.1.6",
     "raven-js": "npm:raven-js@1.1.22",
-    "sinon": "npm:sinon@1.17.1",
     "text": "github:systemjs/plugin-text@0.0.2",
     "underscore": "npm:underscore@1.8.3",
     "github:jspm/nodelibs-assert@0.1.0": {
@@ -48,16 +46,17 @@ System.config({
     "npm:assert@1.3.0": {
       "util": "npm:util@0.10.3"
     },
-    "npm:babel-runtime@5.8.25": {
+    "npm:babel-runtime@5.8.34": {
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
-    "npm:core-js@1.2.1": {
+    "npm:core-js@1.2.6": {
       "fs": "github:jspm/nodelibs-fs@0.1.2",
+      "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "systemjs-json": "github:systemjs/plugin-json@0.1.0"
     },
     "npm:font-awesome@4.4.0": {
-      "css": "github:systemjs/plugin-css@0.1.18"
+      "css": "github:systemjs/plugin-css@0.1.20"
     },
     "npm:formatio@1.1.1": {
       "process": "github:jspm/nodelibs-process@0.1.2",
@@ -95,7 +94,7 @@ System.config({
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
-    "npm:sinon@1.17.1": {
+    "npm:sinon@1.17.2": {
       "formatio": "npm:formatio@1.1.1",
       "lolex": "npm:lolex@1.3.2",
       "process": "github:jspm/nodelibs-process@0.1.2",

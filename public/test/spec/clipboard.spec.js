@@ -1,4 +1,3 @@
-import ko from 'knockout';
 import _ from 'underscore';
 import $ from 'jquery';
 import * as cache from 'modules/cache';
