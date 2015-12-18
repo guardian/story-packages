@@ -61,7 +61,7 @@
                 "MinSize": 3,
                 "MaxSize": 6,
                 "DesiredCapacity": 3,
-                "InstanceType": "c3.large",
+                "InstanceType": "m3.medium",
                 "ReadThroughput": 10,
                 "WriteThroughput": 10
             },
@@ -69,7 +69,7 @@
                 "MinSize": 1,
                 "MaxSize": 2,
                 "DesiredCapacity": 1,
-                "InstanceType": "m3.medium",
+                "InstanceType": "t2.nano",
                 "ReadThroughput": 5,
                 "WriteThroughput": 5
             }
