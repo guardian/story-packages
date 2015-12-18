@@ -1,10 +1,3 @@
-import $ from 'jquery';
-import mockjax from 'jquery-mockjax';
-
-mockjax($, window);
-$.mockjaxSettings.logging = false;
-$.mockjaxSettings.responseTime = 50;
-
 export default {
     defaults: {
         env: 'test',

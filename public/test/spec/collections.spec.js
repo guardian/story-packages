@@ -9,10 +9,6 @@ describe('Collections', function () {
         this.testPage.dispose(done);
     });
 
-    it('displays the correct timing', function () {
-        expect(this.testPage.regions.front().collection(1).lastModified()).toMatch('1 day ago by Test');
-    });
-
     it('/edits', function (done) {
         var testPage = this.testPage;
 

@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import sinon from 'sinon';
 import {CONST} from 'modules/vars';
 import * as capi from 'modules/content-api';
 import {scope} from 'test/utils/mockjax';
@@ -12,7 +11,7 @@ describe('Content API', function () {
                 id: function () {
                     return 'internal-code/page/' + id;
                 },
-                addCapiData: sinon.spy(),
+                addCapiData: jasmine.createSpy('addCapiData'),
                 meta: {
                     href: function () { return true; }
                 }
@@ -69,7 +68,7 @@ describe('Content API', function () {
         capi.decorateItems(articles).then(() => {
             // Just make sure the callback is called for empty arrays
             _.each(articles, function (article) {
-                expect(article.addCapiData.called).toBe(true);
+                expect(article.addCapiData).toHaveBeenCalled();
             });
         })
         .then(done)
@@ -118,7 +117,7 @@ describe('Content API', function () {
         capi.decorateItems(articles).then(() => {
             // Just make sure the callback is called for empty arrays
             _.each(articles, function (article) {
-                expect(article.addCapiData.called).toBe(true);
+                expect(article.addCapiData).toHaveBeenCalled();
             });
         })
         .then(done)

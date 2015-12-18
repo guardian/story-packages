@@ -1,10 +1,9 @@
+import $ from 'jquery';
 import ko from 'knockout';
+import {register} from 'models/widgets';
 import modalDialog from 'modules/modal-dialog';
 import alert from 'utils/alert';
-import sinon from 'sinon';
-import $ from 'jquery';
 import textInside from 'test/utils/text-inside';
-import {register} from 'models/widgets';
 import 'widgets/modal_dialog.html!text';
 import 'widgets/text_alert.html!text';
 
@@ -17,8 +16,8 @@ describe('Modal Dialog', function () {
     });
 
     it('calls the ok function', function (done) {
-        var ok = sinon.spy(),
-            cancel = sinon.spy();
+        var ok = jasmine.createSpy('ok'),
+            cancel = jasmine.createSpy('cancel');
 
         openDialog({
             fruit: 'apple'
@@ -29,8 +28,8 @@ describe('Modal Dialog', function () {
             return click('ok');
         })
         .then(function () {
-            expect(ok.called).toBe(true);
-            expect(cancel.called).toBe(false);
+            expect(ok).toHaveBeenCalled();
+            expect(cancel).not.toHaveBeenCalled();
             expect($('.test-container .what-i-like').length).toBe(0);
 
             return openDialog({
@@ -43,7 +42,7 @@ describe('Modal Dialog', function () {
             return click('cancel');
         })
         .then(function () {
-            expect(cancel.called).toBe(true);
+            expect(cancel).toHaveBeenCalled();
             expect($('.test-container .what-i-like').length).toBe(0);
         })
         .then(done)

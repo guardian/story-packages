@@ -1,5 +1,9 @@
 import $ from 'jquery';
-import 'jquery-mockjax';
+import mockjax from 'jquery-mockjax';
+
+mockjax($, window);
+$.mockjaxSettings.logging = false;
+$.mockjaxSettings.responseTime = 50;
 
 export default $.mockjax;
 

@@ -1,4 +1,3 @@
-import Promise from 'Promise';
 import Page from 'test/utils/page';
 import * as mockjax from 'test/utils/mockjax';
 import * as wait from 'test/utils/wait';
