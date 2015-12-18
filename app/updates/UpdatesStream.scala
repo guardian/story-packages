@@ -1,7 +1,5 @@
 package updates
 
-import stream.CapiUpdates
-
 object UpdatesStream {
 
   val capiUpdates = new CapiUpdates()

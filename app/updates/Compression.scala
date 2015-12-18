@@ -1,4 +1,4 @@
-package event
+package updates
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream, OutputStream, IOException}
 import java.util.zip.GZIPInputStream

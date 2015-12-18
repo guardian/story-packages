@@ -1,4 +1,4 @@
-package event
+package updates
 
 import com.twitter.scrooge.ThriftStruct
 import org.apache.thrift.protocol.TCompactProtocol
