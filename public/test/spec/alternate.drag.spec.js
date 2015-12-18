@@ -15,7 +15,6 @@ describe('Alternate Drag', function () {
     it('replace article and drags sublinks', function (done) {
         var mockScope = this.scope, testPage = this.testPage;
         openFirstArticle()
-        .then(trail => trail.toggleMetadata('isBreaking'))
         .then(trail => trail.toggleMetadata('showBoostedHeadline'))
         .then(dropSublink)
         .then(copyPasteSublink)
@@ -59,7 +58,6 @@ describe('Alternate Drag', function () {
                         position: 'internal-code/page/1',
                         itemMeta: {
                             group: '0',
-                            isBreaking: true,
                             showBoostedHeadline: true,
                             supporting: [
                                 { id: 'internal-code/page/2' },
@@ -74,7 +72,6 @@ describe('Alternate Drag', function () {
                     live: [{
                         id: 'internal-code/page/1',
                         meta: {
-                            isBreaking: true,
                             showBoostedHeadline: true,
                             supporting: [
                                 { id: 'internal-code/page/2' },
@@ -94,7 +91,6 @@ describe('Alternate Drag', function () {
                     live: [{
                         id: 'internal-code/page/4',
                             meta: {
-                                isBreaking: true,
                                 showBoostedHeadline: true,
                                 supporting: [
                                     { id: 'internal-code/page/2' },
@@ -104,7 +100,6 @@ describe('Alternate Drag', function () {
                     }, {
                         id: 'internal-code/page/1',
                             meta: {
-                                isBreaking: true,
                                 showBoostedHeadline: true,
                                 supporting: [
                                     { id: 'internal-code/page/2' },
@@ -119,7 +114,6 @@ describe('Alternate Drag', function () {
                     live: [{
                         id: 'internal-code/page/4',
                             meta: {
-                                isBreaking: true,
                                 showBoostedHeadline: true,
                                 supporting: [
                                     { id: 'internal-code/page/2' },
@@ -158,7 +152,6 @@ describe('Alternate Drag', function () {
                             position: 'internal-code/page/1',
                             after: false,
                             itemMeta: {
-                                isBreaking: true,
                                 showBoostedHeadline: true,
                                 supporting: [
                                     { id: 'internal-code/page/2' },
@@ -200,7 +193,6 @@ describe('Alternate Drag', function () {
                             item: 'internal-code/page/4',
                             position: 'internal-code/page/4',
                             itemMeta: {
-                                isBreaking: true,
                                 showBoostedHeadline: true,
                                 supporting: [
                                     { id: 'internal-code/page/2' }
@@ -215,7 +207,6 @@ describe('Alternate Drag', function () {
                         live: [{
                             id: 'internal-code/page/4',
                             meta: {
-                                isBreaking: true,
                                 showBoostedHeadline: true,
                                 supporting: [
                                     { id: 'internal-code/page/2' }
@@ -242,7 +233,6 @@ describe('Alternate Drag', function () {
                         position: 'internal-code/page/4',
                         itemMeta: {
                             group: '0',
-                            isBreaking: true,
                             showBoostedHeadline: true,
                             supporting: [
                                 { id: 'internal-code/page/2' }
@@ -256,7 +246,6 @@ describe('Alternate Drag', function () {
                     live: [{
                         id: 'internal-code/page/4',
                         meta: {
-                            isBreaking: true,
                             showBoostedHeadline: true,
                             supporting: [
                                 { id: 'internal-code/page/2' }

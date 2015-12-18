@@ -1,5 +1,3 @@
-import CONST from 'constants/defaults';
-
 export default Object.freeze([
     {
         key: 'headline',

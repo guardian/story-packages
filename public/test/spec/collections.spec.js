@@ -115,7 +115,7 @@ describe('Collections', function () {
         function insertMetadataOnTopOfTheList () {
             return testPage.actions.edit(() => {
                 return testPage.regions.front().collection(1).group(1).trail(1).open()
-                .then(trail => trail.toggleMetadata('isBreaking'))
+                .then(trail => trail.toggleMetadata('showQuotedHeadline'))
                 .then(trail => trail.save());
             })
             .assertRequest(request => {
@@ -126,7 +126,7 @@ describe('Collections', function () {
                 expect(request.data.update.live).toEqual(true);
                 expect(request.data.update.id).toEqual('story-2');
                 expect(request.data.update.item).toEqual('internal-code/page/3');
-                expect(request.data.update.itemMeta.isBreaking).toEqual(true);
+                expect(request.data.update.itemMeta.showQuotedHeadline).toEqual(true);
                 expect(request.data.update.position).toEqual('internal-code/page/3');
             })
             .respondWith({
@@ -134,7 +134,7 @@ describe('Collections', function () {
                     live: [{
                         id: 'internal-code/page/3',
                         meta: {
-                            isBreaking: true
+                            showQuotedHeadline: true
                         }
                     }, {
                         id: 'internal-code/page/1'
@@ -161,7 +161,7 @@ describe('Collections', function () {
                 expect(request.data.update.live).toEqual(true);
                 expect(request.data.update.id).toEqual('story-2');
                 expect(request.data.update.item).toEqual('internal-code/page/3');
-                expect(request.data.update.itemMeta.isBreaking).toEqual(true);
+                expect(request.data.update.itemMeta.showQuotedHeadline).toEqual(true);
                 expect(request.data.update.position).toEqual('internal-code/page/2');
             })
             .respondWith({
@@ -171,7 +171,7 @@ describe('Collections', function () {
                     }, {
                         id: 'internal-code/page/3',
                         meta: {
-                            isBreaking: true
+                            showQuotedHeadline: true
                         }
                     }, {
                         id: 'internal-code/page/2'
