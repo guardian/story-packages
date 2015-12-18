@@ -106,8 +106,6 @@ object Database {
     val errorMessage = s"Unable to update modification metadata for story package $id"
     WithExceptionHandling(errorMessage, {
       val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
-      println(modifyDate.toString)
-
 
       val updateSpec = new UpdateItemSpec()
         .withPrimaryKey("id", id)
