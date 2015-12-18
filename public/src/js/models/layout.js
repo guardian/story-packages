@@ -40,10 +40,12 @@ export default class Layout extends BaseClass {
         };
         this.savedLayout = null;
 
-        this.loaded = this.initializeFromLocation();
-
         this.subscribeOn(this.configVisible, this.locationChange);
         this.listenOn(router, 'change', this.locationChange);
+    }
+
+    init() {
+        return this.initializeFromLocation();
     }
 
     locationChange() {

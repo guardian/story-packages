@@ -51,6 +51,7 @@ describe('Layout', function () {
         }];
         this.layout = new Layout(this.router, this.widget);
         this.layout.CONST.addColumnTransition = CONST_TRANSITION;
+        this.layout.init();
     });
     afterEach(function () {
         this.layout.dispose();

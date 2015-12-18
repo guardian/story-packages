@@ -84,21 +84,19 @@ export default class BaseModel extends BaseClass {
 function waitFor (model, layout, extensions) {
     var extensionsLoadedInDom,
         extensionsClassesLoaded,
-        extensionsLoadedPromise = new Promise(resolve => {
+        extensionsLoadedPromise = extensions.length ? new Promise(resolve => {
             extensionsLoadedInDom = _.after(extensions.length, resolve);
-        }),
-        extensionsClassesPromise = new Promise(resolve => {
+        }): Promise.resolve(),
+        extensionsClassesPromise = extensions.length ? new Promise(resolve => {
             extensionsClassesLoaded = _.after(extensions.length, resolve);
-        });
+        }): Promise.resolve();
     model.registerExtension = () => {
         extensionsLoadedInDom();
     };
     model.extensionCreated = () => {
         extensionsClassesLoaded();
     };
-    return layout.loaded.then(() => {
-        if (extensions.length) {
-            return extensionsLoadedPromise.then(() => extensionsClassesPromise);
-        }
-    });
+    return extensionsLoadedPromise
+    .then(() => extensionsClassesPromise)
+    .then(() => layout.init());
 }
