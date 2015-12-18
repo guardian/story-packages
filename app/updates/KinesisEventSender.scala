@@ -90,15 +90,14 @@ class CapiUpdates() extends ThriftSerializer {
         Logger.error(s"${streamName} - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size(${maxDataSize})")
       } else {
         Logger.info(s"${streamName} - sending with size of ${bytes.length} bytes")
+        val record = new PutRecordsRequestEntry()
+          .withPartitionKey(event.packageId)
+          .withData(ByteBuffer.wrap(bytes))
+          request.withRecords(record)
+
+        /* Send the request to Kinesis*/
+        client.putRecordsAsync(request)
       }
-
-      val record = new PutRecordsRequestEntry()
-        .withPartitionKey(event.packageId)
-        .withData(ByteBuffer.wrap(bytes))
-      request.withRecords(record)
-
-    /* Send the request to Kinesis*/
-    client.putRecordsAsync(request)
 
   }
 }
