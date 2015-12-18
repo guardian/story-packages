@@ -89,10 +89,8 @@ class CapiUpdates() extends ThriftSerializer {
     val bytes = serializeToBytes(event)
       if (bytes.length > maxDataSize) {
         Logger.error(s"${streamName} - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size(${maxDataSize})")
-        false
       } else {
         Logger.info(s"${streamName} - sending with size of ${bytes.length} bytes")
-        true
       }
 
       val record = new PutRecordsRequestEntry()

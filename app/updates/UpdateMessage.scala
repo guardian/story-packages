@@ -86,10 +86,10 @@ object UpdateMessage {
 
 /* Kinesis messages */
 case class StreamUpdate(update: UpdateMessage, email: String, collections: Map[String, CollectionJson]) {
-    val fronts: Set[String] = update.affectedFronts
-      val dateTime: DateTime = new DateTime()
+  val fronts: Set[String] = update.affectedFronts
+  val dateTime: DateTime = new DateTime()
 }
 object StreamUpdate {
-    implicit val streamUpdateFormat: Format[StreamUpdate] = Json.format[StreamUpdate]
+  implicit val streamUpdateFormat: Format[StreamUpdate] = Json.format[StreamUpdate]
 }
 
