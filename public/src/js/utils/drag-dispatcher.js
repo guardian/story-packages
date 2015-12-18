@@ -54,7 +54,7 @@ function handleMedia ({sourceItem, mediaItem}, targetItem, targetGroup) {
 function handleInternalClass ({sourceItem, sourceGroup}, targetItem, targetGroup) {
 
     if (targetGroup.parentType === 'Article') {
-        alert('You cannot paste article sublinks into collections');
+        alert('You cannot add sublinks to story packages');
         return;
     }
 
