@@ -26,8 +26,7 @@ class CapiUpdates() extends ThriftSerializer {
     kinesisClient
   }
 
-  def putCapiUpdate(updatedCollections: Option[Map[String, CollectionJson]]): Unit = {
-    val collections = updatedCollections.get
+  def putCapiUpdate(collections: Map[String, CollectionJson]): Unit = {
     val collectionKey = collections.keys.head
     val articles = collections(collectionKey).live
     var headline: Option[String] = None

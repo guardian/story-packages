@@ -6,7 +6,7 @@ object UpdatesStream {
 
   val capiUpdates = new CapiUpdates()
 
-  def putStreamUpdate(streamUpdate: StreamUpdateWithCollections): Unit = {
+  def putStreamUpdate(streamUpdate: StreamUpdate): Unit = {
     AuditingUpdates.putStreamUpdate(streamUpdate)
     capiUpdates.putCapiUpdate(streamUpdate.collections)
   }
