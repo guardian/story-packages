@@ -278,7 +278,8 @@
                             "dynamodb:Query",
                             "dynamodb:PutItem",
                             "dynamodb:UpdateItem",
-                            "dynamodb:DeleteItem"
+                            "dynamodb:DeleteItem",
+                            "dynamodb:Scan"
                         ],
                         "Resource": { "Fn::Join" : [ "", [ "arn:aws:dynamodb:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":table/", { "Ref": "DynamoDBTable" } ]]}
                     } ]
