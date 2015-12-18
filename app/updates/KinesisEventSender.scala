@@ -14,8 +14,8 @@ import services.ConfigAgent
 
 class CapiUpdates() extends ThriftSerializer {
 
-  val streamName: String = Configuration.updates.capi.getOrElse("cannot send content to capi kinesis stream: stream name is not configured")
-  val maxDataSize = 1024000
+  val streamName: String = Configuration.updates.capi
+  val maxDataSize = Configuration.updates.maxDataSize
 
   private lazy val client = {
     val kinesisClient = new AmazonKinesisAsyncClient(
