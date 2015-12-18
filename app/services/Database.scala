@@ -4,10 +4,12 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document._
 import com.amazonaws.services.dynamodbv2.document.spec.{ScanSpec, UpdateItemSpec}
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
+import com.gu.pandomainauth.model.User
 import conf.{Configuration, aws}
 import model.{StoryPackage, StoryPackageSearchResult}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
+import util.Identity._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
@@ -23,12 +25,14 @@ object Database {
   }
   private lazy val table = new DynamoDB(client).getTable(Configuration.storage.configTable)
 
-  def createStoryPackage(story: StoryPackage, email: String): Future[StoryPackage] = {
+  def createStoryPackage(story: StoryPackage, user: User): Future[StoryPackage] = {
     val errorMessage = "Exception in dynamoDB putItem while creating a story package"
     WithExceptionHandling(errorMessage, {
       val item = DynamoToScala.convertToItem(story.copy(
-        lastModifyBy = Some(email),
-        createdBy = Some(email)
+        lastModify = Some(new DateTime().withZone(DateTimeZone.UTC).toString),
+        lastModifyBy = Some(user.email),
+        lastModifyByName = Some(user.fullName),
+        createdBy = Some(user.email)
       ))
 
       table.putItem(item)
@@ -45,7 +49,6 @@ object Database {
         .withString(":search_term", term)
         .withBoolean(":is_hidden", isHidden)
 
-      // TODO pagination
       val scanRequest = new ScanSpec()
         .withFilterExpression("begins_with (searchName, :search_term) and isHidden = :is_hidden")
         .withValueMap(values)
@@ -66,7 +69,7 @@ object Database {
     WithExceptionHandling(errorMessage, {
       val since = new DateTime().withZone(DateTimeZone.UTC).minusDays(maxAge)
       val values = new ValueMap()
-        .withNumber(":since", since.getMillis)
+        .withString(":since", since.toString)
         .withBoolean(":is_hidden", isHidden)
 
       val scanRequest = new ScanSpec()
@@ -99,15 +102,18 @@ object Database {
     })
   }
 
-  def touchPackage(id: String, email: String): Future[Unit] = {
+  def touchPackage(id: String, user: User): Future[Unit] = {
     val errorMessage = s"Unable to update modification metadata for story package $id"
     WithExceptionHandling(errorMessage, {
       val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
+      println(modifyDate.toString)
+
 
       val updateSpec = new UpdateItemSpec()
         .withPrimaryKey("id", id)
-        .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.getMillis))
-        .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(email))
+        .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.toString))
+        .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(user.email))
+        .addAttributeUpdate(new AttributeUpdate("lastModifyByName").put(user.fullName))
 
       table.updateItem(updateSpec)
     })
@@ -133,15 +139,16 @@ object DynamoToScala {
 
   implicit val codec: DynamoCodec[StoryPackage] = new DynamoCodec[StoryPackage] {
     override def toItem(story: StoryPackage): Item = {
-      lazy val now = new DateTime().withZone(DateTimeZone.UTC).getMillis
+      lazy val now = new DateTime().withZone(DateTimeZone.UTC)
 
       new Item()
         .withPrimaryKey("id", story.id.getOrElse(IdGeneration.nextId))
         .withOptString("packageName", story.name)
         .withOptString("searchName", story.name.map(_.toLowerCase))
         .withBoolean("isHidden", story.isHidden.getOrElse(true))
-        .withNumber("lastModify", story.lastModifyMillis.getOrElse(now))
+        .withString("lastModify", story.lastModify.getOrElse(now.toString))
         .withOptString("lastModifyBy", story.lastModifyBy)
+        .withOptString("lastModifyByName", story.lastModifyByName)
         .withOptString("createdBy", story.createdBy)
     }
 
@@ -150,8 +157,9 @@ object DynamoToScala {
         id = Option(item.getString("id")),
         name = Option(item.getString("packageName")),
         isHidden = Option(item.getBOOL("isHidden")),
-        lastModifyMillis = Option(item.getLong("lastModify")),
+        lastModify = Option(item.getString("lastModify")),
         lastModifyBy = Option(item.getString("lastModifyBy")),
+        lastModifyByName = Option(item.getString("lastModifyByName")),
         createdBy = Option(item.getString("createdBy"))
       )
     }

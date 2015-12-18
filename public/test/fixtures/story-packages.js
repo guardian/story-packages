@@ -6,6 +6,7 @@ var all = {
         id: 'story-1',
         lastModify: dates.yesterday.toString(),
         lastModifyBy: 'test@user',
+        lastModifyByName: 'Test',
         isHidden: false
     },
     'story-2': {
@@ -13,6 +14,7 @@ var all = {
         id: 'story-2',
         lastModify: dates.yesterday.toString(),
         lastModifyBy: 'test@user',
+        lastModifyByName: 'Test',
         isHidden: false
     }
 };

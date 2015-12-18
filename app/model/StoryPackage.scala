@@ -7,24 +7,22 @@ case class StoryPackage(
   id: Option[String],
   name: Option[String],
   isHidden: Option[Boolean],
-  var lastModify: Option[String] = None,
-  lastModifyMillis: Option[Long],
+  lastModify: Option[String],
   lastModifyBy: Option[String],
+  lastModifyByName: Option[String],
   createdBy: Option[String]
-) {
-  lastModify = lastModifyMillis.map(new DateTime(_).withZone(DateTimeZone.UTC).toString)
-}
+) {}
 object StoryPackage {
   implicit val jsonFormat = Json.format[StoryPackage]
 }
 
 object SortByLastModify {
   implicit val sortByModifyDate = new Ordering[StoryPackage] {
-    def compare(a: StoryPackage, b: StoryPackage) = (a.lastModifyMillis, b.lastModifyMillis) match {
+    def compare(a: StoryPackage, b: StoryPackage) = (a.lastModify, b.lastModify) match {
       case (None, None) => 0
       case (Some(_), None) => -1
       case (None, Some(_)) => 1
-      case (Some(one), Some(two)) => (two - one).toInt
+      case (Some(one), Some(two)) => two.compareTo(one)
     }
   }
 }

@@ -116,7 +116,7 @@ export default class Front extends ColumnWidget {
                 front: this,
                 displayName: response.name,
                 lastUpdated: response.lastModify,
-                updatedBy: response.lastModifyBy,
+                updatedBy: response.lastModifyByName,
                 updatedEmail: response.lastModifyBy
             });
             this.collection(newCollection);
