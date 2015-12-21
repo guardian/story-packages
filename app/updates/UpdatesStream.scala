@@ -4,6 +4,6 @@ object UpdatesStream {
 
   def putStreamUpdate(streamUpdate: StreamUpdate): Unit = {
     AuditingUpdates.putStreamUpdate(streamUpdate)
-    CapiUpdates.putCapiUpdate(streamUpdate.collections)
+    KinesisEventSender.putCapiUpdate(streamUpdate.collections)
   }
 }

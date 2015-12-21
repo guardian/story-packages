@@ -2,18 +2,27 @@ package updates
 
 import java.nio.ByteBuffer
 
+import com.amazonaws.handlers.AsyncHandler
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
-import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry}
+import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry, PutRecordsResult}
 import com.gu.facia.client.models.CollectionJson
 import conf.{Configuration, aws}
 import play.api.Logger
 import storypackage.thrift.{Article, ArticleType, Event, EventType}
 
-object CapiUpdates extends ThriftSerializer {
+object KinesisEventSender extends ThriftSerializer {
 
   val streamName: String = Configuration.updates.capi
-  val maxDataSize = Configuration.updates.maxDataSize
+
+  def eventHandler(collectionId: String) = new AsyncHandler[PutRecordsRequest, PutRecordsResult] {
+    def onError(exception: Exception): Unit = {
+      Logger.error(s"$streamName - Error when sending thrift update to kinesis stream", exception)
+    }
+    def onSuccess(request: PutRecordsRequest, result: PutRecordsResult): Unit = {
+      Logger.info(s"$streamName - Kinesis thrift update for collection $collectionId sent correctly")
+    }
+  }
 
   private lazy val client = {
     val kinesisClient = new AmazonKinesisAsyncClient(
@@ -23,76 +32,61 @@ object CapiUpdates extends ThriftSerializer {
     kinesisClient
   }
 
+
   def putCapiUpdate(collections: Map[String, CollectionJson]): Unit = {
-    val collectionKey = collections.keys.head
-    val articles = collections(collectionKey).live
-    var headline: Option[String] = None
-    var href: Option[String] = None
-    var trailText: Option[String] = None
-    var imageSrc: Option[String] = None
-    var isBoosted: Option[Boolean] = None
-    var imageHide: Option[Boolean] = None
-    var showMainVideo: Option[Boolean] = None
-    var showKickerTag: Option[Boolean] = None
-    var showKickerSection: Option[Boolean] = None
-    var byline: Option[String] = None
-    var imageCutoutSrc: Option[String] = None
-    var showBoostedHeadline: Option[Boolean] = None
-    var showQuotedHeadline: Option[Boolean] = None
+    for ((collectionId, collectionJson) <- collections) {
+      val thriftArticles = collectionJson.live.map(article => {
+        article.meta match {
+          case Some(trailMetaData) =>
+            Article(
+              id = article.id,
+              articleType = ArticleType.Article,
+              headline = trailMetaData.headline,
+              href = trailMetaData.href,
+              trailText = trailMetaData.trailText,
+              imageSrc = trailMetaData.imageReplace.flatMap{ enabled =>
+                if (enabled) trailMetaData.imageSrc
+                else None
+              },
+              isBoosted = trailMetaData.isBoosted,
+              imageHide = trailMetaData.imageHide,
+              showMainVideo = trailMetaData.showMainVideo,
+              showKickerTag = trailMetaData.showKickerTag,
+              showKickerSection = trailMetaData.showKickerSection,
+              showBoostedHeadline = trailMetaData.showBoostedHeadline,
+              byline = trailMetaData.showByline.flatMap{ enabled =>
+                if (enabled) trailMetaData.byline
+                else None
+              },
+              imageCutoutSrc = trailMetaData.imageCutoutReplace.flatMap{ enabled =>
+                if (enabled) trailMetaData.imageCutoutSrc
+                else None
+              })
+          case None =>
+            Article(
+              id = article.id,
+              articleType = ArticleType.Article
+            )}
+      })
 
-    val thriftArticles = articles.map((article) => {
-
-      article.meta match {
-        case Some(trailMetaData) => {
-          headline = trailMetaData.headline
-          href = trailMetaData.href
-          trailText = trailMetaData.trailText
-          trailMetaData.imageReplace match {
-            case Some(_) => imageSrc = trailMetaData.imageSrc
-            case None => ;
-          }
-          imageSrc = trailMetaData.imageSrc
-          isBoosted = trailMetaData.isBoosted
-          imageHide = trailMetaData.imageHide
-          showMainVideo = trailMetaData.showMainVideo
-          showKickerTag = trailMetaData.showKickerTag
-          showKickerSection = trailMetaData.showKickerSection
-          showBoostedHeadline = trailMetaData.showBoostedHeadline
-          trailMetaData.showByline match {
-            case Some(_) => byline = trailMetaData.byline
-            case None => ;
-          }
-          trailMetaData.imageCutoutReplace match {
-            case Some(_) => imageCutoutSrc = trailMetaData.imageCutoutSrc
-            case None => ;
-          }
-
-        }
-        case None => ;
-      }
-
-      Article(article.id, ArticleType.Article, headline, href, trailText, imageSrc, isBoosted, imageHide, showMainVideo, showKickerTag, showKickerSection, byline, imageCutoutSrc, showBoostedHeadline, showQuotedHeadline)
-    })
-    val event = Event(EventType.Update, collectionKey, thriftArticles)
-    sendUpdate(event)
-
+      sendUpdate(collectionId, Event(EventType.Update, collectionId, thriftArticles))
+    }
   }
 
-  def sendUpdate(event: Event) {
+  def sendUpdate(collectionId: String, event: Event) {
     val request = new PutRecordsRequest().withStreamName(streamName)
 
     val bytes = serializeToBytes(event)
-    if (bytes.length > maxDataSize) {
-      Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size($maxDataSize)")
+    if (bytes.length > Configuration.updates.maxDataSize) {
+      Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size(${Configuration.updates.maxDataSize})")
     } else {
-      Logger.info(s"$streamName - sending with size of ${bytes.length} bytes")
+      Logger.info(s"$streamName - sending thrift update with size of ${bytes.length} bytes")
       val record = new PutRecordsRequestEntry()
         .withPartitionKey(event.packageId)
         .withData(ByteBuffer.wrap(bytes))
-        request.withRecords(record)
 
-      /* Send the request to Kinesis*/
-      client.putRecordsAsync(request)
+      request.withRecords(record)
+      client.putRecordsAsync(request, eventHandler(collectionId))
     }
 
   }
