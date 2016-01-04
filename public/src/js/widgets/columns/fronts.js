@@ -114,6 +114,12 @@ export default class Front extends ColumnWidget {
                 updatedEmail: response.lastModifyBy
             });
             this.collection(newCollection);
+            var latestPackages = this.baseModel.latestPackages();
+            if (!_.find(latestPackages, latestPackage => latestPackage.id === newCollection.id )) {
+                latestPackages.unshift(response);
+                this.baseModel.latestPackages(latestPackages);
+                this.front(newCollection.id);
+            }
 
             return newCollection.loaded;
         })

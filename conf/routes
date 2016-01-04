@@ -45,3 +45,7 @@ POST        /story-packages/create                   controllers.StoryPackagesCo
 GET         /story-packages/search/*term             controllers.StoryPackagesController.search(term)
 GET         /story-packages/latest                   controllers.StoryPackagesController.latest()
 DELETE      /story-package/*id                       controllers.StoryPackagesController.deletePackage(id)
+
+# Vanity URL
+
+GET /story/*id                                       controllers.VanityRedirects.storyPackage(id)
