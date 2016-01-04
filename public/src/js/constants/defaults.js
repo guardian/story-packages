@@ -53,6 +53,7 @@ export default {
     pubTimeRefreshMs:      30000,
     searchDebounceMs:        300,
     packagesPollMs:      3600000,
+    failsBeforeError:          2,
 
     highFrequencyPaths:    ['uk', 'us', 'au', 'uk/sport', 'us/sport', 'au/sport'],
 
