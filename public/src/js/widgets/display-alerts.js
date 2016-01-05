@@ -11,6 +11,10 @@ export default class extends Extension {
         this.listenOn(mediator, 'packages:alert', function(message){
             this.alert(message);
         });
+
+        this.listenOn(mediator, 'capi:error', function(message) {
+            this.alert(message);
+        });
     }
 
     clearAlerts() {
