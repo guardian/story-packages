@@ -18,7 +18,7 @@ export default class BaseModel extends BaseClass {
 
         var layout = new Layout(router, enabledWidgets, this);
 
-        this.title = ko.observable('fronts');
+        this.title = ko.observable('story packages');
         this.layout = layout;
         this.extensions = ko.observableArray(extensions || []);
         this.modalDialog = modalDialog;
