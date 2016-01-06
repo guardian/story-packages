@@ -73,7 +73,7 @@ libraryDependencies ++= Seq(
     "org.scalatestplus" %% "play" % "1.4.0-M4" % "test",
     "org.apache.thrift" % "libthrift" % "0.9.2",
     "com.twitter" %% "scrooge-core" % "3.20.0",
-    "com.gu" %% "story-packages-model" % "0.0.2"
+    "com.gu" %% "story-packages-model" % "0.2.0"
 )
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
