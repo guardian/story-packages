@@ -10,14 +10,14 @@ define([
     'utils/full-trim',
     'utils/human-time',
     'utils/is-guardian-url',
+    'utils/is-preview-url',
     'utils/logger',
     'utils/mediator',
+    'utils/open-graph',
     'utils/populate-observables',
-    'utils/report-errors',
     'utils/sanitize-html',
     'utils/snap',
     'utils/url-abs-path',
-    'utils/url-host',
     'utils/visited-article-storage',
     'modules/copied-article',
     'modules/authed-ajax',
@@ -37,14 +37,14 @@ define([
         fullTrim,
         humanTime,
         isGuardianUrl,
+        isPreviewUrl,
         logger,
         mediator,
+        openGraph,
         populateObservables,
-        reportErrors,
         sanitizeHtml,
         snap,
         urlAbsPath,
-        urlHost,
         visitedArticleStorage,
         copiedArticle,
         authedAjax,
@@ -56,7 +56,7 @@ define([
         deepGet = deepGet.default;
         fullTrim = fullTrim.default;
         isGuardianUrl = isGuardianUrl.default;
-        urlHost = urlHost.default;
+        isPreviewUrl = isPreviewUrl.default;
         sanitizeHtml = sanitizeHtml.default;
         urlAbsPath = urlAbsPath.default;
         asObservableProps = asObservableProps.default;
@@ -67,8 +67,8 @@ define([
         copiedArticle = copiedArticle.default;
         logger = logger.default;
         Group = Group.default;
-        reportErrors = reportErrors.default;
         metaFields = metaFields.default;
+        openGraph = openGraph.default;
 
         var createEditor = Editor.default.create;
 
@@ -399,8 +399,14 @@ define([
         };
 
         Article.prototype.convertToSnap = function() {
-            var id = this.id(),
-                href = isGuardianUrl(id) ? '/' + urlAbsPath(id) : id;
+            var id = this.id();
+            var href;
+
+            if (isGuardianUrl(id) || isPreviewUrl(id)) {
+                href = '/' + urlAbsPath(id);
+            } else {
+                href = id;
+            }
 
             this.meta.href(href);
             this.id(snap.generateId());
@@ -434,43 +440,25 @@ define([
         };
 
         Article.prototype.decorateFromOpenGraph = function() {
-            var self = this,
-                url = this.id(),
-                isOnSite = isGuardianUrl(url);
+            var thisArticle = this;
 
             this.meta.headline('Fetching headline...');
 
-            authedAjax.request({
-                url: '/http/proxy/' + url + (isOnSite ? '?view=mobile' : ''),
-                type: 'GET'
-            })
-            .then(function(response) {
-                var doc = document.createElement('div'),
-                    title,
-                    og = {};
+            return openGraph(this.id())
+            .then(function (data) {
+                thisArticle.meta.headline(data.title);
+                thisArticle.meta.trailText(data.description);
 
-                doc.innerHTML = response;
-
-                Array.prototype.forEach.call(doc.querySelectorAll('meta[property^="og:"]'), function(tag) {
-                    og[tag.getAttribute('property').replace(/^og\:/, '')] = tag.getAttribute('content');
-                });
-
-                title = doc.querySelector('title');
-                title = title ? title.innerHTML : undefined;
-
-                self.meta.headline(og.title || title);
-                self.meta.trailText(og.description);
-
-                if (!isOnSite) {
-                    self.meta.byline(og.site_name || urlHost(url).replace(/^www\./, ''));
-                    self.meta.showByline(true);
+                if (data.siteName) {
+                    thisArticle.meta.byline(data.siteName);
+                    thisArticle.meta.showByline(true);
                 }
-
-                self.updateEditorsDisplay();
             })
-            .catch(function(ex) {
-                self.meta.headline(undefined);
-                reportErrors(ex);
+            .catch(function () {
+                thisArticle.meta.headline('Invalid page');
+            })
+            .then(function () {
+                thisArticle.updateEditorsDisplay();
             });
         };
 
