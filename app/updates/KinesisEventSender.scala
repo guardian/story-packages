@@ -58,6 +58,7 @@ object KinesisEventSender extends ThriftSerializer {
                 if (enabled) trailMetaData.byline
                 else None
               },
+              customKicker = trailMetaData.customKicker,
               imageCutoutSrc = trailMetaData.imageCutoutReplace.flatMap{ enabled =>
                 if (enabled) trailMetaData.imageCutoutSrc
                 else None
