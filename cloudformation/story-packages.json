@@ -49,6 +49,11 @@
         "ContentAPIAccountId": {
             "Description": "Content API account ID, needed for Assume role",
             "Type": "String"
+        },
+        "S3BackupBucket": {
+            "Description": "Bucket used to backup DynamoDB",
+            "Type": "String",
+            "Default": "story-packages-backup"
         }
     },
     "Mappings": {
@@ -256,10 +261,26 @@
                         "Action": [
                             "s3:GetObject",
                             "s3:PutObject",
-                            "s3:PutObjectAcl",
-                            "s3:ListBucket"
+                            "s3:PutObjectAcl"
                         ],
                         "Resource": "arn:aws:s3:::story-packages-store/*"
+                    } ]
+                },
+                "Roles": [{ "Ref": "DistributionRole" }]
+            }
+        },
+        "StoryPackagesListPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "StoryPackagesListPolicy",
+                "PolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Action": [
+                            "s3:ListBucket"
+                        ],
+                        "Resource": "arn:aws:s3:::story-packages-store"
                     } ]
                 },
                 "Roles": [{ "Ref": "DistributionRole" }]
@@ -306,6 +327,186 @@
                         "Fn::FindInMap": ["StageMap", { "Ref": "Stage" }, "WriteThroughput" ]
                     }
                 }
+            }
+        },
+        "DynamoDBDataPipeline": {
+            "Type": "AWS::DataPipeline::Pipeline",
+            "Properties": {
+                "Description": "Back up the story packages database in S3",
+                "Name": "StoryPackagesDynamoDBBackup",
+                "ParameterObjects": [{
+                        "Id": "myOutputS3Loc",
+                        "Attributes": [{
+                                "Key": "description",
+                                "StringValue": "S3 output bucket"
+                            }, {
+                                "Key": "type",
+                                "StringValue": "AWS::S3::ObjectKey"
+                            }, {
+                                "Key": "default",
+                                "StringValue": { "Fn::Join" : [ "", [ "s3://", { "Ref": "S3BackupBucket" } ] ] }
+                            }]
+                    }, {
+                        "Id": "myDDBTableName",
+                        "Attributes": [{
+                                "Key": "description",
+                                "StringValue": "Name of DynamoDB table that requires backup"
+                            }, {
+                                "Key": "type",
+                                "StringValue": "String"
+                            }]
+                    }, {
+                        "Id": "myDDBReadThroughputRatio",
+                        "Attributes": [{
+                                "Key": "description",
+                                "StringValue": "DynamoDB backup read throughput ratio"
+                            }, {
+                                "Key": "type",
+                                "StringValue": "Double"
+                            }, {
+                                "Key": "default",
+                                "StringValue": "0.2"
+                            }]
+                    }, {
+                        "Id": "myStage",
+                        "Attributes": [{
+                                "Key": "description",
+                                "StringValue": "Application stage"
+                            }, {
+                                "Key": "type",
+                                "StringValue": "String"
+                            }]
+                    }],
+                "ParameterValues": [{
+                        "Id": "myDDBTableName",
+                        "StringValue": { "Ref": "DynamoDBTable" }
+                    }, {
+                        "Id": "myStage",
+                        "StringValue": { "Ref": "Stage" }
+                    }],
+                "PipelineObjects": [{
+                        "Fields": [{
+                                "Key": "type",
+                                "StringValue": "S3DataNode"
+                            }, {
+                                "Key": "dataFormat",
+                                "RefValue": "DynamoDBExportFormat"
+                            }, {
+                                "Key": "directoryPath",
+                                "StringValue": "#{myOutputS3Loc}/#{myStage}/#{format(@scheduledStartTime, 'YYYY-MM-dd-HH-mm-ss')}"
+                            }],
+                        "Id": "S3BackupLocation",
+                        "Name": "S3 Bucket containing backup dumps"
+                    }, {
+                        "Fields": [{
+                                "Key": "tableName",
+                                "StringValue": "#{myDDBTableName}"
+                            }, {
+                                "Key": "type",
+                                "StringValue": "DynamoDBDataNode"
+                            }, {
+                                "Key": "dataFormat",
+                                "RefValue": "DynamoDBExportFormat"
+                            }, {
+                                "Key": "readThroughputPercent",
+                                "StringValue": "#{myDDBReadThroughputRatio}"
+                            }],
+                        "Id": "DynamoDBSourceTable",
+                        "Name": "DynamoDB table that needs backup"
+                    }, {
+                        "Fields": [{
+                                "Key": "type",
+                                "StringValue": "DynamoDBExportDataFormat"
+                            }],
+                        "Id": "DynamoDBExportFormat",
+                        "Name": "DynamoDB export format"
+                    }, {
+                        "Fields": [{
+                                "Key": "resizeClusterBeforeRunning",
+                                "StringValue": "true"
+                            }, {
+                                "Key": "type",
+                                "StringValue": "HiveCopyActivity"
+                            }, {
+                                "Key": "input",
+                                "RefValue": "DynamoDBSourceTable"
+                            }, {
+                                "Key": "runsOn",
+                                "RefValue": "EmrClusterForBackup"
+                            }, {
+                                "Key": "output",
+                                "RefValue": "S3BackupLocation"
+                            }],
+                        "Id": "TableBackupActivity",
+                        "Name": "Table backup activity"
+                    }, {
+                        "Fields": [{
+                                "Key": "period",
+                                "StringValue": "1 weeks"
+                            }, {
+                                "Key": "startAt",
+                                "StringValue": "FIRST_ACTIVATION_DATE_TIME"
+                            }, {
+                                "Key": "type",
+                                "StringValue": "Schedule"
+                            }],
+                        "Id": "DefaultSchedule",
+                        "Name": "Backup once a week"
+                    }, {
+                        "Fields": [{
+                                "Key": "type",
+                                "StringValue": "Default"
+                            }, {
+                                "Key": "scheduleType",
+                                "StringValue": "cron"
+                            }, {
+                                "Key": "failureAndRerunMode",
+                                "StringValue": "CASCADE"
+                            }, {
+                                "Key": "pipelineLogUri",
+                                "StringValue": "s3://story-packages-backup/logs"
+                            }, {
+                                "Key": "role",
+                                "StringValue": "DataPipelineDefaultRole"
+                            }, {
+                                "Key": "resourceRole",
+                                "StringValue": "DataPipelineDefaultResourceRole"
+                            }, {
+                                "Key": "schedule",
+                                "RefValue": "DefaultSchedule"
+                            }],
+                        "Id": "Default",
+                        "Name": "Default"
+                    }, {
+                        "Fields": [{
+                                "Key": "terminateAfter",
+                                "StringValue": "2 hours"
+                            }, {
+                                "Key": "releaseLabel",
+                                "StringValue": "emr-4.1.0"
+                            }, {
+                                "Key": "masterInstanceType",
+                                "StringValue": "m1.medium"
+                            }, {
+                                "Key": "coreInstanceType",
+                                "StringValue": "m1.medium"
+                            }, {
+                                "Key": "coreInstanceCount",
+                                "StringValue": "1"
+                            }, {
+                                "Key": "type",
+                                "StringValue": "EmrCluster"
+                            }],
+                        "Id": "EmrClusterForBackup",
+                        "Name": "Emr Cluster instances used for backup"
+                    }],
+                "PipelineTags": [{
+                        "Key": "App",
+                        "Value": { "Ref": "ApplicationName" }
+                    }, {
+                        "Key": "Reason",
+                        "Value": "backup"
+                    }]
             }
         },
         "SSHSecurityGroup": {
