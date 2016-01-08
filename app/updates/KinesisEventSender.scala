@@ -32,46 +32,43 @@ object KinesisEventSender extends ThriftSerializer {
     kinesisClient
   }
 
+  def putCapiUpdate(collectionId: String, collectionJson: CollectionJson): Unit = {
+    val thriftArticles = collectionJson.live.map(article => {
+      article.meta match {
+        case Some(trailMetaData) =>
+          Article(
+            id = article.id,
+            articleType = ArticleType.Article,
+            headline = trailMetaData.headline,
+            href = trailMetaData.href,
+            trailText = trailMetaData.trailText,
+            imageSrc = trailMetaData.imageReplace.flatMap{ enabled =>
+              if (enabled) trailMetaData.imageSrc
+              else None
+            },
+            isBoosted = trailMetaData.isBoosted,
+            imageHide = trailMetaData.imageHide,
+            showMainVideo = trailMetaData.showMainVideo,
+            showKickerTag = trailMetaData.showKickerTag,
+            showKickerSection = trailMetaData.showKickerSection,
+            showBoostedHeadline = trailMetaData.showBoostedHeadline,
+            byline = trailMetaData.showByline.flatMap{ enabled =>
+              if (enabled) trailMetaData.byline
+              else None
+            },
+            customKicker = trailMetaData.customKicker,
+            imageCutoutSrc = trailMetaData.imageCutoutReplace.flatMap{ enabled =>
+              if (enabled) trailMetaData.imageCutoutSrc
+              else None
+            })
+        case None =>
+          Article(
+            id = article.id,
+            articleType = ArticleType.Article
+          )}
+    })
 
-  def putCapiUpdate(collections: Map[String, CollectionJson]): Unit = {
-    for ((collectionId, collectionJson) <- collections) {
-      val thriftArticles = collectionJson.live.map(article => {
-        article.meta match {
-          case Some(trailMetaData) =>
-            Article(
-              id = article.id,
-              articleType = ArticleType.Article,
-              headline = trailMetaData.headline,
-              href = trailMetaData.href,
-              trailText = trailMetaData.trailText,
-              imageSrc = trailMetaData.imageReplace.flatMap{ enabled =>
-                if (enabled) trailMetaData.imageSrc
-                else None
-              },
-              isBoosted = trailMetaData.isBoosted,
-              imageHide = trailMetaData.imageHide,
-              showMainVideo = trailMetaData.showMainVideo,
-              showKickerTag = trailMetaData.showKickerTag,
-              showKickerSection = trailMetaData.showKickerSection,
-              showBoostedHeadline = trailMetaData.showBoostedHeadline,
-              byline = trailMetaData.showByline.flatMap{ enabled =>
-                if (enabled) trailMetaData.byline
-                else None
-              },
-              customKicker = trailMetaData.customKicker,
-              imageCutoutSrc = trailMetaData.imageCutoutReplace.flatMap{ enabled =>
-                if (enabled) trailMetaData.imageCutoutSrc
-                else None
-              })
-          case None =>
-            Article(
-              id = article.id,
-              articleType = ArticleType.Article
-            )}
-      })
-
-      sendUpdate(collectionId, Event(EventType.Update, collectionId, thriftArticles))
-    }
+    sendUpdate(collectionId, Event(EventType.Update, collectionId, thriftArticles))
   }
 
   def sendUpdate(collectionId: String, event: Event) {
