@@ -13,6 +13,7 @@ import updates._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 object FaciaToolController extends Controller with PanDomainAuthActions {
 
@@ -36,48 +37,41 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
         Ok(Json.toJson(configJson)).as("application/json")}}}
 
   def collectionEdits(): Action[AnyContent] = APIAuthAction.async { implicit request =>
+    def touchFailure(e: Throwable, id: String) = {
+      Logger.error(s"Non fatal exception when touching story package $id")
+      InternalServerError(s"Unable to update package $id")
+    }
     FaciaToolMetrics.ApiUsageCount.increment()
-      request.body.asJson.flatMap (_.asOpt[UpdateMessage]).map {
-        case update: Update => {
-          val identity = request.user
+    val identity = request.user
 
-          val futureCollectionJson = UpdateActions.updateCollectionList(update.update.id, update.update, identity)
-          futureCollectionJson.map { maybeCollectionJson =>
-            val updatedCollections = maybeCollectionJson.map(update.update.id -> _).toMap
+    request.body.asJson.flatMap (_.asOpt[UpdateMessage]).map {
+      case update: Update =>
+        UpdateActions.updateCollectionList(update.update.id, update.update, identity).flatMap { maybeCollectionJson =>
+          val updatedCollections = maybeCollectionJson.map(update.update.id -> _).toMap
 
-            if (updatedCollections.nonEmpty) {
-              UpdatesStream.putStreamUpdate(StreamUpdate(update, identity.email, updatedCollections))
-              Database.touchPackage(update.update.id, identity)
+          if (updatedCollections.nonEmpty) {
+            Database.touchPackage(update.update.id, identity).map(storyPackage => {
+              UpdatesStream.putStreamUpdate(StreamUpdate(update, identity.email, updatedCollections, storyPackage))
               Ok(Json.toJson(updatedCollections)).as("application/json")
-            } else
-              NotFound
-          }
+            })
+            .recover {
+              case NonFatal(e) => touchFailure(e, update.update.id)
+            }
+          } else
+            Future.successful(NotFound)
         }
-        case remove: Remove => {
-          val identity = request.user
-          UpdateActions.updateCollectionFilter(remove.remove.id, remove.remove, identity).map { maybeCollectionJson =>
-            val updatedCollections = maybeCollectionJson.map(remove.remove.id -> _).toMap
-            UpdatesStream.putStreamUpdate(StreamUpdate(remove, identity.email, updatedCollections))
-            Database.touchPackage(remove.remove.id, identity)
+      case remove: Remove =>
+        UpdateActions.updateCollectionFilter(remove.remove.id, remove.remove, identity).flatMap { maybeCollectionJson =>
+          val updatedCollections = maybeCollectionJson.map(remove.remove.id -> _).toMap
+          Database.touchPackage(remove.remove.id, identity).map(storyPackage => {
+            UpdatesStream.putStreamUpdate(StreamUpdate(remove, identity.email, updatedCollections, storyPackage))
             Ok(Json.toJson(updatedCollections)).as("application/json")
+          })
+          .recover {
+            case NonFatal(e) => touchFailure(e, remove.remove.id)
           }
         }
-        case updateAndRemove: UpdateAndRemove =>  {
-          val identity = request.user
-          val futureUpdatedCollections =
-            Future.sequence(
-              List(UpdateActions.updateCollectionList(updateAndRemove.update.id, updateAndRemove.update, identity).map(_.map(updateAndRemove.update.id -> _)),
-                UpdateActions.updateCollectionFilter(updateAndRemove.remove.id, updateAndRemove.remove, identity).map(_.map(updateAndRemove.remove.id -> _))
-              )).map(_.flatten.toMap)
-
-          futureUpdatedCollections.map { updatedCollections =>
-            UpdatesStream.putStreamUpdate(StreamUpdate(updateAndRemove, identity.email, updatedCollections))
-            Database.touchPackage(updateAndRemove.update.id, identity)
-            Database.touchPackage(updateAndRemove.remove.id, identity)
-            Ok(Json.toJson(updatedCollections)).as("application/json")
-          }
-        }
-        case _ => Future.successful(NotAcceptable)
-      } getOrElse Future.successful(NotFound)
+      case _ => Future.successful(NotAcceptable)
+    } getOrElse Future.successful(NotFound)
   }
 }

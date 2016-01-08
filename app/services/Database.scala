@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document._
 import com.amazonaws.services.dynamodbv2.document.spec.{ScanSpec, UpdateItemSpec}
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
+import com.amazonaws.services.dynamodbv2.model.ReturnValue
 import com.gu.pandomainauth.model.User
 import conf.{Configuration, aws}
 import model.{StoryPackage, StoryPackageSearchResult}
@@ -102,7 +103,7 @@ object Database {
     })
   }
 
-  def touchPackage(id: String, user: User): Future[Unit] = {
+  def touchPackage(id: String, user: User): Future[StoryPackage] = {
     val errorMessage = s"Unable to update modification metadata for story package $id"
     WithExceptionHandling(errorMessage, {
       val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
@@ -112,8 +113,10 @@ object Database {
         .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.toString))
         .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(user.email))
         .addAttributeUpdate(new AttributeUpdate("lastModifyByName").put(user.fullName))
+        .withReturnValues(ReturnValue.ALL_NEW)
 
-      table.updateItem(updateSpec)
+      val outcome = table.updateItem(updateSpec)
+      DynamoToScala.convertToStoryPackage(outcome.getItem)
     })
   }
 }
