@@ -1,7 +1,6 @@
 package config
 
 import com.gu.facia.client.models.{CollectionConfigJson => CollectionConfig, ConfigJson, FrontJson => Front}
-import updates.CreateFront
 
 object Transformations {
   /** The Config ought never to contain empty fronts or collections that do not belong to any fronts */
@@ -13,30 +12,6 @@ object Transformations {
     config.copy(
       config.fronts -- emptyFronts,
       config.collections -- orphanedCollections
-    )
-  }
-
-  def createFront(createCommand: CreateFront, newCollectionId: String)(config: ConfigJson): ConfigJson = {
-    val newFront = Front(
-      collections =       List(newCollectionId),
-      navSection =        createCommand.navSection,
-      webTitle =          createCommand.webTitle,
-      title =             createCommand.title,
-      description =       createCommand.description,
-      onPageDescription = createCommand.onPageDescription,
-      imageUrl =          createCommand.imageUrl,
-      imageWidth =        createCommand.imageWidth,
-      imageHeight =       createCommand.imageHeight,
-      isImageDisplayed =  createCommand.isImageDisplayed,
-      isHidden =          createCommand.isHidden,
-      priority =          createCommand.priority,
-      canonical =         Some(newCollectionId),
-      group =             createCommand.group
-    )
-
-    config.copy(
-      fronts = config.fronts + (createCommand.id -> newFront),
-      collections = config.collections + (newCollectionId -> createCommand.initialCollection)
     )
   }
 

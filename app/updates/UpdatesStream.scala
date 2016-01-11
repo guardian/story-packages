@@ -12,7 +12,7 @@ object UpdatesStream {
       isHidden <- streamUpdate.storyPackage.isHidden
     } yield {
       if (!isHidden) {
-        KinesisEventSender.putCapiUpdate(collectionId, collectionJson)
+        KinesisEventSender.putCapiUpdate(collectionId, collectionJson, streamUpdate.delete)
       } else {
         Logger.info(s"Ignoring CAPI update for hidden package $collectionId")
       }

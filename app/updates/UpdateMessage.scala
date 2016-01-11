@@ -12,39 +12,9 @@ sealed trait UpdateMessage {
 }
 
 /* Config updates */
-object CreateFront {
-  implicit val jsonFormat = Json.format[CreateFront].filter(_.id.matches("""^[a-z0-9\/\-+]*$"""))
-}
-case class CreateFront(
-  id: String,
-  navSection: Option[String],
-  webTitle: Option[String],
-  title: Option[String],
-  imageUrl: Option[String],
-  imageWidth: Option[Int],
-  imageHeight: Option[Int],
-  isImageDisplayed: Option[Boolean],
-  description: Option[String],
-  onPageDescription: Option[String],
-  priority: Option[String],
-  isHidden: Option[Boolean],
-  initialCollection: CollectionConfigJson,
-  group: Option[String]
-) extends UpdateMessage {
+case class DeletePackage(id: String) extends UpdateMessage {
   def affectedFronts = Set(id)
 }
-
-case class UpdateFront(id: String, front: FrontJson) extends UpdateMessage {
-  def affectedFronts = Set(id)
-}
-
-case class CollectionCreate(frontIds: List[String], collection: CollectionConfigJson) extends UpdateMessage {
-  def affectedFronts = frontIds.toSet[String]
-}
-case class CollectionUpdate(frontIds: List[String], collection: CollectionConfigJson) extends UpdateMessage {
-  def affectedFronts = frontIds.toSet[String]
-}
-
 
 /* Collection updates */
 case class UpdateList(
@@ -90,7 +60,8 @@ case class StreamUpdate(
   update: UpdateMessage,
   email: String,
   collections: Map[String, CollectionJson],
-  storyPackage: StoryPackage
+  storyPackage: StoryPackage,
+  delete: Boolean = false
 ) {
   val fronts: Set[String] = update.affectedFronts
   val dateTime: DateTime = new DateTime()

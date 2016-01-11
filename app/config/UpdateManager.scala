@@ -2,7 +2,6 @@ package config
 
 import com.gu.facia.client.models.{CollectionConfigJson, ConfigJson, FrontJson}
 import com.gu.pandomainauth.model.User
-import updates.CreateFront
 import frontsapi.model.UpdateActions
 import play.api.libs.json.Json
 import services.{ConfigAgent, IdGeneration, S3FrontsApi}
@@ -33,12 +32,6 @@ object UpdateManager {
       UpdateActions.putMasterConfig(newConfig, identity)
       ConfigAgent.refreshWith(transformedConfig)
     }
-  }
-
-  def createFront(request: CreateFront, identity: User): String = {
-    val newCollectionId = IdGeneration.nextId
-    transformConfig(Transformations.createFront(request, newCollectionId), identity)
-    newCollectionId
   }
 
   def updateFront(id: String, newVersion: FrontJson, identity: User): Unit = {

@@ -32,7 +32,7 @@ object KinesisEventSender extends ThriftSerializer {
     kinesisClient
   }
 
-  def putCapiUpdate(collectionId: String, collectionJson: CollectionJson): Unit = {
+  def putCapiUpdate(collectionId: String, collectionJson: CollectionJson, isDelete: Boolean): Unit = {
     val thriftArticles = collectionJson.live.map(article => {
       article.meta match {
         case Some(trailMetaData) =>
@@ -68,7 +68,10 @@ object KinesisEventSender extends ThriftSerializer {
           )}
     })
 
-    sendUpdate(collectionId, Event(EventType.Update, collectionId, thriftArticles))
+    if (isDelete)
+      sendUpdate(collectionId, Event(EventType.Delete, collectionId, thriftArticles))
+    else
+      sendUpdate(collectionId, Event(EventType.Update, collectionId, thriftArticles))
   }
 
   def sendUpdate(collectionId: String, event: Event) {
