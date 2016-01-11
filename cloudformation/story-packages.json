@@ -241,7 +241,12 @@
                         "Action": [
                             "kinesis:*"
                         ],
-                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisCAPIStream" } ]]},
+                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisCAPIStream" } ]]}
+                    }, {
+                        "Effect": "Allow",
+                        "Action": [
+                            "kinesis:*"
+                        ],
                         "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisReindexStream" } ]]}
                     } ]
                 },
