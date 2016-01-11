@@ -241,7 +241,8 @@
                         "Action": [
                             "kinesis:*"
                         ],
-                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisCAPIStream" } ]]}
+                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisCAPIStream" } ]]},
+                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisReindexStream" } ]]}
                     } ]
                 },
                 "Roles": [
@@ -688,6 +689,12 @@
                 "ShardCount": 1
             }
         },
+        "KinesisReindexStream": {
+            "Type": "AWS::Kinesis::Stream",
+            "Properties": {
+                "ShardCount": 1
+            }
+        },
         "ApplicationLaunchConfig": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Metadata": {
@@ -731,7 +738,8 @@
                                     "STAGE=", { "Ref" : "Stage" }, "\n",
                                     "STREAM=", { "Ref" : "KinesisUpdateStream" }, "\n",
                                     "CAPI_STREAM=", { "Ref" : "KinesisCAPIStream" }, "\n",
-                                    "TABLE_CONFIG=", { "Ref" : "DynamoDBTable" }, "\n"
+                                    "TABLE_CONFIG=", { "Ref" : "DynamoDBTable" }, "\n",
+                                    "REINDEX_STREAM=", { "Ref": "KinesisReindexStream"}, "\n"
                                 ]]}
                             }
                         }
@@ -796,6 +804,12 @@
             "Description": "Kinesis stream for content API updates",
             "Value": {
                 "Ref": "KinesisCAPIStream"
+            }
+        },
+        "ReindexStream": {
+            "Description": "Kinesis stream for content API updates",
+            "Value": {
+                "Ref": "KinesisReindexStream"
             }
         },
         "DynamoTable": {
