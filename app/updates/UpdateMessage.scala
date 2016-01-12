@@ -60,8 +60,7 @@ case class StreamUpdate(
   update: UpdateMessage,
   email: String,
   collections: Map[String, CollectionJson],
-  storyPackage: StoryPackage,
-  delete: Boolean = false
+  storyPackage: StoryPackage
 ) {
   val fronts: Set[String] = update.affectedFronts
   val dateTime: DateTime = new DateTime()
