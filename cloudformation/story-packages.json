@@ -82,6 +82,16 @@
                 "ReadThroughput": 5,
                 "WriteThroughput": 5
             }
+        },
+        "KinesisStreamMap": {
+            "PROD": {
+                "CAPIStream": "story-packages-PROD-CAPIStreamUpdate",
+                "ReindexStream": "story-packages-PROD-ReindexStreamUpdate"
+            },
+            "CODE": {
+                "CAPIStream": "story-packages-CODE-CAPIStreamUpdate",
+                "ReindexStream": "story-packages-CODE-ReindexStreamUpdate"
+            }
         }
     },
     "Resources": {
@@ -241,13 +251,25 @@
                         "Action": [
                             "kinesis:*"
                         ],
-                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisCAPIStream" } ]]}
+                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", {
+                            "Fn::FindInMap": [
+                                "KinesisStreamMap",
+                                { "Ref": "Stage" },
+                                "CAPIStream"
+                            ]
+                        } ]]}
                     }, {
                         "Effect": "Allow",
                         "Action": [
                             "kinesis:*"
                         ],
-                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisReindexStream" } ]]}
+                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", {
+                            "Fn::FindInMap": [
+                                "KinesisStreamMap",
+                                { "Ref": "Stage" },
+                                "ReindexStream"
+                            ]
+                        } ]]}
                     } ]
                 },
                 "Roles": [
@@ -688,18 +710,6 @@
                 "ShardCount": 1
             }
         },
-        "KinesisCAPIStream": {
-            "Type": "AWS::Kinesis::Stream",
-            "Properties": {
-                "ShardCount": 1
-            }
-        },
-        "KinesisReindexStream": {
-            "Type": "AWS::Kinesis::Stream",
-            "Properties": {
-                "ShardCount": 1
-            }
-        },
         "ApplicationLaunchConfig": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Metadata": {
@@ -742,9 +752,21 @@
                                 "content": { "Fn::Join" : ["", [
                                     "STAGE=", { "Ref" : "Stage" }, "\n",
                                     "STREAM=", { "Ref" : "KinesisUpdateStream" }, "\n",
-                                    "CAPI_STREAM=", { "Ref" : "KinesisCAPIStream" }, "\n",
+                                    "CAPI_STREAM=", {
+                                        "Fn::FindInMap": [
+                                            "KinesisStreamMap",
+                                            { "Ref": "Stage" },
+                                            "CAPIStream"
+                                        ]
+                                    }, "\n",
                                     "TABLE_CONFIG=", { "Ref" : "DynamoDBTable" }, "\n",
-                                    "REINDEX_STREAM=", { "Ref": "KinesisReindexStream"}, "\n"
+                                    "REINDEX_STREAM=", {
+                                        "Fn::FindInMap": [
+                                            "KinesisStreamMap",
+                                            { "Ref": "Stage" },
+                                            "ReindexStream"
+                                        ]
+                                    }, "\n"
                                 ]]}
                             }
                         }
@@ -803,18 +825,6 @@
             "Description": "Kinesis stream with stream updates",
             "Value": {
                 "Ref": "KinesisUpdateStream"
-            }
-        },
-        "ContentAPIStream": {
-            "Description": "Kinesis stream for content API updates",
-            "Value": {
-                "Ref": "KinesisCAPIStream"
-            }
-        },
-        "ReindexStream": {
-            "Description": "Kinesis stream for content API updates",
-            "Value": {
-                "Ref": "KinesisReindexStream"
             }
         },
         "DynamoTable": {
