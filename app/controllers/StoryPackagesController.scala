@@ -9,6 +9,7 @@ import model.{StoryPackage, StoryPackageSearchResult}
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Controller, Result}
 import services.Database
+import switchboard.SwitchManager
 import updates.{Reindex, UpdatesStream}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -82,12 +83,16 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
         }
     }
 
-    // TODO authentication
-    // TODO switch
-    // TODO POST, not GET
-    request.queryString.getOrElse("job", Nil) match {
-      case Seq(jobId) if !jobId.isEmpty => scheduleJob(jobId)
-      case _ => Future.successful(BadRequest("Missing or invalid job ID"))
+    if (SwitchManager.getStatus("story-packages-disable-reindex-endpoint")) {
+      Future.successful(Forbidden("Reindex endpoint disabled by a switch"))
+    } else {
+      request.queryString.getOrElse("job", Nil) match {
+        case Seq(jobId) if !jobId.isEmpty => scheduleJob(jobId)
+        case _ => Future.successful(BadRequest("Missing or invalid job ID"))
+      }
     }
+    // TODO authentication
+    // TODO POST, not GET
+
   }
 }
