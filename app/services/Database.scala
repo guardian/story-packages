@@ -96,14 +96,14 @@ object Database {
     })
   }
 
-  def removePackage(id: String): Future[DeleteItemResult] = {
+  def removePackage(id: String): Future[StoryPackage] = {
     val errorMessage = s"Unable to delete story package $id"
     WithExceptionHandling(errorMessage, {
       val outcome = table.deleteItem(new DeleteItemSpec()
         .withPrimaryKey("id", id)
         .withReturnValues(ReturnValue.ALL_OLD)
       )
-      outcome.getDeleteItemResult()
+      DynamoToScala.convertToStoryPackage(outcome.getItem())
     })
   }
 

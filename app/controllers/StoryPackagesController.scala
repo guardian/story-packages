@@ -69,10 +69,9 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
   }
 
   def deletePackage(id: String) = APIAuthAction.async { request =>
-      Database.removePackage(id).map(response => {
-        val isHidden = response.getAttributes().get("isHidden").getBOOL()
-        UpdatesStream.putStreamDelete(id, isHidden)
-        Ok
-      })
+    Database.removePackage(id).map(storyPackage => {
+      UpdatesStream.putStreamDelete(id, storyPackage.isHidden.getOrElse(false))
+      Ok
+    })
   }
 }
