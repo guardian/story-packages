@@ -210,4 +210,6 @@ Starts `karma` in debug mode, you can connect your browser at [http://localhost:
 
 You can run a single test going to [http://localhost:9876/debug.html?test=collections](http://localhost:9876/debug.html?test=collections), spec files are inside `public/test/spec`.
 
+You need to have version node version 4.1 or higher installed to be able to run the tests.
+
 Enjoy!
