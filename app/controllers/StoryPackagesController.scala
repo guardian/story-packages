@@ -9,6 +9,7 @@ import model.{StoryPackage, StoryPackageSearchResult}
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Controller, Result}
 import services.Database
+import updates.UpdatesStream
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -66,6 +67,9 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
   }
 
   def deletePackage(id: String) = APIAuthAction.async { request =>
-    Database.removePackage(id).map(_ => Ok)
+    Database.removePackage(id).map(storyPackage => {
+      UpdatesStream.putStreamDelete(id, storyPackage.isHidden.getOrElse(false))
+      Ok
+    })
   }
 }

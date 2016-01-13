@@ -18,4 +18,12 @@ object UpdatesStream {
       }
     }
   }
+
+  def putStreamDelete(collectionId: String, isHidden: Boolean): Unit = {
+    if (!isHidden)
+      KinesisEventSender.putCapiDelete(collectionId)
+    else
+      Logger.info(s"Ignoring CAPI delete for hidden package $collectionId")
+
+  }
 }

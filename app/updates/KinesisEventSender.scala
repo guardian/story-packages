@@ -71,6 +71,10 @@ object KinesisEventSender extends ThriftSerializer {
     sendUpdate(collectionId, Event(EventType.Update, collectionId, thriftArticles))
   }
 
+  def putCapiDelete(collectionId: String): Unit = {
+    sendUpdate(collectionId, Event(EventType.Delete, collectionId, List()))
+  }
+
   def sendUpdate(collectionId: String, event: Event) {
     val request = new PutRecordsRequest().withStreamName(streamName)
 

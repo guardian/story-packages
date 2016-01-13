@@ -1,7 +1,6 @@
 package config
 
 import com.gu.facia.client.models.{CollectionConfigJson => CollectionConfig, ConfigJson => Config, FrontJson => Front}
-import updates.CreateFront
 import org.scalatest._
 
 @DoNotDiscover class TransformationsSpec extends FlatSpec with ShouldMatchers {
@@ -17,23 +16,6 @@ import org.scalatest._
     hideKickers = Some(false),
     showLatestUpdate = Some(false),
     showDateHeader = Some(false)
-  )
-
-  val createCommandFixture = CreateFront(
-    "new front id",
-    navSection = Some("uk"),
-    webTitle = Some("New Front!"),
-    title = Some("New front"),
-    description = Some("A test front"),
-    onPageDescription = Some("A test front"),
-    imageUrl = None,
-    imageWidth = None,
-    imageHeight = None,
-    isImageDisplayed = None,
-    isHidden = None,
-    priority = Some("high"),
-    initialCollection = collectionFixture,
-    group = Some("Masterclasses")
   )
 
   val emptyCollectionFixture = CollectionConfig(
@@ -60,31 +42,6 @@ import org.scalatest._
     fronts = Map("foo" -> emptyFrontFixture.copy(collections = List("bar"))),
     collections = Map("bar" -> emptyCollectionFixture)
   )
-
-  "createFront" should "add the collection to the config with the given id" in {
-    Transformations.createFront(createCommandFixture, "new collection id")(Config.empty)
-      .collections.get("new collection id") shouldEqual Some(collectionFixture)
-  }
-
-  it should "add the front to the config with the given front id" in {
-    Transformations.createFront(createCommandFixture, "new collection id")(Config.empty)
-      .fronts.get("new front id") shouldEqual Some(Front(
-        collections = List("new collection id"),
-        navSection = Some("uk"),
-        webTitle = Some("New Front!"),
-        title = Some("New front"),
-        description = Some("A test front"),
-        onPageDescription = Some("A test front"),
-        imageUrl = None,
-        imageWidth = None,
-        imageHeight = None,
-        isImageDisplayed = None,
-        isHidden = None,
-        priority = Some("high"),
-        canonical = Some("new collection id"),
-        group = Some("Masterclasses")
-      ))
-  }
 
   "prune" should "remove collections that are not referred to by any fronts" in {
     Transformations.prune(

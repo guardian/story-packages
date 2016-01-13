@@ -2,9 +2,9 @@ package services
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document._
-import com.amazonaws.services.dynamodbv2.document.spec.{ScanSpec, UpdateItemSpec}
+import com.amazonaws.services.dynamodbv2.document.spec.{DeleteItemSpec, ScanSpec, UpdateItemSpec}
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
-import com.amazonaws.services.dynamodbv2.model.ReturnValue
+import com.amazonaws.services.dynamodbv2.model.{DeleteItemResult, ReturnValue}
 import com.gu.pandomainauth.model.User
 import conf.{Configuration, aws}
 import model.{StoryPackage, StoryPackageSearchResult}
@@ -96,10 +96,14 @@ object Database {
     })
   }
 
-  def removePackage(id: String): Future[Unit] = {
+  def removePackage(id: String): Future[StoryPackage] = {
     val errorMessage = s"Unable to delete story package $id"
     WithExceptionHandling(errorMessage, {
-      val outcome = table.deleteItem("id", id)
+      val outcome = table.deleteItem(new DeleteItemSpec()
+        .withPrimaryKey("id", id)
+        .withReturnValues(ReturnValue.ALL_OLD)
+      )
+      DynamoToScala.convertToStoryPackage(outcome.getItem())
     })
   }
 
