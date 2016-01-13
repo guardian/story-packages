@@ -2,6 +2,7 @@ import MockCollections from 'mock/collection';
 import MockSearch from 'mock/search';
 import MockLatestPackages from 'mock/latest-packages';
 import MockStoryPackage from 'mock/story-package';
+import * as ajax from 'modules/authed-ajax';
 
 export default function install ({
     latestPackages = {},
@@ -22,10 +23,17 @@ export default function install ({
     all.mockLatestPackages.set(latestPackages);
     all.mockStoryPackage.set(storyPackages);
 
+    spyOn(ajax, 'request').and.callThrough();
+
     return Object.assign(all, {
         dispose() {
             Object.keys(all).filter(name => name.indexOf('mock') === 0)
                 .forEach(name => all[name].dispose());
+
+            return Promise.all(
+                ajax.request.calls.all().map(
+                    call => call.returnValue.catch(() => {})
+                ));
         }
     });
 }
