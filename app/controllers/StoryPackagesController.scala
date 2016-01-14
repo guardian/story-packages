@@ -9,7 +9,7 @@ import model.{StoryPackage, StoryPackageSearchResult}
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Controller, Result}
 import services.Database
-import updates.UpdatesStream
+import updates.{Reindex, UpdatesStream}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -71,5 +71,23 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
       UpdatesStream.putStreamDelete(id, storyPackage.isHidden.getOrElse(false))
       Ok
     })
+  }
+
+  def reindex() = APIAuthAction.async { request =>
+    def scheduleJob(jobId: String): Future[Result] = {
+      Reindex.scheduleJob(job = jobId, isHidden = isHidden(request))
+        .map(result => Ok(Json.toJson(result)))
+        .recover {
+          case NonFatal(e) => InternalServerError(e.getMessage)
+        }
+    }
+
+    // TODO authentication
+    // TODO switch
+    // TODO POST, not GET
+    request.queryString.getOrElse("job", Nil) match {
+      case Seq(jobId) if !jobId.isEmpty => scheduleJob(jobId)
+      case _ => Future.successful(BadRequest("Missing or invalid job ID"))
+    }
   }
 }
