@@ -1,5 +1,7 @@
 package updates
 
+import java.util.concurrent.atomic.AtomicReference
+
 import play.api.Logger
 import play.api.libs.json.Json
 import play.libs.Akka
@@ -26,29 +28,43 @@ case class ReindexStep(
   next: Option[String]
 )
 
-object Reindex {
-  def scheduleJob(job: String, isHidden: Boolean = false): Future[ReindexResult] = {
-    Logger.info(s"Scheduling a reindex job with id $job")
+class ReindexJobInProgress(scheduled: String, inProgress: String)
+  extends Throwable(s"Cannot schedule job $scheduled because $inProgress is still running")
 
-    Database.scanAllPackages(isHidden)
-    .map(scanResult => {
-      val reindexResult = ReindexResult(
-        scanResult.totalCount,
-        job)
-      Akka.system.scheduler.scheduleOnce(1.seconds) { processScanResult(reindexResult.jobId, scanResult) }
-      reindexResult
-    })
+object Reindex {
+  val jobAlreadyInProgress: AtomicReference[Option[String]] = new AtomicReference(None)
+
+  def scheduleJob(job: String, isHidden: Boolean = false): Future[ReindexResult] = {
+    jobAlreadyInProgress.get() match {
+      case Some(jobInProgress) =>
+        Logger.info(s"Cannot run multiple reindex at the same time on the same machine, waiting for $jobInProgress to complete")
+        Future.failed(new ReindexJobInProgress(job, jobInProgress))
+      case None =>
+        Logger.info(s"Scheduling a reindex job with id $job")
+        Database.scanAllPackages(isHidden)
+          .map(scanResult => {
+            val reindexResult = ReindexResult(
+              scanResult.totalCount,
+              job
+            )
+            jobAlreadyInProgress.set(Some(job))
+            Akka.system.scheduler.scheduleOnce(1.seconds) {
+              processScanResult(reindexResult.jobId, scanResult)
+            }
+            reindexResult
+          })
+    }
   }
 
   private def processScanResult(jobId: String, step: ReindexStep) = {
     Logger.info(s"Processing reindex job $jobId, step with ${step.list.size} packages out of ${step.totalCount}")
     val notifyEvery = math.ceil(step.totalCount / 100.0)
 
-    step.list.foldLeft(Future(0)) {
-      (previousFuture, next) =>
+    step.list.foldLeft(Future.successful(0)) {
+      (previousFuture, nextPackageId) =>
         for {
           processedResults <- previousFuture
-          next <- sendToKinesisStream(next)
+          _ <- sendToKinesisStream(nextPackageId)
         } yield {
           if (processedResults % notifyEvery == 0) sendProgressUpdate(jobId, processedResults)
           processedResults + 1
@@ -59,13 +75,17 @@ object Reindex {
       step.next match {
         case Some(nextPage) =>
           // TODO iterate on next page
+          jobAlreadyInProgress.set(None)
           Logger.error("Next page not implemented")
-        case None => sendProgressComplete(jobId)
+        case None =>
+          jobAlreadyInProgress.set(None)
+          sendProgressComplete(jobId)
       }
     })
     .recover {
       case NonFatal(e) =>
         Logger.error(s"Error when processing reindexing step of job $jobId", e)
+        jobAlreadyInProgress.set(None)
         sendProgressFailed(jobId)
     }
   }
@@ -78,7 +98,6 @@ object Reindex {
         KinesisEventSender.putReindexUpdate(packageId, collectionJson)
       case None => Logger.info(s"Ignore reindex of empty story package $packageId")
     }
-    Future.successful(None)
   }
 
   private def sendProgressUpdate(jobId: String, processedResults: Int): Unit = {
