@@ -67,9 +67,10 @@ export default class Page {
     }
 
     dispose(done) {
-        this.loaded.then(() => {
+        this.loaded
+        .then(() => this.mocks.dispose())
+        .then(() => {
             this.ko.dispose();
-            this.mocks.dispose();
             localStorage.clear();
         })
         .then(done)
