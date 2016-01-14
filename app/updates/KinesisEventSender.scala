@@ -32,8 +32,8 @@ object KinesisEventSender extends ThriftSerializer {
     kinesisClient
   }
 
-  def putCapiUpdate(collectionId: String, collectionJson: CollectionJson): Unit = {
-    val thriftArticles = collectionJson.live.map(article => {
+  def createUpdatePayload(collectionJson: CollectionJson): List[Article] = {
+    collectionJson.live.map(article => {
       article.meta match {
         case Some(trailMetaData) =>
           Article(
@@ -67,17 +67,31 @@ object KinesisEventSender extends ThriftSerializer {
             articleType = ArticleType.Article
           )}
     })
+  }
 
-    sendUpdate(collectionId, Event(EventType.Update, collectionId, thriftArticles))
+  def putReindexUpdate(collectionId: String, collectionJson: CollectionJson): Unit = {
+    sendUpdate(
+      Configuration.updates.reindex,
+      collectionId,
+      Event(EventType.Update, collectionId, createUpdatePayload(collectionJson)))
   }
 
   def putCapiDelete(collectionId: String): Unit = {
-    sendUpdate(collectionId, Event(EventType.Delete, collectionId, List()))
+    sendUpdate(
+      Configuration.updates.capi,
+      collectionId,
+      Event(EventType.Delete, collectionId, List()))
   }
 
-  def sendUpdate(collectionId: String, event: Event) {
-    val request = new PutRecordsRequest().withStreamName(streamName)
+  def putCapiUpdate(collectionId: String, collectionJson: CollectionJson): Unit = {
+    sendUpdate(
+      Configuration.updates.capi,
+      collectionId,
+      Event(EventType.Update, collectionId, createUpdatePayload(collectionJson)))
+  }
 
+  def sendUpdate(streamName: String, collectionId: String, event: Event) {
+    val request = new PutRecordsRequest().withStreamName(streamName)
     val bytes = serializeToBytes(event)
     if (bytes.length > Configuration.updates.maxDataSize) {
       Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size(${Configuration.updates.maxDataSize})")

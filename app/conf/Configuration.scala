@@ -126,7 +126,8 @@ object Configuration {
 
   object updates {
     lazy val stream: Option[String] = properties.get("STREAM")
-    lazy val capi: String = properties.getOrElse("CAPI_STREAM", throw new BadConfigurationException("cannot send content capi kinesis stream: stream name is not configured"))
+    lazy val capi: String = properties.getOrElse("CAPI_STREAM", throw new BadConfigurationException("CAPI stream name is not configured"))
+    lazy val reindex: String = properties.getOrElse("REINDEX_STREAM", throw new BadConfigurationException("REINDEX stream name is not configured"))
     lazy val maxDataSize: Int = 1024000
   }
 }

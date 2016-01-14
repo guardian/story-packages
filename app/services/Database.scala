@@ -4,12 +4,13 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document._
 import com.amazonaws.services.dynamodbv2.document.spec.{DeleteItemSpec, ScanSpec, UpdateItemSpec}
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
-import com.amazonaws.services.dynamodbv2.model.{DeleteItemResult, ReturnValue}
+import com.amazonaws.services.dynamodbv2.model.ReturnValue
 import com.gu.pandomainauth.model.User
 import conf.{Configuration, aws}
 import model.{StoryPackage, StoryPackageSearchResult}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
+import updates.ReindexStep
 import util.Identity._
 
 import scala.collection.JavaConverters._
@@ -96,6 +97,29 @@ object Database {
     })
   }
 
+  def scanAllPackages(isHidden: Boolean = false): Future[ReindexStep] = {
+      val errorMessage = s"Exception in fetching all packages"
+      WithExceptionHandling(errorMessage, {
+        val values = new ValueMap()
+          .withBoolean(":is_hidden", isHidden)
+
+        val scanRequest = new ScanSpec()
+          .withFilterExpression("isHidden = :is_hidden")
+          .withValueMap(values)
+          .withProjectionExpression("id")
+
+        val outcome = table.scan(scanRequest)
+        val listIds = DynamoToScala.convertToListOfStoryPackagesId(outcome)
+        val totalCount = math.max(listIds.size, outcome.getTotalCount)
+
+        ReindexStep(
+          totalCount = totalCount,
+          list = listIds,
+          next = None
+        )
+      })
+  }
+
   def removePackage(id: String): Future[StoryPackage] = {
     val errorMessage = s"Unable to delete story package $id"
     WithExceptionHandling(errorMessage, {
@@ -103,7 +127,7 @@ object Database {
         .withPrimaryKey("id", id)
         .withReturnValues(ReturnValue.ALL_OLD)
       )
-      DynamoToScala.convertToStoryPackage(outcome.getItem())
+      DynamoToScala.convertToStoryPackage(outcome.getItem)
     })
   }
 
@@ -178,9 +202,18 @@ object DynamoToScala {
     serialize(story)
   }
 
+  def extractStoryPackageId(item: Item): String = {
+    item.getString("id")
+  }
+
   def convertToListOfStoryPackages(collection: ItemCollection[ScanOutcome]): List[StoryPackage] = {
     val iterator = collection.iterator().asScala
     iterator.map(convertToStoryPackage).toList
+  }
+
+  def convertToListOfStoryPackagesId(collection: ItemCollection[ScanOutcome]): List[String] = {
+    val iterator = collection.iterator().asScala
+    iterator.map(extractStoryPackageId).toList
   }
 
   private def serialize[T: DynamoCodec](t: T): Item = implicitly[DynamoCodec[T]].toItem(t)
