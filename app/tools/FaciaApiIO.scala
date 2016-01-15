@@ -1,6 +1,6 @@
 package tools
 
-import com.gu.facia.client.models.{CollectionJson, ConfigJson}
+import com.gu.facia.client.models.CollectionJson
 import com.gu.pandomainauth.model.User
 import frontsapi.model.CollectionJsonFunctions
 import org.joda.time.DateTime
@@ -13,7 +13,6 @@ import scala.concurrent.Future
 import scala.util.Try
 
 trait FaciaApiRead {
-  def getSchema: Option[String]
   def getCollectionJson(id: String): Future[Option[CollectionJson]]
 }
 
@@ -25,8 +24,6 @@ trait FaciaApiWrite {
 }
 
 object FaciaApiIO extends FaciaApiRead with FaciaApiWrite {
-
-  def getSchema = S3FrontsApi.getSchema
 
   def getCollectionJson(id: String): Future[Option[CollectionJson]] = FrontsApi.amazonClient.collection(id)
 
@@ -52,11 +49,6 @@ object FaciaApiIO extends FaciaApiRead with FaciaApiWrite {
       case JsSuccess(result, _) =>
         S3FrontsApi.archive(id, Json.prettyPrint(result + ("diff", update)), identity)
       case JsError(errors)  => Logger.warn(s"Could not archive $id: $errors")}}
-
-  def putMasterConfig(config: ConfigJson): Option[ConfigJson] = {
-    Try(S3FrontsApi.putMasterConfig(Json.prettyPrint(Json.toJson(config)))).map(_ => config).toOption
-  }
-  def archiveMasterConfig(config: ConfigJson, identity: User): Unit = S3FrontsApi.archiveMasterConfig(Json.prettyPrint(Json.toJson(config)), identity)
 
 }
 

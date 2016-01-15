@@ -6,7 +6,7 @@ import conf.Configuration
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.libs.json._
-import services.{ConfigAgent, FrontsApi}
+import services.FrontsApi
 import tools.{FaciaApi, FaciaApiIO}
 import updates.UpdateList
 
@@ -121,18 +121,12 @@ trait UpdateActions {
       case Success(_) => collectionJson
     }
 
-  def putMasterConfig(config: ConfigJson, identity: User): Option[ConfigJson] = {
-    FaciaApiIO.archiveMasterConfig(config, identity)
-    FaciaApiIO.putMasterConfig(config)
-  }
-
   def updateCollectionList(id: String, update: UpdateList, identity: User): Future[Option[CollectionJson]] = {
     lazy val updateJson = Json.toJson(update)
     FrontsApi.amazonClient.collection(id).map { maybeCollectionJson =>
       maybeCollectionJson
         .map(insertIntoLive(update, identity, _))
         .map(insertIntoDraft(update, identity, _))
-        .map(removeGroupIfNoLongerGrouped(id, _))
         .map(pruneBlock)
         .map(CollectionJsonFunctions.sortByGroup)
         .map(capCollection)
@@ -149,7 +143,6 @@ trait UpdateActions {
         .map(CollectionJsonFunctions.updatePreviously(_, update))
         .map(deleteFromLive(update, _))
         .map(deleteFromDraft(update, _))
-        .map(removeGroupIfNoLongerGrouped(id, _))
         .map(pruneBlock)
         .map(CollectionJsonFunctions.sortByGroup)
         .map(archiveDeleteBlock(id, _, updateJson, identity))
@@ -196,15 +189,6 @@ trait UpdateActions {
   def capCollection(collectionJson: CollectionJson): CollectionJson =
     collectionJson.copy(live = collectionJson.live.take(collectionCap), draft = collectionJson.draft.map(_.take(collectionCap)))
 
-  def removeGroupIfNoLongerGrouped(collectionId: String, collectionJson: CollectionJson): CollectionJson = {
-    ConfigAgent.getConfig(collectionId).flatMap(_.groups) match {
-      case Some(groups) if groups.groups.nonEmpty => collectionJson
-      case _ => collectionJson.copy(
-        live = collectionJson.live.map(removeGroupsFromTrail),
-        draft = collectionJson.draft.map(_.map(removeGroupsFromTrail)))
-    }
-  }
-
   private def pruneBlock(collectionJson: CollectionJson): CollectionJson =
     collectionJson.copy(
       live = collectionJson.live
@@ -227,47 +211,6 @@ trait UpdateActions {
 
   private def removeGroupsFromTrail(trail: Trail): Trail =
     trail.copy(meta = trail.meta.map(metaData => metaData.copy(json = metaData.json - "group")))
-
-  def createCollectionForTreat(collectionId: String, identity: User, update: UpdateList): CollectionJson = {
-    val trail = Trail(update.item, DateTime.now.getMillis, Some(getUserName(identity)), update.itemMeta)
-    CollectionJson(
-      live          = Nil,
-      draft         = None,
-      treats        = Option(List(trail)),
-      lastUpdated   = DateTime.now,
-      updatedBy     = getUserName(identity),
-      updatedEmail  = identity.email,
-      displayName   = None,
-      href          = None,
-      previously    = None)}
-
-  def updateTreats(collectionId: String, update: UpdateList, identity: User): Future[Option[CollectionJson]] = {
-    lazy val updateJson = Json.toJson(update)
-    FaciaApiIO.getCollectionJson(collectionId).map{ maybeCollectionJson =>
-      maybeCollectionJson
-        .map(updateTreatsList(update, identity, _))
-        .map(archiveUpdateBlock(collectionId, _, updateJson, identity))
-        .map(FaciaApi.updateIdentity(_, identity))
-        .map(putCollectionJson(collectionId, _))
-        .orElse(Option(createCollectionForTreat(collectionId, identity, update)))
-        .map(putCollectionJson(collectionId, _))}}
-
-  def removeTreats(collectionId: String, update: UpdateList, identity: User): Future[Option[CollectionJson]] = {
-    lazy val updateJson = Json.toJson(update)
-    FaciaApiIO.getCollectionJson(collectionId).map{ maybeCollectionJson =>
-      maybeCollectionJson
-        .map(removeFromTreatsList(update, _))
-        .map(archiveDeleteBlock(collectionId, _, updateJson, identity))
-        .map(FaciaApi.updateIdentity(_, identity))
-        .map(putCollectionJson(collectionId, _))}}
-
-  private def updateTreatsList(update: UpdateList, identity: User, collectionJson: CollectionJson): CollectionJson = {
-    val updatedTreats = updateList(update, identity, collectionJson.treats.getOrElse(Nil))
-    collectionJson.copy(treats = Option(updatedTreats))}
-
-  private def removeFromTreatsList(update: UpdateList, collectionJson: CollectionJson): CollectionJson = {
-    val updatedTreats = collectionJson.treats.map(_.filterNot(_.id == update.item))
-    collectionJson.copy(treats = updatedTreats)}
 
   private def getUserName(identity: User): String = s"${identity.firstName} ${identity.lastName}"
 

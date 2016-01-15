@@ -6,7 +6,6 @@ import org.scalatestplus.play._
 import play.api.test.{TestBrowser, FakeApplication}
 
 class FaciaToolTestSuite extends Suites (
-  new config.TransformationsSpec,
   new metrics.DurationMetricTest,
   new services.FaciaToolHealthcheckTest,
   new util.EnumeratorsTest,

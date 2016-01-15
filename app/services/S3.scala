@@ -101,10 +101,6 @@ object S3FrontsApi extends S3 {
   val namespace = "frontsapi"
   lazy val location = s"$stage/$namespace"
 
-  def getSchema = get(s"$location/schema.json")
-  def getMasterConfig: Option[String] = get(s"$location/config/config.json")
-  def getBlock(id: String) = get(s"$location/collection/$id/collection.json")
-  def listConfigsIds: List[String] = getConfigIds(s"$location/config/")
   def putCollectionJson(id: String, json: String) = {
     val putLocation: String = s"$location/collection/$id/collection.json"
     putPrivate(putLocation, json, "application/json")
@@ -114,30 +110,6 @@ object S3FrontsApi extends S3 {
     val now = DateTime.now
     putPrivate(s"$location/history/collection/${now.year.get}/${"%02d".format(now.monthOfYear.get)}/${"%02d".format(now.dayOfMonth.get)}/$id/${now}.${identity.email}.json", json, "application/json")
   }
-
-  def putMasterConfig(json: String) = {
-    val putLocation = s"$location/config/config.json"
-    putPrivate(putLocation, json, "application/json")
-  }
-
-  def archiveMasterConfig(json: String, identity: User) = {
-    val now = DateTime.now
-    val putLocation = s"$location/history/config/${now.year.get}/${"%02d".format(now.monthOfYear.get)}/${"%02d".format(now.dayOfMonth.get)}/${now}.${identity.email}.json"
-    putPrivate(putLocation, json, "application/json")
-  }
-
-  private def getListing(prefix: String, dropText: String): List[String] = {
-    import scala.collection.JavaConversions._
-    val summaries = client.map(_.listObjects(bucket, prefix).getObjectSummaries.toList).getOrElse(Nil)
-    summaries
-      .map(_.getKey.split(prefix))
-      .filter(_.nonEmpty)
-      .map(_.last)
-      .filterNot(_.endsWith("/"))
-      .map(_.split(dropText).head)
-  }
-
-  def getConfigIds(prefix: String): List[String] = getListing(prefix, "/config.json")
 
   def getCollectionLastModified(path: String): Option[String] =
     getLastModified(s"/collection/$path/collection.json").map(_.toString)
