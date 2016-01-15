@@ -32,7 +32,6 @@ object AuditingUpdates {
     Json.toJson(streamUpdate.update).transform[JsObject](Reads.JsObjectReads) match {
       case JsSuccess(jsonObject, _)  => putString(Json.stringify(jsonObject +
         ("email", JsString(streamUpdate.email)) +
-        ("fronts", JsArray(streamUpdate.fronts.map(f => JsString(f)).toSeq)) +
         ("date", JsString(streamUpdate.dateTime.toString))
       ))
       case JsError(errors)           => Logger.warn(s"Error converting StreamUpdate: $errors")}

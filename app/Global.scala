@@ -3,13 +3,11 @@ import logging.LogStashConfig
 import metrics.{CloudWatchApplicationMetrics, FaciaToolMetrics, FrontendMetric, S3Metrics}
 import play.api._
 import play.api.mvc.WithFilters
-import services.ConfigAgentLifecycle
 import switchboard.{Lifecycle => NewSwitchboardLifecycle}
 
 object Global extends WithFilters(Gzipper)
   with GlobalSettings
   with CloudWatchApplicationMetrics
-  with ConfigAgentLifecycle
   with NewSwitchboardLifecycle
   with LogStashConfig {
 

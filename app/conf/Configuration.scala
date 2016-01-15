@@ -63,11 +63,6 @@ object Configuration {
     } yield Auth(user, password)
   }
 
-  object ophanApi {
-    lazy val key = getString("ophan.api.key")
-    lazy val host = getString("ophan.api.host")
-  }
-
   object ajax {
     lazy val corsOrigins: Seq[String] = getString("ajax.cors.origin").map(_.split(",")
     .map(_.trim).toSeq).getOrElse(Nil)

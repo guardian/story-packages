@@ -7,9 +7,9 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
 import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry, PutRecordsResult}
 import com.gu.facia.client.models.CollectionJson
+import com.gu.storypackage.model.v1.{Article, ArticleType, Event, EventType}
 import conf.{Configuration, aws}
 import play.api.Logger
-import storypackage.thrift.{Article, ArticleType, Event, EventType}
 
 object KinesisEventSender extends ThriftSerializer {
 
@@ -42,9 +42,12 @@ object KinesisEventSender extends ThriftSerializer {
             headline = trailMetaData.headline,
             href = trailMetaData.href,
             trailText = trailMetaData.trailText,
-            imageSrc = trailMetaData.imageReplace.flatMap{ enabled =>
-              if (enabled) trailMetaData.imageSrc
-              else None
+            imageSrc = if (trailMetaData.imageReplace.exists(identity)) {
+              trailMetaData.imageSrc
+            } else if (trailMetaData.imageCutoutReplace.exists(identity)) {
+              trailMetaData.imageCutoutSrc
+            } else {
+              None
             },
             isBoosted = trailMetaData.isBoosted,
             imageHide = trailMetaData.imageHide,
@@ -56,11 +59,8 @@ object KinesisEventSender extends ThriftSerializer {
               if (enabled) trailMetaData.byline
               else None
             },
-            customKicker = trailMetaData.customKicker,
-            imageCutoutSrc = trailMetaData.imageCutoutReplace.flatMap{ enabled =>
-              if (enabled) trailMetaData.imageCutoutSrc
-              else None
-            })
+            customKicker = trailMetaData.customKicker
+          )
         case None =>
           Article(
             id = article.id,

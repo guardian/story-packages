@@ -52,7 +52,7 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 
-val awsVersion = "1.10.45"
+val awsVersion = "1.10.47"
 
 libraryDependencies ++= Seq(
     ws,
@@ -64,16 +64,16 @@ libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
-    "com.gu" %% "fapi-client" % "0.61",
-    "com.gu" % "kinesis-logback-appender" % "1.1.0",
+    "com.gu" %% "fapi-client" % "0.66",
+    "com.gu" % "kinesis-logback-appender" % "1.2.0",
     "net.logstash.logback" % "logstash-logback-encoder" % "4.5.1",
-    "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.2.10",
+    "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.2.11",
     "org.julienrf" %% "play-json-variants" % "2.0",
-    "org.scalatest" %% "scalatest" % "2.2.5" % "test",
-    "org.scalatestplus" %% "play" % "1.4.0-M4" % "test",
-    "org.apache.thrift" % "libthrift" % "0.9.2",
+    "org.scalatest" %% "scalatest" % "2.2.6" % "test",
+    "org.scalatestplus" %% "play" % "1.4.0" % "test",
+    "org.apache.thrift" % "libthrift" % "0.9.3",
     "com.twitter" %% "scrooge-core" % "3.20.0",
-    "com.gu" %% "story-packages-model" % "0.2.0"
+    "com.gu" %% "story-packages-model" % "0.3.2"
 )
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
