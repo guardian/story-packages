@@ -6,7 +6,7 @@ describe('Router', function () {
     describe('parse location', function () {
         beforeEach(function () {
             this.handlers = {
-                'fronts': 'whatever',
+                'packages': 'whatever',
                 'peel': 'another',
                 'something': 'yeah'
             };
@@ -19,8 +19,8 @@ describe('Router', function () {
         it('from default', function () {
             var router = new Router(this.handlers, this.location);
             expect(router.priority).toBe(CONST.defaultPriority);
-            expect(router.path).toBe('fronts');
-            expect(router.handler).toBe(this.handlers.fronts);
+            expect(router.path).toBe('packages');
+            expect(router.handler).toBe(this.handlers.packages);
             expect(router.params).toEqual({});
         });
 
@@ -29,8 +29,8 @@ describe('Router', function () {
 
             var router = new Router(this.handlers, this.location);
             expect(router.priority).toBe('banana');
-            expect(router.path).toBe('fronts');
-            expect(router.handler).toBe(this.handlers.fronts);
+            expect(router.path).toBe('packages');
+            expect(router.handler).toBe(this.handlers.packages);
             expect(router.params).toEqual({});
         });
 
@@ -60,8 +60,8 @@ describe('Router', function () {
 
             var router = new Router(this.handlers, this.location);
             expect(router.priority).toBe('mango');
-            expect(router.path).toBe('fronts');
-            expect(router.handler).toBe(this.handlers.fronts);
+            expect(router.path).toBe('packages');
+            expect(router.handler).toBe(this.handlers.packages);
             expect(router.params).toEqual({
                 ripe: 'already'
             });
@@ -70,11 +70,11 @@ describe('Router', function () {
 
     describe('load', function () {
         var description = {
-            fronts: function () {}
+            packages: function () {}
         };
 
         it('correctly', function (done) {
-            spyOn(description, 'fronts').and.callFake(() => Promise.resolve());
+            spyOn(description, 'packages').and.callFake(() => Promise.resolve());
 
             var router = new Router(description, {
                 pathname: '/blueberry',
@@ -82,13 +82,13 @@ describe('Router', function () {
             });
 
             router.load(12).then(function () {
-                expect(description.fronts).toHaveBeenCalledWith(router, 12);
+                expect(description.packages).toHaveBeenCalledWith(router, 12);
                 done();
             });
         });
 
         it('fails', function (done) {
-            spyOn(description, 'fronts');
+            spyOn(description, 'packages');
 
             var router = new Router(description, {
                 pathname: '/raspberry/squeeze'

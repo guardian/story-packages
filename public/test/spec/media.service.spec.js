@@ -7,7 +7,7 @@ import * as wait from 'test/utils/wait';
 describe('Media Service', function () {
     beforeEach(function (done) {
         images.setup();
-        this.testPage = new Page('/test?layout=latest,front:story-1', {}, done);
+        this.testPage = new Page('/test?layout=latest,content:story-1', {}, done);
     });
     afterEach(function (done) {
         images.dispose();

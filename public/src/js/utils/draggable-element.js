@@ -51,7 +51,7 @@ function getItem(dataTransfer, sourceGroup) {
         });
 
     if (!mediaItem && !id) {
-        throw new Error('Sorry, you can\'t add that to a front');
+        throw new Error('Sorry, you can\'t add that to a story package');
     }
 
     if (sourceItem) {

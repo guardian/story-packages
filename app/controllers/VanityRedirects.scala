@@ -7,7 +7,7 @@ import play.mvc.Controller
 object VanityRedirects extends Controller with PanDomainAuthActions {
 
   def storyPackage(id: String) = (AuthAction) { request => {
-    NoCache(Redirect(s"/editorial?layout=latest,front:$id,packages", 301))}
+    NoCache(Redirect(s"/editorial?layout=latest,content:$id,packages", 301))}
   }
 }
 

@@ -21,7 +21,7 @@ describe('Layout', function () {
         </div>`);
 
         var handlers = {
-            fronts: function () {},
+            packages: function () {},
             latest: function () {}
         },
         location = {
@@ -32,20 +32,20 @@ describe('Layout', function () {
             pushState: function () {}
         };
 
-        spyOn(handlers, 'fronts');
+        spyOn(handlers, 'packages');
         spyOn(handlers, 'latest');
         spyOn(history, 'pushState').and.callFake(fakePushState.bind(location));
         this.router = new Router(handlers, location, history);
         this.widget = [{
-            title: 'Front',
-            layoutType: 'front',
-            widget: 'mock-front-widget'
+            title: 'Story Package',
+            layoutType: 'content',
+            widget: 'mock-story-package-widget'
         }, {
             title: 'Latest',
             layoutType: 'latest',
             widget: 'mock-latest-widget'
         }, {
-            title: 'PAckages',
+            title: 'Packages',
             layoutType: 'packages',
             widget: 'mock-packages-widget'
         }];
@@ -86,7 +86,7 @@ describe('Layout', function () {
             expect(layout.configVisible()).toBe(false);
             expect(layout.configVisible()).toBe(false);
             expect($('.configPane', this.ko.container).is(':visible')).toBe(false);
-            expect(columnsInDOM()).toEqual(['latest', 'front', 'packages']);
+            expect(columnsInDOM()).toEqual(['latest', 'content', 'packages']);
 
             layout.toggleConfigVisible();
             expect(layout.configVisible()).toBe(true);
@@ -106,7 +106,7 @@ describe('Layout', function () {
             expect(layout.savedState.columns()).toBe(saved);
             expect(layout.currentState.columns().length).toBe(4);
             expect($('.configPane').length).toBe(4);
-            expect(columnsInDOM()).toEqual(['latest', 'latest', 'front', 'packages']);
+            expect(columnsInDOM()).toEqual(['latest', 'latest', 'content', 'packages']);
 
             // Cancel the workspace change
             return click('.cancel-layout');
@@ -116,7 +116,7 @@ describe('Layout', function () {
             expect(layout.savedState.columns()).toBe(saved);
             expect(layout.currentState.columns().length).toBe(3);
             expect($('.configPane').length).toBe(3);
-            expect(columnsInDOM()).toEqual(['latest', 'front', 'packages']);
+            expect(columnsInDOM()).toEqual(['latest', 'content', 'packages']);
 
             // Add another column
             return click('.fa-plus-circle:nth(1)');
@@ -125,35 +125,35 @@ describe('Layout', function () {
             expect(layout.savedState.columns()).toBe(saved);
             expect(layout.currentState.columns().length).toBe(4);
             expect($('.configPane').length).toBe(4);
-            expect(columnsInDOM()).toEqual(['latest', 'front', 'front', 'packages']);
+            expect(columnsInDOM()).toEqual(['latest', 'content', 'content', 'packages']);
 
             // Change the type of a column
             return click('.configPane:nth(2) .checkbox-latest');
         })
         .then(() => {
-            expect(columnsInDOM()).toEqual(['latest', 'front', 'latest', 'packages']);
+            expect(columnsInDOM()).toEqual(['latest', 'content', 'latest', 'packages']);
 
             return click('.save-layout');
         })
         .then(() => {
-            expect(this.router.location.search).toBe('?layout=latest,front,latest,packages');
+            expect(this.router.location.search).toBe('?layout=latest,content,latest,packages');
 
             return layout.toggleConfigVisible();
         })
         .then(() => {
-            expect(columnsInDOM()).toEqual(['latest', 'front', 'latest', 'packages']);
+            expect(columnsInDOM()).toEqual(['latest', 'content', 'latest', 'packages']);
 
             // Navigate back to the previous layout
-            return navigateTo(this.router, '?layout=front:banana,latest');
+            return navigateTo(this.router, '?layout=content:banana,latest');
         })
         .then(() => {
-            expect(columnsInDOM()).toEqual(['front', 'latest']);
-            expect($('.mock-widget.front').text()).toBe('banana');
+            expect(columnsInDOM()).toEqual(['content', 'latest']);
+            expect($('.mock-widget.content').text()).toBe('banana');
 
             layout.currentState.columns()[0].setConfig('apple');
         })
         .then(() => {
-            expect(this.router.location.search).toBe('?layout=front:apple,latest');
+            expect(this.router.location.search).toBe('?layout=content:apple,latest');
 
             return click('.fa-minus-circle:nth(1)');
         })
@@ -161,22 +161,22 @@ describe('Layout', function () {
             expect(layout.savedState.columns().length).toBe(2);
             expect(layout.currentState.columns().length).toBe(1);
             expect($('.configPane').length).toBe(1);
-            expect(columnsInDOM()).toEqual(['front']);
-            expect($('.mock-widget.front').text()).toBe('apple');
+            expect(columnsInDOM()).toEqual(['content']);
+            expect($('.mock-widget.content').text()).toBe('apple');
         })
         .then(done)
         .catch(done.fail);
     });
 });
 
-ko.components.register('mock-front-widget', {
+ko.components.register('mock-story-package-widget', {
     viewModel: {
         createViewModel: (params) => {
             mediator.emit('widget:load');
             return params;
         }
     },
-    template: '<div class="mock-widget front" data-bind="text: column.config"></div>'
+    template: '<div class="mock-widget content" data-bind="text: column.config"></div>'
 });
 ko.components.register('mock-latest-widget', {
     viewModel: {

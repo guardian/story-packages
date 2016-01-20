@@ -6,7 +6,7 @@ import 'widgets/trail-editor.html!text';
 describe('Alternate Drag', function () {
     beforeEach(function (done) {
         this.scope = mockjax.scope();
-        this.testPage = new Page('/editorial?layout=latest,front:story-1', {}, done);
+        this.testPage = new Page('/editorial?layout=latest,content:story-1', {}, done);
     });
     afterEach(function (done) {
         this.testPage.dispose(done);

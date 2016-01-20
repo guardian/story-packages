@@ -105,7 +105,7 @@ function validateItem (item) {
 
                 // A snap, but a link off of the tool itself
                 } else if (item.id().indexOf(window.location.hostname) > -1) {
-                    err = 'Sorry, that link cannot be added to a front';
+                    err = 'Sorry, that link cannot be added to a story package';
 
                 // A snap, but a link to unavailable guardian content
                 } else if (results && results.length === 0 && isGuardianUrl(item.id())) {
