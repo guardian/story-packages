@@ -21,7 +21,9 @@ define([
     'modules/copied-article',
     'modules/authed-ajax',
     'modules/content-api',
-    'models/collections/editor',
+    'models/article/editor',
+    'models/article/images',
+    'models/collections/persistence',
     'models/group'
 ],
     function (
@@ -48,6 +50,8 @@ define([
         authedAjax,
         contentApi,
         Editor,
+        images,
+        persistence,
         Group
     ) {
         alert = alert.default;
@@ -66,6 +70,7 @@ define([
         Group = Group.default;
         metaFields = metaFields.default;
         openGraph = openGraph.default;
+        persistence = persistence.default;
 
         var createEditor = Editor.default.create;
 
@@ -202,19 +207,7 @@ define([
                 this.updateEditorsDisplay();
             }
 
-            this.thumbImage = ko.pureComputed(function () {
-                var meta = this.meta,
-                    fields = this.fields,
-                    state = this.state;
-
-                if (meta.imageReplace() && meta.imageSrc()) {
-                    return meta.imageSrc();
-                } else if (meta.imageCutoutReplace()) {
-                    return meta.imageCutoutSrc() || state.imageCutoutSrcFromCapi() || fields.secureThumbnail() || fields.thumbnail();
-                } else {
-                    return fields.secureThumbnail() || fields.thumbnail();
-                }
-            }, this);
+            this.thumbImage = ko.pureComputed(images.thumbnail, this);
         }
 
         Article.prototype.copy = function () {
@@ -335,23 +328,7 @@ define([
         };
 
         Article.prototype.save = function() {
-            if (!this.group.parent) {
-                return;
-            }
-
-            if (this.group.parentType === 'Collection') {
-                this.group.parent.setPending(true);
-
-                authedAjax.updateCollections({
-                    update: {
-                        collection: this.group.parent,
-                        item:       this.id(),
-                        position:   this.id(),
-                        itemMeta:   serializeArticleMeta(this),
-                        mode:       this.front.mode()
-                    }
-                });
-            }
+            return persistence.article.save(this);
         };
 
         Article.prototype.convertToSnap = function() {
