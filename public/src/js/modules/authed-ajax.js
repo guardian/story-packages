@@ -40,10 +40,10 @@ function request(opts, win) {
         contentType: opts.data ? 'application/json' : undefined
     }, opts);
 
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
         $.ajax(message)
             .done(resolve)
-            .fail(generateErrorCallback(win, reject, function () {
+            .fail(generateErrorCallback(win, reject, () => {
                 $.ajax(message)
                     .done(resolve)
                     .fail(generateErrorCallback(win, reject));
@@ -55,7 +55,7 @@ function updateCollections(edits, win) {
     var collections = [];
 
     var isTreats = false;
-    _.each(edits, function(edit) {
+    _.each(edits, edit => {
         if (_.isObject(edit)) {
             edit.collection.setPending(true);
             edit.id = edit.collection.id;
@@ -71,19 +71,17 @@ function updateCollections(edits, win) {
     edits.type = [
         edits.update ? 'Update' : null,
         edits.remove ? 'Remove' : null
-    ].filter(function(s) { return s; }).join('And');
+    ].filter(Boolean).join('And');
 
     return request({
         url: collectionEndPoint(isTreats, edits),
         type: 'POST',
         data: JSON.stringify(edits)
     }, win)
-    .then(function (resp) {
-        return Promise.all(_.map(collections, collection => new Promise(resolve => {
-            collection.populate(resp[collection.id], resolve);
-        })));
-    })
-    .catch(function (ex) {
+    .then(resp => Promise.all(
+        _.map(collections, collection => collection.populate(resp[collection.id]))
+    ))
+    .catch(ex => {
         _.each(collections, collection => collection.load());
         reportErrors(ex);
         throw ex;
