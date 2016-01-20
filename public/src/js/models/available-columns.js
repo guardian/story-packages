@@ -1,17 +1,8 @@
 export default {
-    'frontsTrail': {
-        title: 'Front',
-        layoutType: 'front',
-        widget: 'fronts-widget'
-    },
-    'frontsTreats': {
-        title: 'Treats',
-        layoutType: 'treats',
-        widget: 'fronts-widget',
-        params: {
-            mode: 'treats'
-        },
-        selectable: false
+    'content': {
+        title: 'Story Package',
+        layoutType: 'content',
+        widget: 'story-package-widget'
     },
     'latestTrail': {
         title: 'Latest',
@@ -23,18 +14,8 @@ export default {
         layoutType: 'clipboard',
         widget: 'fronts-standalone-clipboard'
     },
-    'frontsConfig': {
-        title: 'Fronts',
-        layoutType: 'config',
-        widget: 'fronts-config-widget'
-    },
-    'searchFronts': {
-        title: 'Search',
-        layoutType: 'search',
-        widget: 'fronts-search-widget'
-    },
     'packages': {
-        title: 'Packages',
+        title: 'Manage Packages',
         layoutType: 'packages',
         widget: 'packages-widget'
     }

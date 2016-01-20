@@ -2,7 +2,7 @@ import _ from 'underscore';
 import parseQueryParams from 'utils/parse-query-params';
 
 function get (override) {
-    var columns = [{ 'type': 'latest' }, { 'type': 'front' }, { 'type': 'packages' }],
+    var columns = [{ 'type': 'latest' }, { 'type': 'content' }, { 'type': 'packages' }],
         queryParams = _.isObject(override) ? _.clone(override) : parseQueryParams(override),
         configFromURL = queryParams.layout;
 
@@ -10,7 +10,7 @@ function get (override) {
         columns = _.map(configFromURL.split(','), function (column) {
             if (!column) {
                 return {
-                    type: 'front'
+                    type: 'content'
                 };
             }
 
@@ -22,7 +22,7 @@ function get (override) {
         });
     } else if (queryParams.storyPackage) {
         columns = [{ 'type': 'latest' }, {
-            'type': 'front',
+            'type': 'content',
             'config': queryParams.storyPackage
         }, { 'type': 'packages' }];
     }

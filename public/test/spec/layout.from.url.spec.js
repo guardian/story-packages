@@ -4,7 +4,7 @@ describe('utils/layout-from-url', function () {
     it('gets the default configuration', function () {
         expect(fromURL.get('test')).toEqual([
             { 'type': 'latest' },
-            { 'type': 'front' },
+            { 'type': 'content' },
             { 'type': 'packages' }
         ]);
     });
@@ -12,18 +12,18 @@ describe('utils/layout-from-url', function () {
     it('gets the default configuration by path', function () {
         expect(fromURL.get('test', 'config')).toEqual([
             { 'type': 'latest' },
-            { 'type': 'front' },
+            { 'type': 'content' },
             { 'type': 'packages' }
         ]);
     });
 
     it('gets the configuration form URL', function () {
-        expect(fromURL.get('test?layout=front,front:banana,treats:apple')).toEqual([
+        expect(fromURL.get('test?layout=content,content:banana,treats:apple')).toEqual([
             {
-                'type': 'front',
+                'type': 'content',
                 'config': undefined
             }, {
-                'type': 'front',
+                'type': 'content',
                 'config': 'banana'
             }, {
                 'type': 'treats',
@@ -34,8 +34,8 @@ describe('utils/layout-from-url', function () {
 
     it('gets an empty configuration', function () {
         expect(fromURL.get('test?layout=,,any')).toEqual([
-            { 'type': 'front' },
-            { 'type': 'front' },
+            { 'type': 'content' },
+            { 'type': 'content' },
             {
                 'type': 'any',
                 'config': undefined
@@ -46,16 +46,16 @@ describe('utils/layout-from-url', function () {
     it('ignores unknown parameters', function () {
         expect(fromURL.get('test?other=stuff')).toEqual([
             { 'type': 'latest' },
-            { 'type': 'front' },
+            { 'type': 'content' },
             { 'type': 'packages' }
         ]);
     });
 
-    it('respects the front parameter', function () {
+    it('respects the content parameter', function () {
         expect(fromURL.get('test?storyPackage=banana')).toEqual([
             { 'type': 'latest' },
             {
-                'type': 'front',
+                'type': 'content',
                 'config': 'banana'
             },
             { 'type': 'packages' }
@@ -76,9 +76,9 @@ describe('utils/layout-from-url', function () {
             type: 'latest',
             ignore: 'please'
         }, {
-            type: 'front',
+            type: 'content',
             config: 'banana'
-        }])).toBe('latest,front:banana');
+        }])).toBe('latest,content:banana');
     });
 
     it('extract from an object', function () {
@@ -87,7 +87,7 @@ describe('utils/layout-from-url', function () {
         })).toEqual([{
             type: 'latest'
         }, {
-            type: 'front',
+            type: 'content',
             config: 'banana'
         }, {
             type: 'packages'

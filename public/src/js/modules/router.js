@@ -18,7 +18,7 @@ class Router extends EventEmitter {
     populateFromLocation() {
         var tokens = this.location.pathname.substring(1).split('/');
         this.priority = tokens[0] || CONST.defaultPriority;
-        this.path = tokens[1] || 'fronts';
+        this.path = tokens[1] || 'packages';
         this.params = parseQueryParams(this.location.search || '?');
     }
 

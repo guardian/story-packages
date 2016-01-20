@@ -6,7 +6,7 @@ describe('Visited articles', function () {
     beforeEach(function (done) {
         this.originalDetectPendingChangesInClipboard = CONST.detectPendingChangesInClipboard;
         CONST.detectPendingChangesInClipboard = 300;
-        this.testPage = new Page('/test?layout=latest,front:story-1', {}, done);
+        this.testPage = new Page('/test?layout=latest,content:story-1', {}, done);
     });
     afterEach(function (done) {
         CONST.detectPendingChangesInClipboard = this.originalDetectPendingChangesInClipboard;

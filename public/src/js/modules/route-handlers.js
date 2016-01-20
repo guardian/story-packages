@@ -12,8 +12,8 @@ function getLoader (enabledWidgets, loadedExtensions) {
 }
 
 export default {
-    'fronts': getLoader([
-        columns.frontsTrail,
+    'packages': getLoader([
+        columns.content,
         columns.latestTrail,
         columns.clipboardTrail,
         columns.packages

@@ -5,7 +5,7 @@ import _ from 'underscore';
 let visitedArticleStorage = {};
 
 function createStorage() {
-    visitedArticleStorage.storage = storage.bind('gu.front-tools.visitedArticles.' + vars.model.identity.email);
+    visitedArticleStorage.storage = storage.bind('gu.story-packages.visitedArticles.' + vars.model.identity.email);
 }
 
 function isArticleVisited(articleId) {

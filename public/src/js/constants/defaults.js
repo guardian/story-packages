@@ -18,21 +18,6 @@ export default {
     detectPendingChangesInClipboard: 4000,
 
     defaultPriority: 'editorial',
-    maxFronts: {
-        'editorial': 200,
-        'commercial': 350,
-        'training': 50
-    },
-    frontAlertLimit: 10,
-    frontGroups: [
-        'UK consumer',
-        'UK professional',
-        'US consumer',
-        'US professional',
-        'AU consumer',
-        'AU professional',
-        'Masterclasses'
-    ],
 
     filterTypes: {
         section: { display: 'in section:', param: 'section', path: 'sections', placeholder: 'e.g. news' },
@@ -49,7 +34,6 @@ export default {
     latestArticlesPollMs:  30000,
     configSettingsPollMs:  30000,
     cacheExpiryMs:         60000,
-    sparksRefreshMs:      300000,
     pubTimeRefreshMs:      30000,
     searchDebounceMs:        300,
     packagesPollMs:      3600000,
@@ -104,7 +88,5 @@ export default {
     ophanBase:             'http://dashboard.ophan.co.uk/summary',
     ophanFrontBase:        'http://dashboard.ophan.co.uk/info-front?path=',
 
-    internalPagePrefix:    'internal-code/page/',
-
-    sparksBatchQueue:      15
+    internalPagePrefix:    'internal-code/page/'
 };

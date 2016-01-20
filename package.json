@@ -2,7 +2,7 @@
   "name": "story-packages",
   "version": "1.0.0",
   "private": true,
-  "description": "Guardian front pages editor",
+  "description": "Guardian story packages pages editor",
   "dependencies": {
     "babel": "6.3.13",
     "eslint-plugin-jasmine": "^1.6.0",

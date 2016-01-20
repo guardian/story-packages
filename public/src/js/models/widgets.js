@@ -30,9 +30,9 @@ var register = _.once(() => {
             });
         }
     });
-    ko.components.register('fronts-widget', {
-        viewModel: { jspm: 'widgets/columns/fronts' },
-        template: { text: 'widgets/columns/fronts.html' }
+    ko.components.register('story-package-widget', {
+        viewModel: { jspm: 'widgets/columns/story-package' },
+        template: { text: 'widgets/columns/story-package.html' }
     });
     ko.components.register('latest-widget', {
         viewModel: { jspm: 'widgets/columns/latest' },
@@ -87,12 +87,6 @@ var register = _.once(() => {
             createViewModel: (params) => params.modal
         },
         template: { text: 'widgets/modal_dialog.html' }
-    });
-    ko.components.register('confirm_breaking_changes', {
-        viewModel: {
-            createViewModel: (params) => params
-        },
-        template: { text: 'widgets/confirm_breaking_changes.html' }
     });
     ko.components.register('text_alert', {
         viewModel: {

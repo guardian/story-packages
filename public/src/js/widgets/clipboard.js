@@ -16,7 +16,7 @@ class Clipboard extends BaseWidget {
     constructor(params) {
         super();
 
-        this.storage = storage.bind('gu.front-tools.clipboard.' +
+        this.storage = storage.bind('gu.story-packages.clipboard.' +
             (classCount ? classCount + '.' : '') + vars.model.identity.email);
         classCount += 1;
         this.column = params.column;
