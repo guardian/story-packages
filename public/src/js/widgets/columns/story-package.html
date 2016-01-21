@@ -1,8 +1,8 @@
-<div class="modes" data-bind="css: frontMode">
+<div class="modes live-mode">
     <a class="live-mode active">Story package</a>
 </div>
 
-<div class="styledFront" data-bind="css: frontMode">
+<div class="styledFront live-mode">
     <div class="col__inner front-selector">
         <select class="select--front" data-bind="options: $root.latestPackages,
             optionsText: 'name',
@@ -27,10 +27,12 @@
     <!-- /ko -->
 </div>
 
-<div class="col__inner scrollable styledFront collection-container" data-bind="
-    css: frontMode
-">
+<div class="col__inner scrollable styledFront collection-container live-mode">
     <!-- ko with: collection -->
-        <collection-widget params="context: $context" class="cardContainer"></collection-widget>
+        <collection-widget params="context: $context, group: 'included'" class="cardContainer"></collection-widget>
+    <!-- /ko -->
+
+    <!-- ko with: collection -->
+        <collection-widget params="context: $context, group: 'linked'" class="cardContainer"></collection-widget>
     <!-- /ko -->
 </div>

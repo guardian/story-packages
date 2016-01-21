@@ -25,7 +25,7 @@ describe('Collections', function () {
         function insertInEmptyGroup () {
             return testPage.actions.edit(() => {
                 return testPage.regions.latest().trail(1).dropTo(
-                    testPage.regions.front().collection(1).group(1)
+                    testPage.regions.story().linking()
                 );
             })
             .assertRequest(request => {
@@ -36,7 +36,7 @@ describe('Collections', function () {
                 expect(request.data.update.live).toEqual(true);
                 expect(request.data.update.id).toEqual('story-2');
                 expect(request.data.update.item).toEqual('internal-code/page/1');
-                expect(!!request.data.update.itemMeta).toEqual(false);
+                expect(request.data.update.itemMeta).toEqual({ group: '0' });
             })
             .respondWith({
                 'story-2': {
@@ -54,7 +54,7 @@ describe('Collections', function () {
         function insertAfterAnArticle () {
             return testPage.actions.edit(() => {
                 return testPage.regions.latest().trail(2).dropTo(
-                    testPage.regions.front().collection(1)
+                    testPage.regions.story().linking()
                 );
             })
             .assertRequest(request => {
@@ -65,7 +65,7 @@ describe('Collections', function () {
                 expect(request.data.update.live).toEqual(true);
                 expect(request.data.update.id).toEqual('story-2');
                 expect(request.data.update.item).toEqual('internal-code/page/2');
-                expect(!!request.data.update.itemMeta).toEqual(false);
+                expect(request.data.update.itemMeta).toEqual({ group: '0' });
                 expect(request.data.update.position).toEqual('internal-code/page/1');
             })
             .respondWith({
@@ -83,7 +83,7 @@ describe('Collections', function () {
         function insertOnTopOfTheList () {
             return testPage.actions.edit(() => {
                 return testPage.regions.latest().trail(3).dropTo(
-                    testPage.regions.front().collection(1).group(1).trail(1)
+                    testPage.regions.story().linking().trail(1)
                 );
             })
             .assertRequest(request => {
@@ -94,7 +94,7 @@ describe('Collections', function () {
                 expect(request.data.update.live).toEqual(true);
                 expect(request.data.update.id).toEqual('story-2');
                 expect(request.data.update.item).toEqual('internal-code/page/3');
-                expect(!!request.data.update.itemMeta).toEqual(false);
+                expect(request.data.update.itemMeta).toEqual({ group: '0' });
                 expect(request.data.update.position).toEqual('internal-code/page/1');
             })
             .respondWith({
@@ -113,7 +113,7 @@ describe('Collections', function () {
 
         function insertMetadataOnTopOfTheList () {
             return testPage.actions.edit(() => {
-                return testPage.regions.front().collection(1).group(1).trail(1).open()
+                return testPage.regions.story().linking().trail(1).open()
                 .then(trail => trail.toggleMetadata('showQuotedHeadline'))
                 .then(trail => trail.save());
             })
@@ -147,9 +147,9 @@ describe('Collections', function () {
 
         function moveFirstItemBelow () {
             return testPage.actions.edit(() => {
-                var firstCollection = testPage.regions.front().collection(1);
-                return firstCollection.group(1).trail(1).dropTo(
-                    firstCollection.group(1).trail(3)
+                var storyPackage = testPage.regions.story();
+                return storyPackage.linking().trail(1).dropTo(
+                    storyPackage.linking().trail(3)
                 );
             })
             .assertRequest(request => {
@@ -182,7 +182,7 @@ describe('Collections', function () {
 
         function removeItemFromGroup () {
             return testPage.actions.edit(() => {
-                return testPage.regions.front().collection(1).group(1).trail(2).remove();
+                return testPage.regions.story().linking().trail(2).remove();
             })
             .assertRequest(request => {
                 expect(request.url).toEqual('/edits');
@@ -208,7 +208,7 @@ describe('Collections', function () {
             return testPage.actions.edit(() => {
                 const regions = testPage.regions;
                 return regions.latest().trail(5).copy()
-                .then(() => regions.front().collection(1).group(1).trail(1).paste());
+                .then(() => regions.story().linking().trail(1).paste());
             })
             .assertRequest(request => {
                 expect(request.url).toBe('/edits');
@@ -219,7 +219,8 @@ describe('Collections', function () {
                     draft: false,
                     id: 'story-2',
                     item: 'internal-code/page/5',
-                    position: 'internal-code/page/1'
+                    position: 'internal-code/page/1',
+                    itemMeta: { group: '0' }
                 });
             })
             .respondWith({
@@ -247,11 +248,11 @@ describe('Collections', function () {
     });
 
     it('closes without saving', function (done) {
-        this.testPage.regions.front().collection(1).group(1).trail(1).open()
+        this.testPage.regions.story().linking().trail(1).open()
         .then(trail => trail.type('headline', 'different'))
         .then(trail => trail.close())
         .then(() => {
-            const trail = this.testPage.regions.front().collection(1).group(1).trail(1);
+            const trail = this.testPage.regions.story().linking().trail(1);
             expect(trail.fieldText('headline')).toBe('I won the elections');
             expect($('.editor', trail.dom).is(':visible')).toBe(false);
         })

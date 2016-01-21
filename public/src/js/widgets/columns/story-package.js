@@ -27,13 +27,6 @@ export default class Front extends ColumnWidget {
         });
 
         this.setFront = id => this.front(id);
-        this.setModeLive = () => this.mode('live');
-        this.setModeDraft = () => this.mode('draft');
-
-        this.frontMode = ko.pureComputed(() => {
-            var classes = [this.mode() + '-mode'];
-            return classes.join(' ');
-        });
 
         this.isControlsVisible = ko.observable(false);
         this.controlsText = ko.pureComputed(() => '');
@@ -111,7 +104,8 @@ export default class Front extends ColumnWidget {
                 displayName: response.name,
                 lastUpdated: response.lastModify,
                 updatedBy: response.lastModifyByName,
-                updatedEmail: response.lastModifyBy
+                updatedEmail: response.lastModifyBy,
+                groups: ['linked', 'included']
             });
             this.collection(newCollection);
             var latestPackages = this.baseModel.latestPackages();
