@@ -17,7 +17,7 @@ describe('Media Service', function () {
     it('drags an image from the grid', function (done) {
         const testPage = this.testPage;
 
-        this.testPage.regions.front().collection(1).group(1).trail(1).open()
+        this.testPage.regions.story().linking().trail(1).open()
         .then(expectArticleOpen)
         .then(dragFromTheGrid)
         .then(openCutoutImageEditor)

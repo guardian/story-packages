@@ -55,9 +55,7 @@ var register = _.once(() => {
         template: { text: 'widgets/search_controls.html' }
     });
     ko.components.register('collection-widget', {
-        viewModel: {
-            createViewModel: (params) => params.context.$data
-        },
+        viewModel: { jspm: 'widgets/collection' },
         template: { text: 'widgets/collection.html' }
     });
     ko.components.register('trail-widget', {

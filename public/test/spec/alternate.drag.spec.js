@@ -26,7 +26,7 @@ describe('Alternate Drag', function () {
 
 
         function openFirstArticle () {
-            return testPage.regions.front().collection(1).group(1).trail(1).open();
+            return testPage.regions.story().linking().trail(1).open();
         }
         function saveArticle (trail) {
             return testPage.actions.edit(() => {
@@ -137,11 +137,11 @@ describe('Alternate Drag', function () {
         }
         function expectItemSwapped () {
             mockScope.clear();
-            const trail = testPage.regions.front().collection(1).group(1).trail(1);
+            const trail = testPage.regions.story().linking().trail(1);
             expect(trail.fieldText('headline')).toBe('Santa Claus is a real thing');
         }
         function deleteEntireArticle () {
-            const trail = testPage.regions.front().collection(1).group(1).trail(1);
+            const trail = testPage.regions.story().linking().trail(1);
             return testPage.actions.edit(() => trail.remove())
             .assertRequest(request => {
                 expect(request.url).toBe('/edits');
@@ -154,7 +154,7 @@ describe('Alternate Drag', function () {
                         item: 'internal-code/page/4'
                     }
                 });
-                expect(testPage.regions.front().collection(1).group(1).isEmpty()).toBe(true);
+                expect(testPage.regions.story().linking().isEmpty()).toBe(true);
             })
             .respondWith({
                 'story-1': { live: [] }
