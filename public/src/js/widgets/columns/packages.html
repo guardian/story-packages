@@ -38,7 +38,7 @@
             <span class=packagesEmptyResults">Searching...</span>
         </div>
     <!-- /ko -->
-    <!-- ko if: searchTerm() && !searchInProgress() -->
+    <!-- ko if: searchTerm() && searchTerm().length > 2 && !searchInProgress() -->
         <div class="cardContainer">
             <!-- ko if: (searchResults().length === 0) && searchedPackages() -->
                 <span class="packagesEmptyResults">Couldn't find any story package matching the search term.</span>
