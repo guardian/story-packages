@@ -33,6 +33,11 @@
 </div>
 
 <div class="styledFront treats-mode scrollable narrow">
+    <!-- ko if: searchInProgress() -->
+        <div class="cardContainer">
+            <span class=packagesEmptyResults">Searching...</span>
+        </div>
+    <!-- /ko -->
     <!-- ko if: searchTerm() && !searchInProgress() -->
         <div class="cardContainer">
             <!-- ko if: (searchResults().length === 0) && searchedPackages() -->
