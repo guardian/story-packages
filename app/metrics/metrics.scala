@@ -115,6 +115,32 @@ object FaciaToolMetrics {
   )
 }
 
+object StoryPackagesMetrics {
+  object QueryCount extends CountMetric(
+    "dynamo-query",
+    "Number of queries to dynamo from story packages"
+  )
+  object ScanCount extends CountMetric(
+    "dynamo-scan",
+    "Number of database scans from story packages"
+  )
+
+  object DeleteCount extends CountMetric(
+    "dynamo-delete",
+    "Number of database deletions from story packages"
+  )
+
+  object ErrorCount extends CountMetric(
+    "dynamo-error",
+    "Number of database errors from story packages"
+  )
+
+  object UpdateCount extends CountMetric(
+    "dynamo-update",
+    "Number of database updates from story packages"
+  )
+}
+
 trait CloudWatchApplicationMetrics extends GlobalSettings {
   val applicationMetricsNamespace: String = "Application"
   val applicationDimension: Dimension = new Dimension().withName("ApplicationName").withValue(applicationName)
