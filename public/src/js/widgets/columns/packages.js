@@ -38,6 +38,7 @@ export default class Package extends ColumnWidget {
                         this.searchInProgress(false);
                     });
             } else {
+                this.searchInProgress(false);
                 this.searchedPackages(false);
                 this.searchResults.removeAll();
             }

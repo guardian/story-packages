@@ -2098,6 +2098,10 @@ hr {
     margin: 0;
     line-height: 200%;
 }
+.searchingPackages {
+    padding: 8px;
+}
+
 .createPackage {
     padding-top: 1em;
 }

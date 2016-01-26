@@ -33,10 +33,15 @@
 </div>
 
 <div class="styledFront treats-mode scrollable narrow">
-    <!-- ko if: searchTerm() && !searchInProgress() -->
+    <!-- ko if: searchInProgress() -->
+        <div class="cardContainer">
+            <div class="searchingPackages">Searching...</div>
+        </div>
+    <!-- /ko -->
+    <!-- ko if: searchTerm() && searchTerm().length > 2 && !searchInProgress() -->
         <div class="cardContainer">
             <!-- ko if: (searchResults().length === 0) && searchedPackages() -->
-                <span class="packagesEmptyResults">Couldn't find any story package matching the search term.</span>
+                <div>Couldn't find any story package matching the search term.</div>
             <!-- /ko -->
 
             <ul class="packagesResults" data-bind="foreach: searchResults">
