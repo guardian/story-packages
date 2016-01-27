@@ -1,6 +1,6 @@
 import conf.Gzipper
 import logging.LogStashConfig
-import metrics.{CloudWatchApplicationMetrics, FaciaToolMetrics, FrontendMetric, S3Metrics}
+import metrics.{CloudWatchApplicationMetrics, FaciaToolMetrics, FrontendMetric, S3Metrics, StoryPackagesMetrics}
 import play.api._
 import play.api.mvc.WithFilters
 import switchboard.{Lifecycle => NewSwitchboardLifecycle}
@@ -16,7 +16,12 @@ object Global extends WithFilters(Gzipper)
   override def applicationMetrics: List[FrontendMetric] = super.applicationMetrics ::: List(
     FaciaToolMetrics.ApiUsageCount,
     FaciaToolMetrics.ProxyCount,
-    S3Metrics.S3ClientExceptionsMetric
+    S3Metrics.S3ClientExceptionsMetric,
+    StoryPackagesMetrics.QueryCount,
+    StoryPackagesMetrics.ScanCount,
+    StoryPackagesMetrics.DeleteCount,
+    StoryPackagesMetrics.ErrorCount,
+    StoryPackagesMetrics.UpdateCount
   )
 
 }

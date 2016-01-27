@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import com.amazonaws.services.dynamodbv2.model.ReturnValue
 import com.gu.pandomainauth.model.User
 import conf.{Configuration, aws}
+import metrics.StoryPackagesMetrics
 import model.{StoryPackage, StoryPackageSearchResult}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
@@ -57,6 +58,7 @@ object Database {
         .withMaxResultSize(Configuration.storage.maxPageSize)
 
       val results = table.scan(scanRequest)
+      StoryPackagesMetrics.ScanCount.increment()
 
       import model.SortByName._
       StoryPackageSearchResult(
@@ -80,6 +82,7 @@ object Database {
         .withMaxResultSize(Configuration.storage.maxLatestResults)
 
       val results = table.scan(scanRequest)
+      StoryPackagesMetrics.ScanCount.increment()
 
       import model.SortByLastModify._
       StoryPackageSearchResult(
@@ -93,6 +96,7 @@ object Database {
     val errorMessage = s"Unable to find story package with id $id"
     WithExceptionHandling(errorMessage, {
       val item = table.getItem("id", id)
+      StoryPackagesMetrics.QueryCount.increment()
       DynamoToScala.convertToStoryPackage(item)
     })
   }
@@ -109,6 +113,8 @@ object Database {
           .withProjectionExpression("id")
 
         val outcome = table.scan(scanRequest)
+        StoryPackagesMetrics.ScanCount.increment()
+        
         val listIds = DynamoToScala.convertToListOfStoryPackagesId(outcome)
         val totalCount = math.max(listIds.size, outcome.getTotalCount)
 
@@ -127,6 +133,8 @@ object Database {
         .withPrimaryKey("id", id)
         .withReturnValues(ReturnValue.ALL_OLD)
       )
+
+      StoryPackagesMetrics.DeleteCount.increment()
       DynamoToScala.convertToStoryPackage(outcome.getItem)
     })
   }
@@ -144,6 +152,7 @@ object Database {
         .withReturnValues(ReturnValue.ALL_NEW)
 
       val outcome = table.updateItem(updateSpec)
+      StoryPackagesMetrics.UpdateCount.increment()
       DynamoToScala.convertToStoryPackage(outcome.getItem)
     })
   }
@@ -156,6 +165,7 @@ private object WithExceptionHandling {
         Future.successful(result)
       case Failure(t: Throwable) =>
         Logger.error(errorMessage, t)
+        StoryPackagesMetrics.ErrorCount.increment()
         Future.failed(t)}}
 }
 
