@@ -54,7 +54,9 @@ describe('Article Persistence', function () {
                         collection: collection,
                         item: 'banana',
                         position: 'banana',
-                        itemMeta: undefined,
+                        itemMeta: {
+                            group: '0',
+                        },
                         mode: 'live'
                     }
                 });

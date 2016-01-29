@@ -35,6 +35,10 @@ export default function (article) {
         }, {})
         .value();
 
+    if (article.group && article.group.parentType === 'Collection') {
+        cleanMeta.group = article.group.index + '';
+    }
+
     return _.isEmpty(cleanMeta) ? undefined : cleanMeta;
 }
 

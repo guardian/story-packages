@@ -43,6 +43,7 @@ describe('Alternate Drag', function () {
                         item: 'internal-code/page/1',
                         position: 'internal-code/page/1',
                         itemMeta: {
+                            group: '0',
                             showBoostedHeadline: true
                         }
                     }
