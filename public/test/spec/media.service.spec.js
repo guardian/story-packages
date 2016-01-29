@@ -103,7 +103,8 @@ describe('Media Service', function () {
                             imageCutoutSrcHeight: '400',
                             imageCutoutSrcWidth: '400',
                             imageCutoutSrcOrigin: 'cutoutImageOrigin',
-                            imageReplace: true
+                            imageReplace: true,
+                            group: '0'
                         }
                     }
                 });
