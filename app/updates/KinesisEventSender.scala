@@ -8,6 +8,7 @@ import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
 import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry, PutRecordsResult}
 import com.gu.facia.client.models.CollectionJson
 import com.gu.storypackage.model.v1.{Article, ArticleType, Group, Event, EventType}
+import com.gu.thrift.serializer.ThriftSerializer
 import conf.{Configuration, aws}
 import org.joda.time.DateTime
 import play.api.Logger

@@ -75,6 +75,7 @@ libraryDependencies ++= Seq(
     "com.gu" % "kinesis-logback-appender" % "1.2.0",
     "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.2.11",
     "com.gu" %% "story-packages-model" % "0.4.0",
+    "com.gu" %% "thrift-serializer" % "0.0.1-SNAPSHOT",
     "net.logstash.logback" % "logstash-logback-encoder" % "4.6",
     "org.julienrf" %% "play-json-variants" % "2.0",
     "org.scalatest" %% "scalatest" % "2.2.6" % "test",
