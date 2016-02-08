@@ -99,7 +99,7 @@ object KinesisEventSender {
 
   def sendUpdate(streamName: String, collectionId: String, event: Event) {
     val request = new PutRecordsRequest().withStreamName(streamName)
-    val bytes = ThriftSerializer.serializeToBytes(event, GzipType, 128)
+    val bytes = ThriftSerializer.serializeToBytes(event, Some(GzipType), Some(128))
     if (bytes.length > Configuration.updates.maxDataSize) {
       Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size(${Configuration.updates.maxDataSize})")
     } else {
