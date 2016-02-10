@@ -51,9 +51,10 @@ object Database {
       val values = new ValueMap()
         .withString(":search_term", term)
         .withBoolean(":is_hidden", isHidden)
+        .withBoolean(":deleted", true)
 
       val scanRequest = new ScanSpec()
-        .withFilterExpression("begins_with (searchName, :search_term) and isHidden = :is_hidden")
+        .withFilterExpression("begins_with (searchName, :search_term) and isHidden = :is_hidden and not deleted = :deleted")
         .withValueMap(values)
         .withMaxResultSize(Configuration.storage.maxPageSize)
 
@@ -75,9 +76,10 @@ object Database {
       val values = new ValueMap()
         .withString(":since", since.toString)
         .withBoolean(":is_hidden", isHidden)
+        .withBoolean(":deleted", true)
 
       val scanRequest = new ScanSpec()
-        .withFilterExpression("lastModify > :since and isHidden = :is_hidden")
+        .withFilterExpression("lastModify > :since and isHidden = :is_hidden and not deleted = :deleted")
         .withValueMap(values)
         .withMaxResultSize(Configuration.storage.maxLatestResults)
 
@@ -114,7 +116,7 @@ object Database {
 
         val outcome = table.scan(scanRequest)
         StoryPackagesMetrics.ScanCount.increment()
-        
+
         val listIds = DynamoToScala.convertToListOfStoryPackagesId(outcome)
         val totalCount = math.max(listIds.size, outcome.getTotalCount)
 
@@ -129,10 +131,13 @@ object Database {
   def removePackage(id: String): Future[StoryPackage] = {
     val errorMessage = s"Unable to delete story package $id"
     WithExceptionHandling(errorMessage, {
-      val outcome = table.deleteItem(new DeleteItemSpec()
+
+      val updateSpec = new UpdateItemSpec()
         .withPrimaryKey("id", id)
-        .withReturnValues(ReturnValue.ALL_OLD)
-      )
+        .addAttributeUpdate(new AttributeUpdate("deleted").put(true))
+        .withReturnValues(ReturnValue.ALL_NEW)
+
+      val outcome = table.updateItem(updateSpec)
 
       StoryPackagesMetrics.DeleteCount.increment()
       DynamoToScala.convertToStoryPackage(outcome.getItem)
@@ -189,6 +194,7 @@ object DynamoToScala {
         .withOptString("lastModifyBy", story.lastModifyBy)
         .withOptString("lastModifyByName", story.lastModifyByName)
         .withOptString("createdBy", story.createdBy)
+        .withBoolean("deleted", story.deleted.getOrElse(false))
     }
 
     override def fromItem(item: Item): StoryPackage = {
@@ -199,7 +205,11 @@ object DynamoToScala {
         lastModify = Option(item.getString("lastModify")),
         lastModifyBy = Option(item.getString("lastModifyBy")),
         lastModifyByName = Option(item.getString("lastModifyByName")),
-        createdBy = Option(item.getString("createdBy"))
+        createdBy = Option(item.getString("createdBy")),
+        deleted = if (!item.hasAttribute("deleted"))
+          None
+        else
+          Option(item.getBOOL("deleted"))
       )
     }
   }
