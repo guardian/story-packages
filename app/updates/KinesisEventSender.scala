@@ -8,11 +8,12 @@ import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
 import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry, PutRecordsResult}
 import com.gu.facia.client.models.CollectionJson
 import com.gu.storypackage.model.v1.{Article, ArticleType, Group, Event, EventType}
+import com.gu.thrift.serializer.{GzipType, ThriftSerializer}
 import conf.{Configuration, aws}
 import org.joda.time.DateTime
 import play.api.Logger
 
-object KinesisEventSender extends ThriftSerializer {
+object KinesisEventSender {
 
   val streamName: String = Configuration.updates.capi
 
@@ -98,7 +99,7 @@ object KinesisEventSender extends ThriftSerializer {
 
   def sendUpdate(streamName: String, collectionId: String, event: Event) {
     val request = new PutRecordsRequest().withStreamName(streamName)
-    val bytes = serializeToBytes(event)
+    val bytes = ThriftSerializer.serializeToBytes(event, Some(GzipType), Some(128))
     if (bytes.length > Configuration.updates.maxDataSize) {
       Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size(${Configuration.updates.maxDataSize})")
     } else {
