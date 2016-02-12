@@ -125,6 +125,10 @@ object Configuration {
     lazy val reindex: String = properties.getOrElse("REINDEX_STREAM", throw new BadConfigurationException("REINDEX stream name is not configured"))
     lazy val maxDataSize: Int = 1024000
   }
+
+  object reindex {
+    lazy val key: String = getMandatoryString("reindex.key")
+  }
 }
 
 object Properties extends AutomaticResourceManagement {
