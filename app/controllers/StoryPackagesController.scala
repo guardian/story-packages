@@ -87,7 +87,5 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
         case _ => Future.successful(BadRequest("Missing or invalid job ID"))
       }
     }
-    // TODO authentication
-
   }
 }
