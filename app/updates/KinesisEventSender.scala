@@ -83,6 +83,13 @@ object KinesisEventSender {
       Event(EventType.Update, collectionId, collectionJson.lastUpdated.toString(), createUpdatePayload(collectionJson)))
   }
 
+  def putReindexDelete(collectionId: String, collectionJson: CollectionJson): Unit = {
+    sendUpdate(
+      Configuration.updates.reindex,
+      collectionId,
+      Event(EventType.Delete, collectionId, collectionJson.lastUpdated.toString(), createUpdatePayload(collectionJson)))
+  }
+
   def putCapiDelete(collectionId: String): Unit = {
     sendUpdate(
       Configuration.updates.capi,

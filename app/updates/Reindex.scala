@@ -24,7 +24,7 @@ object ReindexResult {
 
 case class ReindexStep(
   totalCount: Int,
-  list: List[String],
+  list: List[(String, Boolean)],
   next: Option[String]
 )
 
@@ -56,15 +56,16 @@ object Reindex {
     }
   }
 
+
   private def processScanResult(jobId: String, step: ReindexStep) = {
     Logger.info(s"Processing reindex job $jobId, step with ${step.list.size} packages out of ${step.totalCount}")
     val notifyEvery = math.ceil(step.totalCount / 100.0)
 
     step.list.foldLeft(Future.successful(0)) {
-      (previousFuture, nextPackageId) =>
+      (previousFuture, nextPackageIdWithDeleted) =>
         for {
           processedResults <- previousFuture
-          _ <- sendToKinesisStream(nextPackageId)
+          _ <- sendToKinesisStream(nextPackageIdWithDeleted._1, nextPackageIdWithDeleted._2)
         } yield {
           if (processedResults % notifyEvery == 0) sendProgressUpdate(jobId, processedResults)
           processedResults + 1
@@ -90,12 +91,16 @@ object Reindex {
     }
   }
 
-  private def sendToKinesisStream(packageId: String): Future[Unit] = {
+  private def sendToKinesisStream(packageId: String, isDelete: Boolean): Future[Unit] = {
     Logger.info(s"Getting stored package with id $packageId from S3")
     FrontsApi.amazonClient.collection(packageId).map {
       case Some(collectionJson) =>
         Logger.info(s"Sending reindex message on kinesis stream for package $packageId")
-        KinesisEventSender.putReindexUpdate(packageId, collectionJson)
+        if (isDelete)
+          KinesisEventSender.putReindexDelete(packageId, collectionJson)
+        else
+          KinesisEventSender.putReindexUpdate(packageId, collectionJson)
+
       case None => Logger.info(s"Ignore reindex of empty story package $packageId")
     }
   }

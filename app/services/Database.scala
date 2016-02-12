@@ -112,7 +112,7 @@ object Database {
         val scanRequest = new ScanSpec()
           .withFilterExpression("isHidden = :is_hidden")
           .withValueMap(values)
-          .withProjectionExpression("id")
+          .withProjectionExpression("id, deleted")
 
         val outcome = table.scan(scanRequest)
         StoryPackagesMetrics.ScanCount.increment()
@@ -222,8 +222,13 @@ object DynamoToScala {
     serialize(story)
   }
 
-  def extractStoryPackageId(item: Item): String = {
-    item.getString("id")
+  def extractStoryPackageIdWithDeleted(item: Item): (String, Boolean) = {
+    val deleted: Boolean = if (!item.hasAttribute("deleted"))
+      false
+    else
+      item.getBoolean("deleted")
+
+    (item.getString("id"), deleted)
   }
 
   def convertToListOfStoryPackages(collection: ItemCollection[ScanOutcome]): List[StoryPackage] = {
@@ -231,9 +236,9 @@ object DynamoToScala {
     iterator.map(convertToStoryPackage).toList
   }
 
-  def convertToListOfStoryPackagesId(collection: ItemCollection[ScanOutcome]): List[String] = {
+  def convertToListOfStoryPackagesId(collection: ItemCollection[ScanOutcome]): List[(String, Boolean)] = {
     val iterator = collection.iterator().asScala
-    iterator.map(extractStoryPackageId).toList
+    iterator.map(extractStoryPackageIdWithDeleted).toList
   }
 
   private def serialize[T: DynamoCodec](t: T): Item = implicitly[DynamoCodec[T]].toItem(t)
