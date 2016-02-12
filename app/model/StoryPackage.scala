@@ -10,7 +10,8 @@ case class StoryPackage(
   lastModify: Option[String],
   lastModifyBy: Option[String],
   lastModifyByName: Option[String],
-  createdBy: Option[String]
+  createdBy: Option[String],
+  deleted: Option[Boolean]
 ) {}
 object StoryPackage {
   implicit val jsonFormat = Json.format[StoryPackage]
