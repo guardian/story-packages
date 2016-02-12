@@ -3,15 +3,14 @@ package controllers
 import java.net.URLDecoder
 
 import auth.PanDomainAuthActions
-import com.gu.pandomainauth.action.UserRequest
 import conf.Configuration
 import model.{StoryPackage, StoryPackageSearchResult}
+import permissions.APIKeyAuthAction
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, Controller, Result}
+import play.api.mvc._
 import services.Database
 import switchboard.SwitchManager
 import updates.{Reindex, UpdatesStream}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NonFatal
@@ -22,7 +21,7 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
   private def serializeSuccess(result: StoryPackageSearchResult): Future[Result] = {
     Future.successful(Ok(Json.toJson(result)))}
 
-  private def isHidden(request: UserRequest[AnyContent]): Boolean = {
+  private def isHidden(request: Request[AnyContent]): Boolean = {
     request.queryString.getOrElse("isHidden", Seq("false")).contains("true")
   }
 
@@ -74,7 +73,7 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     })
   }
 
-  def reindex() = APIAuthAction.async { request =>
+  def reindex() = APIKeyAuthAction.async { request =>
     if (SwitchManager.getStatus("story-packages-disable-reindex-endpoint")) {
       Future.successful(Forbidden("Reindex endpoint disabled by a switch"))
     } else {
@@ -88,8 +87,5 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
         case _ => Future.successful(BadRequest("Missing or invalid job ID"))
       }
     }
-    // TODO authentication
-    // TODO POST, not GET
-
   }
 }

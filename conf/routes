@@ -31,7 +31,7 @@ GET         /defaults                                controllers.DefaultsControl
 
 GET         /story-package/*id                       controllers.StoryPackagesController.getPackage(id)
 
-GET         /reindex                                 controllers.StoryPackagesController.reindex()
+POST        /reindex                                 controllers.StoryPackagesController.reindex()
 
 
 # endpoints for proxying https
