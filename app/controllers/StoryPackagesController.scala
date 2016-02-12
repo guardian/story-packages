@@ -88,7 +88,6 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
       }
     }
     // TODO authentication
-    // TODO POST, not GET
 
   }
 }
