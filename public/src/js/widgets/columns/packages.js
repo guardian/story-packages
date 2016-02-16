@@ -53,7 +53,7 @@ export default class Package extends ColumnWidget {
             if (searchTerm.length > 2) {
                 this.searchInProgress(true);
                 return this[bouncedSearch](searchTerm)
-                    .then(displayResuls.bind(this))
+                    .then(displayResults.bind(this))
                     .catch(() => {
                         this.searchInProgress(false);
                     });
@@ -144,7 +144,7 @@ function performSearch(searchTerm) {
     });
 }
 
-function displayResuls({results} = {}) {
+function displayResults({results} = {}) {
     if (this.searchInProgress()) {
         this.searchResults((results || []).map(result => {
             return Object.assign({
