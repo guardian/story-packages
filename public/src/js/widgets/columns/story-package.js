@@ -28,8 +28,7 @@ export default class Front extends ColumnWidget {
 
         this.setFront = id => this.front(id);
 
-        this.isControlsVisible = ko.observable(false);
-        this.controlsText = ko.pureComputed(() => '');
+        this.isControlsVisible = ko.observable(true);
 
         this.uiOpenArticle = ko.observable();
 
@@ -181,6 +180,11 @@ export default class Front extends ColumnWidget {
         _.each(this.setIntervals, clearInterval);
         _.each(this.setTimeouts, clearTimeout);
     }
+
+    managePackage() {
+        mediator.emit('package:edit', this.front());
+    }
+
 }
 
 function isAuthorized (baseModel, frontId) {
