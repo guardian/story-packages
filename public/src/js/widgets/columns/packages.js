@@ -1,4 +1,5 @@
 import ko from 'knockout';
+import _ from 'underscore';
 import * as authedAjax from 'modules/authed-ajax';
 import modalDialog from 'modules/modal-dialog';
 import {CONST} from 'modules/vars';
@@ -23,11 +24,31 @@ export default class Package extends ColumnWidget {
         this.displayName = ko.observable();
         this.searchResults = ko.observableArray();
         this.searchedPackages = ko.observable();
+        this.editingPackage = ko.observable(null);
 
         this[bouncedSearch] = debounce(performSearch.bind(this), CONST.searchDebounceMs);
+
+        this.listenOn(mediator, 'package:edit', (packageId) => {
+
+            this.searchInProgress(false);
+            this.searchTerm('');
+
+            var beingEdited = _.find(this.baseModel.latestPackages(), storyPackage => {
+                return storyPackage.id === packageId;
+            });
+
+            beingEdited.lastModifyHuman = humanTime(new Date(beingEdited.lastModify));
+            this.searchResults([beingEdited]);
+            this.editingPackage(true);
+        });
     };
 
     search() {
+        if (this.editingPackage()) {
+            this.editingPackage(false);
+            this.searchedPackages(false);
+        }
+
         const searchTerm = this.searchTerm().toLowerCase().trim();
         if (searchTerm) {
             if (searchTerm.length > 2) {
@@ -98,6 +119,10 @@ export default class Package extends ColumnWidget {
         .then(() => {
             return removePackage(storyPackage.id)
             .then(() => {
+                if (this.editingPackage() && this.editingPackage().id === storyPackage.id) {
+                    this.editingPackage(null);
+                }
+
                 var newResults = this.searchResults();
                 newResults.splice(deletedIndex, 1);
                 this.searchResults(newResults);
@@ -121,13 +146,16 @@ function performSearch(searchTerm) {
 }
 
 function displayResuls({results} = {}) {
-    this.searchResults((results || []).map(result => {
-        return Object.assign({
-            lastModifyHuman: humanTime(new Date(result.lastModify))
-        }, result);
-    }));
-    this.searchInProgress(false);
-    this.searchedPackages(true);
+    if (this.searchInProgress()) {
+        this.searchResults((results || []).map(result => {
+            return Object.assign({
+                lastModifyHuman: humanTime(new Date(result.lastModify))
+            }, result);
+        }));
+        this.searchInProgress(false);
+        this.searchedPackages(true);
+    }
+
 }
 
 function removePackage(storyPackageId) {
