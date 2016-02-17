@@ -15,11 +15,14 @@
         <div class="front-controls">
             <span class="front-actions" data-bind="toggleClick: controlsVisible">
                 <!-- ko if: isControlsVisible -->
-                    <i class="fa fa-ellipsis-v"></i><span data-bind="text: controlsText"></span>
+                    <i class="fa fa-ellipsis-v"></i><span>Actions</span>
                     <div class="floating-controls dropdown fadeElement" data-bind="css: {
                         'dropdown-open': controlsVisible,
                         'visible': controlsVisible
                     }">
+                        <ul class="z-depth-2">
+                            <li data-bind="click: managePackage">Manage package</li>
+                        </ul>
                     </div>
                 <!-- /ko -->
             </span>
