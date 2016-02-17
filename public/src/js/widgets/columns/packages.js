@@ -118,9 +118,7 @@ export default class Package extends ColumnWidget {
         .then(() => {
             return removePackage(storyPackage.id)
             .then(() => {
-                if (this.editingPackage() && this.editingPackage().id === storyPackage.id) {
-                    this.editingPackage(null);
-                }
+                this.editingPackage(null);
 
                 var newResults = this.searchResults();
                 newResults.splice(deletedIndex, 1);
