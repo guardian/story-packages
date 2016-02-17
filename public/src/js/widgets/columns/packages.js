@@ -23,7 +23,7 @@ export default class Package extends ColumnWidget {
         this.displayName = ko.observable();
         this.searchResults = ko.observableArray();
         this.searchedPackages = ko.observable();
-        this.editingPackage = ko.observable(null);
+        this.editingPackage = ko.observable(false);
 
         this[bouncedSearch] = debounce(performSearch.bind(this), CONST.searchDebounceMs);
 
@@ -107,7 +107,7 @@ export default class Package extends ColumnWidget {
         .then(() => {
             return removePackage(storyPackage.id)
             .then(() => {
-                this.editingPackage(null);
+                this.editingPackage(false);
 
                 var newResults = this.searchResults();
                 newResults.splice(deletedIndex, 1);
@@ -133,6 +133,10 @@ export default class Package extends ColumnWidget {
         beingEdited.lastModifyHuman = humanTime(new Date(beingEdited.lastModify));
         this.searchResults([beingEdited]);
         this.editingPackage(true);
+    }
+
+    displaySearchResults() {
+        return (this.searchTerm() && this.searchTerm().length > 2 && !this.searchInProgress()) || this.editingPackage();
     }
 }
 

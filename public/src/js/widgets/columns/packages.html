@@ -38,7 +38,7 @@
             <div class="searchingPackages">Searching...</div>
         </div>
     <!-- /ko -->
-    <!-- ko if: searchTerm() && searchTerm().length > 2 && !searchInProgress() || editingPackage() -->
+    <!-- ko if: displaySearchResults() -->
         <div class="cardContainer">
             <!-- ko if: (searchResults().length === 0) && searchedPackages() -->
                 <div>Couldn't find any story package matching the search term.</div>
