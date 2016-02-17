@@ -27,19 +27,8 @@ export default class Package extends ColumnWidget {
 
         this[bouncedSearch] = debounce(performSearch.bind(this), CONST.searchDebounceMs);
 
-        this.listenOn(mediator, 'package:edit', (packageId) => {
+        this.listenOn(mediator, 'package:edit', this.editPackage);
 
-            this.searchInProgress(false);
-            this.searchTerm('');
-
-            var beingEdited = _.find(this.baseModel.latestPackages(), storyPackage => {
-                return storyPackage.id === packageId;
-            });
-
-            beingEdited.lastModifyHuman = humanTime(new Date(beingEdited.lastModify));
-            this.searchResults([beingEdited]);
-            this.editingPackage(true);
-        });
     };
 
     search() {
@@ -130,6 +119,20 @@ export default class Package extends ColumnWidget {
             alert('Unable to delete story package \'' + storyPackage.name + '\'\n' + (error.message || error.responseText));
         })
         .catch(() => {});
+    }
+
+    editPackage(packageId) {
+
+        this.searchInProgress(false);
+        this.searchTerm('');
+
+        var beingEdited = _.find(this.baseModel.latestPackages(), storyPackage => {
+            return storyPackage.id === packageId;
+        });
+
+        beingEdited.lastModifyHuman = humanTime(new Date(beingEdited.lastModify));
+        this.searchResults([beingEdited]);
+        this.editingPackage(true);
     }
 }
 
