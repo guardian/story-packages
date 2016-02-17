@@ -54,22 +54,22 @@
             "Description": "Bucket used to backup DynamoDB",
             "Type": "String",
             "Default": "story-packages-backup"
+        },
+        "CertificateArn": {
+            "Description": "ARN of the SSL certificate for this service",
+            "Type": "String"
+        },
+        "MachineImageID": {
+            "Description": "ID of the machine image for this service (ami)",
+            "Type": "String"
         }
     },
     "Mappings": {
-        "CertificatesMap": {
-            "PROD": {
-                "CertName": "arn:aws:iam::163592447864:server-certificate/star.gutools.co.uk-exp2018-11-17"
-            },
-            "CODE": {
-                "CertName": "arn:aws:iam::163592447864:server-certificate/sites.code.dev-gutools.co.uk"
-            }
-        },
         "StageMap": {
             "PROD": {
-                "MinSize": 3,
-                "MaxSize": 6,
-                "DesiredCapacity": 3,
+                "MinSize": 1,
+                "MaxSize": 2,
+                "DesiredCapacity": 1,
                 "InstanceType": "m3.medium",
                 "ReadThroughput": 10,
                 "WriteThroughput": 10
@@ -591,12 +591,6 @@
                     },
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "9080",
-                        "ToPort": "9080",
-                        "CidrIp": "0.0.0.0/0"
-                    },
-                    {
-                        "IpProtocol": "tcp",
                         "FromPort": "443",
                         "ToPort": "443",
                         "CidrIp": "0.0.0.0/0"
@@ -628,13 +622,7 @@
                         "InstancePort": "9000",
                         "Protocol": "HTTPS",
                         "InstanceProtocol": "HTTP",
-                        "SSLCertificateId": {
-                            "Fn::FindInMap": [
-                                "CertificatesMap",
-                                { "Ref": "Stage" },
-                                "CertName"
-                            ]
-                        }
+                        "SSLCertificateId": { "Ref": "CertificateArn" }
                     }
                 ],
                 "HealthCheck": {
@@ -775,7 +763,7 @@
             },
             "Properties": {
                 "KeyName": "fronts",
-                "ImageId": "ami-ddd87dae",
+                "ImageId": { "Ref": "MachineImageID" },
                 "InstanceType": {
                     "Fn::FindInMap": [
                         "StageMap",
