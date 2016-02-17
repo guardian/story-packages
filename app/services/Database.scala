@@ -112,12 +112,12 @@ object Database {
         val scanRequest = new ScanSpec()
           .withFilterExpression("isHidden = :is_hidden")
           .withValueMap(values)
-          .withProjectionExpression("id, deleted")
+          .withProjectionExpression("id,deleted,packageName")
 
         val outcome = table.scan(scanRequest)
         StoryPackagesMetrics.ScanCount.increment()
 
-        val listIds = DynamoToScala.convertToListOfStoryPackagesId(outcome)
+        val listIds = DynamoToScala.convertToListOfStoryPackages(outcome)
         val totalCount = math.max(listIds.size, outcome.getTotalCount)
 
         ReindexStep(
@@ -201,15 +201,12 @@ object DynamoToScala {
       StoryPackage(
         id = Option(item.getString("id")),
         name = Option(item.getString("packageName")),
-        isHidden = Option(item.getBOOL("isHidden")),
+        isHidden = Option(if (item.hasAttribute("isHidden")) item.getBOOL("isHidden") else false),
         lastModify = Option(item.getString("lastModify")),
         lastModifyBy = Option(item.getString("lastModifyBy")),
         lastModifyByName = Option(item.getString("lastModifyByName")),
         createdBy = Option(item.getString("createdBy")),
-        deleted = if (!item.hasAttribute("deleted"))
-          None
-        else
-          Option(item.getBOOL("deleted"))
+        deleted = if (item.hasAttribute("deleted")) Option(item.getBOOL("deleted")) else None
       )
     }
   }
@@ -222,23 +219,9 @@ object DynamoToScala {
     serialize(story)
   }
 
-  def extractStoryPackageIdWithDeleted(item: Item): (String, Boolean) = {
-    val deleted: Boolean = if (!item.hasAttribute("deleted"))
-      false
-    else
-      item.getBoolean("deleted")
-
-    (item.getString("id"), deleted)
-  }
-
   def convertToListOfStoryPackages(collection: ItemCollection[ScanOutcome]): List[StoryPackage] = {
     val iterator = collection.iterator().asScala
     iterator.map(convertToStoryPackage).toList
-  }
-
-  def convertToListOfStoryPackagesId(collection: ItemCollection[ScanOutcome]): List[(String, Boolean)] = {
-    val iterator = collection.iterator().asScala
-    iterator.map(extractStoryPackageIdWithDeleted).toList
   }
 
   private def serialize[T: DynamoCodec](t: T): Item = implicitly[DynamoCodec[T]].toItem(t)

@@ -13,8 +13,6 @@ scalaVersion := "2.11.7"
 import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 serverLoading in Debian := Systemd
 
-import com.twitter.scrooge._
-
 debianPackageDependencies := Seq("openjdk-8-jre-headless")
 
 def env(key: String): Option[String] = Option(System.getenv(key))
@@ -58,7 +56,7 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 
-val awsVersion = "1.10.49"
+val awsVersion = "1.10.52"
 
 libraryDependencies ++= Seq(
     ws,
@@ -70,11 +68,11 @@ libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
-    "com.gu" %% "content-api-client" % "7.22",
+    "com.gu" %% "content-api-client" % "7.27",
     "com.gu" %% "fapi-client" % "0.70",
     "com.gu" % "kinesis-logback-appender" % "1.2.0",
     "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.2.11",
-    "com.gu" %% "story-packages-model" % "0.4.0",
+    "com.gu" %% "story-packages-model" % "1.0.2",
     "com.gu" %% "thrift-serializer" % "1.0.0",
     "net.logstash.logback" % "logstash-logback-encoder" % "4.6",
     "org.julienrf" %% "play-json-variants" % "2.0",

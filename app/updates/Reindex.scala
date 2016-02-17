@@ -2,6 +2,7 @@ package updates
 
 import java.util.concurrent.atomic.AtomicReference
 
+import model.StoryPackage
 import play.api.Logger
 import play.api.libs.json.Json
 import play.libs.Akka
@@ -24,7 +25,7 @@ object ReindexResult {
 
 case class ReindexStep(
   totalCount: Int,
-  list: List[(String, Boolean)],
+  list: List[StoryPackage],
   next: Option[String]
 )
 
@@ -62,10 +63,10 @@ object Reindex {
     val notifyEvery = math.ceil(step.totalCount / 100.0)
 
     step.list.foldLeft(Future.successful(0)) {
-      (previousFuture, nextPackageIdWithDeleted) =>
+      (previousFuture, nextPackage) =>
         for {
           processedResults <- previousFuture
-          _ <- sendToKinesisStream(nextPackageIdWithDeleted._1, nextPackageIdWithDeleted._2)
+          _ <- sendToKinesisStream(nextPackage)
         } yield {
           if (processedResults % notifyEvery == 0) sendProgressUpdate(jobId, processedResults)
           processedResults + 1
@@ -91,18 +92,27 @@ object Reindex {
     }
   }
 
-  private def sendToKinesisStream(packageId: String, isDelete: Boolean): Future[Unit] = {
-    Logger.info(s"Getting stored package with id $packageId from S3")
-    FrontsApi.amazonClient.collection(packageId).map {
-      case Some(collectionJson) =>
-        Logger.info(s"Sending reindex message on kinesis stream for package $packageId")
-        if (isDelete)
-          KinesisEventSender.putReindexDelete(packageId, collectionJson)
-        else
-          KinesisEventSender.putReindexUpdate(packageId, collectionJson)
-
-      case None => Logger.info(s"Ignore reindex of empty story package $packageId")
-    }
+  private def sendToKinesisStream(storyPackage: StoryPackage): Future[Unit] = {
+    (for {
+      packageId <- storyPackage.id
+      displayName <- storyPackage.name
+    } yield {
+      Logger.info(s"Getting stored package with id $packageId from S3")
+      FrontsApi.amazonClient.collection(packageId).map {
+        case Some(collectionJson) =>
+          Logger.info(s"Sending reindex message on kinesis stream for package ${storyPackage.id}")
+          if (storyPackage.deleted.getOrElse(false)) {
+            KinesisEventSender.putReindexDelete(packageId, displayName, collectionJson)
+          } else {
+            KinesisEventSender.putReindexUpdate(packageId, displayName, collectionJson)
+          }
+        case None =>
+          Logger.info(s"Ignore reindex of empty story package $packageId")
+      }
+    }).getOrElse({
+      Logger.error(s"Story package $storyPackage doesn't have id or name")
+      Future.successful(None)
+    })
   }
 
   private def sendProgressUpdate(jobId: String, processedResults: Int): Unit = {

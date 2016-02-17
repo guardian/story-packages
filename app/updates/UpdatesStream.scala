@@ -10,9 +10,10 @@ object UpdatesStream {
     for {
       (collectionId, collectionJson) <- streamUpdate.collections
       isHidden <- streamUpdate.storyPackage.isHidden
+      displayName <- streamUpdate.storyPackage.name
     } yield {
       if (!isHidden) {
-        KinesisEventSender.putCapiUpdate(collectionId, collectionJson)
+        KinesisEventSender.putCapiUpdate(collectionId, displayName, collectionJson)
       } else {
         Logger.info(s"Ignoring CAPI update for hidden package $collectionId")
       }

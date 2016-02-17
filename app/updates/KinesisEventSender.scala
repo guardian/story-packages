@@ -7,7 +7,7 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
 import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry, PutRecordsResult}
 import com.gu.facia.client.models.CollectionJson
-import com.gu.storypackage.model.v1.{Article, ArticleType, Group, Event, EventType}
+import com.gu.storypackage.model.v1.{Article, ArticleType, Event, EventType, Group}
 import com.gu.thrift.serializer.{GzipType, ThriftSerializer}
 import conf.{Configuration, aws}
 import org.joda.time.DateTime
@@ -76,32 +76,52 @@ object KinesisEventSender {
     })
   }
 
-  def putReindexUpdate(collectionId: String, collectionJson: CollectionJson): Unit = {
+  def putReindexDelete(packageId: String, displayName: String, collectionJson: CollectionJson): Unit = {
     sendUpdate(
       Configuration.updates.reindex,
-      collectionId,
-      Event(EventType.Update, collectionId, collectionJson.lastUpdated.toString(), createUpdatePayload(collectionJson)))
+      packageId,
+      Event(
+        eventType = EventType.Delete,
+        packageId = packageId,
+        packageName = displayName,
+        lastModified = collectionJson.lastUpdated.toString(),
+        articles = createUpdatePayload(collectionJson)))
   }
 
-  def putReindexDelete(collectionId: String, collectionJson: CollectionJson): Unit = {
+  def putReindexUpdate(packageId: String, displayName: String, collectionJson: CollectionJson): Unit = {
     sendUpdate(
       Configuration.updates.reindex,
-      collectionId,
-      Event(EventType.Delete, collectionId, collectionJson.lastUpdated.toString(), createUpdatePayload(collectionJson)))
+      packageId,
+      Event(
+        eventType = EventType.Update,
+        packageId = packageId,
+        packageName = displayName,
+        lastModified = collectionJson.lastUpdated.toString(),
+        articles = createUpdatePayload(collectionJson)))
   }
 
-  def putCapiDelete(collectionId: String): Unit = {
+  def putCapiDelete(packageId: String): Unit = {
     sendUpdate(
       Configuration.updates.capi,
-      collectionId,
-      Event(EventType.Delete, collectionId, DateTime.now().toString(), List()))
+      packageId,
+      Event(
+        eventType = EventType.Delete,
+        packageId = packageId,
+        packageName = "",
+        lastModified = DateTime.now().toString(),
+        articles = Nil))
   }
 
-  def putCapiUpdate(collectionId: String, collectionJson: CollectionJson): Unit = {
+  def putCapiUpdate(packageId: String, displayName: String, collectionJson: CollectionJson): Unit = {
     sendUpdate(
       Configuration.updates.capi,
-      collectionId,
-      Event(EventType.Update, collectionId, collectionJson.lastUpdated.toString(), createUpdatePayload(collectionJson)))
+      packageId,
+      Event(
+        eventType = EventType.Update,
+        packageId = packageId,
+        packageName = displayName,
+        lastModified = collectionJson.lastUpdated.toString(),
+        articles = createUpdatePayload(collectionJson)))
   }
 
   def sendUpdate(streamName: String, collectionId: String, event: Event) {
