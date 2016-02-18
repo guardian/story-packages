@@ -11,6 +11,7 @@ import play.api.mvc._
 import services.Database
 import switchboard.SwitchManager
 import updates.{Reindex, UpdatesStream}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NonFatal
@@ -73,19 +74,21 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     })
   }
 
-  def reindex() = APIKeyAuthAction.async { request =>
+  def reindex(isHidden: Boolean) = APIKeyAuthAction.async { request =>
     if (SwitchManager.getStatus("story-packages-disable-reindex-endpoint")) {
       Future.successful(Forbidden("Reindex endpoint disabled by a switch"))
     } else {
-      request.queryString.getOrElse("job", Nil) match {
-        case Seq(jobId) if !jobId.isEmpty =>
-          Reindex.scheduleJob(job = jobId, isHidden = isHidden(request))
-            .map(result => Ok(Json.toJson(result)))
-            .recover {
-              case NonFatal(e) => InternalServerError(e.getMessage)
-            }
-        case _ => Future.successful(BadRequest("Missing or invalid job ID"))
+      Reindex.scheduleJob(isHidden).map{
+        case Some(job) => Created(s"Reindex scheduled at ${job.startTime}")
+        case None => Forbidden("Reindex already running")
       }
+    }
+  }
+
+  def reindexProgress(isHidden: Boolean) = APIKeyAuthAction { request =>
+    Reindex.getJobProgress(isHidden) match {
+      case Some(progress) => Ok(Json.toJson(progress))
+      case None => NotFound("Reindex never run")
     }
   }
 }

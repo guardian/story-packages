@@ -1,6 +1,6 @@
 import conf.Gzipper
 import logging.LogStashConfig
-import metrics.{CloudWatchApplicationMetrics, FaciaToolMetrics, FrontendMetric, S3Metrics, StoryPackagesMetrics}
+import metrics._
 import play.api._
 import play.api.mvc.WithFilters
 import switchboard.{Lifecycle => NewSwitchboardLifecycle}
@@ -21,7 +21,12 @@ object Global extends WithFilters(Gzipper)
     StoryPackagesMetrics.ScanCount,
     StoryPackagesMetrics.DeleteCount,
     StoryPackagesMetrics.ErrorCount,
-    StoryPackagesMetrics.UpdateCount
+    StoryPackagesMetrics.UpdateCount,
+    ReindexMetrics.QueryCount,
+    ReindexMetrics.ScanCount,
+    ReindexMetrics.DeleteCount,
+    ReindexMetrics.ErrorCount,
+    ReindexMetrics.UpdateCount
   )
 
 }
