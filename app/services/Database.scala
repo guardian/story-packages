@@ -11,7 +11,7 @@ import metrics.StoryPackagesMetrics
 import model.{StoryPackage, StoryPackageSearchResult}
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
-import updates.ReindexStep
+import updates.ReindexPage
 import util.Identity._
 
 import scala.collection.JavaConverters._
@@ -103,7 +103,7 @@ object Database {
     })
   }
 
-  def scanAllPackages(isHidden: Boolean = false): Future[ReindexStep] = {
+  def scanAllPackages(isHidden: Boolean = false): Future[ReindexPage] = {
       val errorMessage = s"Exception in fetching all packages"
       WithExceptionHandling(errorMessage, {
         val values = new ValueMap()
@@ -120,10 +120,11 @@ object Database {
         val listIds = DynamoToScala.convertToListOfStoryPackages(outcome)
         val totalCount = math.max(listIds.size, outcome.getTotalCount)
 
-        ReindexStep(
+        ReindexPage(
           totalCount = totalCount,
           list = listIds,
-          next = None
+          next = None,
+          isHidden = isHidden
         )
       })
   }

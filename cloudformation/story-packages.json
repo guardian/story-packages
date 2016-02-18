@@ -72,7 +72,9 @@
                 "DesiredCapacity": 1,
                 "InstanceType": "m3.medium",
                 "ReadThroughput": 10,
-                "WriteThroughput": 10
+                "WriteThroughput": 10,
+                "ReindexReadThroughput": 4,
+                "ReindexWriteThroughput": 4
             },
             "CODE": {
                 "MinSize": 1,
@@ -80,7 +82,9 @@
                 "DesiredCapacity": 1,
                 "InstanceType": "t2.nano",
                 "ReadThroughput": 5,
-                "WriteThroughput": 5
+                "WriteThroughput": 5,
+                "ReindexReadThroughput": 2,
+                "ReindexWriteThroughput": 2
             }
         },
         "KinesisStreamMap": {
@@ -330,7 +334,10 @@
                             "dynamodb:DeleteItem",
                             "dynamodb:Scan"
                         ],
-                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:dynamodb:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":table/", { "Ref": "DynamoDBTable" } ]]}
+                        "Resource": [
+                            { "Fn::Join" : [ "", [ "arn:aws:dynamodb:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":table/", { "Ref": "DynamoDBTable" } ]]},
+                            { "Fn::Join" : [ "", [ "arn:aws:dynamodb:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":table/", { "Ref": "ReindexDBTable" } ]]}
+                        ]
                     } ]
                 },
                 "Roles": [{ "Ref": "DistributionRole" }]
@@ -353,6 +360,33 @@
                     },
                     "WriteCapacityUnits": {
                         "Fn::FindInMap": ["StageMap", { "Ref": "Stage" }, "WriteThroughput" ]
+                    }
+                }
+            }
+        },
+        "ReindexDBTable": {
+            "Type" : "AWS::DynamoDB::Table",
+            "Properties": {
+                "AttributeDefinitions": [{
+                    "AttributeName": "reindexStatus",
+                    "AttributeType": "S"
+                }, {
+                    "AttributeName": "startTime",
+                    "AttributeType": "S"
+                }],
+                "KeySchema": [{
+                    "AttributeName": "reindexStatus",
+                    "KeyType": "HASH"
+                }, {
+                    "AttributeName": "startTime",
+                    "KeyType": "RANGE"
+                }],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": {
+                        "Fn::FindInMap": ["StageMap", { "Ref": "Stage" }, "ReindexReadThroughput" ]
+                    },
+                    "WriteCapacityUnits": {
+                        "Fn::FindInMap": ["StageMap", { "Ref": "Stage" }, "ReindexWriteThroughput" ]
                     }
                 }
             }
@@ -748,6 +782,7 @@
                                         ]
                                     }, "\n",
                                     "TABLE_CONFIG=", { "Ref" : "DynamoDBTable" }, "\n",
+                                    "REINDEX_TABLE=", { "Ref" : "ReindexDBTable" }, "\n",
                                     "REINDEX_STREAM=", {
                                         "Fn::FindInMap": [
                                             "KinesisStreamMap",
@@ -819,6 +854,12 @@
             "Description": "Table name of DynamoDB",
             "Value": {
                 "Ref": "DynamoDBTable"
+            }
+        },
+        "ReindexTable": {
+            "Description": "Table name of DynamoDB reindex jobs",
+            "Value": {
+                "Ref": "ReindexDBTable"
             }
         }
     }

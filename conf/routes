@@ -31,7 +31,11 @@ GET         /defaults                                controllers.DefaultsControl
 
 GET         /story-package/*id                       controllers.StoryPackagesController.getPackage(id)
 
-POST        /reindex                                 controllers.StoryPackagesController.reindex()
+# reindex
+POST        /reindex/live                            controllers.StoryPackagesController.reindex(isHidden: Boolean ?= false)
+POST        /reindex/draft                           controllers.StoryPackagesController.reindex(isHidden: Boolean ?= true)
+GET         /reindex/live                            controllers.StoryPackagesController.reindexProgress(isHidden: Boolean ?= false)
+GET         /reindex/draft                           controllers.StoryPackagesController.reindexProgress(isHidden: Boolean ?= true)
 
 
 # endpoints for proxying https

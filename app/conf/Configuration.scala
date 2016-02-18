@@ -128,6 +128,7 @@ object Configuration {
 
   object reindex {
     lazy val key: String = getMandatoryString("reindex.key")
+    lazy val progressTable: String = properties.getOrElse("REINDEX_TABLE", throw new BadConfigurationException("REINDEX_TABLE is not configured"))
   }
 }
 

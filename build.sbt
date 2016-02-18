@@ -56,7 +56,7 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 
-val awsVersion = "1.10.52"
+val awsVersion = "1.10.53"
 
 libraryDependencies ++= Seq(
     ws,

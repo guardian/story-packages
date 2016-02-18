@@ -120,6 +120,7 @@ object StoryPackagesMetrics {
     "dynamo-query",
     "Number of queries to dynamo from story packages"
   )
+
   object ScanCount extends CountMetric(
     "dynamo-scan",
     "Number of database scans from story packages"
@@ -138,6 +139,33 @@ object StoryPackagesMetrics {
   object UpdateCount extends CountMetric(
     "dynamo-update",
     "Number of database updates from story packages"
+  )
+}
+
+object ReindexMetrics {
+  object QueryCount extends CountMetric(
+    "reindex-query",
+    "Number of queries to dynamo from story packages reindex"
+  )
+
+  object ScanCount extends CountMetric(
+    "reindex-scan",
+    "Number of database scans from story packages reindex"
+  )
+
+  object DeleteCount extends CountMetric(
+    "reindex-delete",
+    "Number of database deletions from story packages reindex"
+  )
+
+  object ErrorCount extends CountMetric(
+    "reindex-error",
+    "Number of database errors from story packages reindex"
+  )
+
+  object UpdateCount extends CountMetric(
+    "reindex-update",
+    "Number of database updates from story packages reindex"
   )
 }
 
