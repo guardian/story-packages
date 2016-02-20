@@ -19,7 +19,7 @@ export default class Package extends ColumnWidget {
         this.searchTerm = ko.observable('');
         this.searchInProgress = ko.observable(false);
         this.subscribeOn(this.searchTerm, this.search);
-        this.creatingPackage = ko.observable(false);
+        this.creatingPackage = ko.observable(params.column.config() === 'create');
         this.displayName = ko.observable();
         this.searchResults = ko.observableArray();
         this.searchedPackages = ko.observable();

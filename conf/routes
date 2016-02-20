@@ -53,4 +53,5 @@ DELETE      /story-package/*id                       controllers.StoryPackagesCo
 
 # Vanity URL
 
-GET /story/*id                                       controllers.VanityRedirects.storyPackage(id)
+GET         /story/*id                               controllers.VanityRedirects.storyPackage(id)
+GET         /add-trail/*id                           controllers.VanityRedirects.addTrail(id)
