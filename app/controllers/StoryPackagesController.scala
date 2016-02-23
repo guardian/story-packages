@@ -4,13 +4,17 @@ import java.net.URLDecoder
 
 import auth.PanDomainAuthActions
 import conf.Configuration
-import model.{StoryPackage, StoryPackageSearchResult}
+import metrics.FaciaToolMetrics
+import model.{Cached, StoryPackage, StoryPackageSearchResult}
 import permissions.APIKeyAuthAction
+import play.api.Logger
 import play.api.libs.json.Json
+import play.api.libs.ws.WS
 import play.api.mvc._
 import services.Database
 import switchboard.SwitchManager
 import updates.{Reindex, UpdatesStream}
+import play.api.Play.current
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -37,6 +41,8 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
       case _ => Future.successful(BadRequest)
     }.getOrElse(Future.successful(NotAcceptable))}
 
+
+
   def search(term: String) = APIAuthAction.async { request =>
     Database.searchPackages(
       URLDecoder.decode(term, "UTF-8"),
@@ -48,15 +54,27 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
       }
   }
 
-  def latest() = APIAuthAction.async { request =>
-    Database.latestPackages(
-      Configuration.storage.maxLatestDays,
-      isHidden = isHidden(request)
-    )
-      .flatMap(serializeSuccess)
-      .recover {
-        case NonFatal(e) => InternalServerError(e.getMessage)
+  def capiLatest() = APIAuthAction.async { request =>
+
+    val hidden = isHidden(request)
+
+    FaciaToolMetrics.ProxyCount.increment()
+
+    val contentApiHost = if (hidden)
+      Configuration.contentApi.contentApiDraftHost
+    else
+      Configuration.contentApi.contentApiLiveHost
+
+    val url = s"$contentApiHost/packages?${Configuration.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
+
+    Logger.info(s"Proxying latest packages API query to: $url")
+
+    WS.url(url).get().map { response =>
+      Cached(60) {
+        Ok(response.body).as("application/javascript")
       }
+    }
+
   }
 
   def getPackage(id: String) = APIAuthAction.async { request =>
