@@ -68,32 +68,7 @@ object Database {
       )
     })
   }
-
-  def latestPackages(maxAge: Int, isHidden: Boolean = false): Future[StoryPackageSearchResult] = {
-    val errorMessage = s"Exception in latestPackages fetching packages since $maxAge days ago"
-    WithExceptionHandling(errorMessage, {
-      val since = new DateTime().withZone(DateTimeZone.UTC).minusDays(maxAge)
-      val values = new ValueMap()
-        .withString(":since", since.toString)
-        .withBoolean(":is_hidden", isHidden)
-        .withBoolean(":deleted", true)
-
-      val scanRequest = new ScanSpec()
-        .withFilterExpression("lastModify > :since and isHidden = :is_hidden and not deleted = :deleted")
-        .withValueMap(values)
-        .withMaxResultSize(Configuration.storage.maxLatestResults)
-
-      val results = table.scan(scanRequest)
-      StoryPackagesMetrics.ScanCount.increment()
-
-      import model.SortByLastModify._
-      StoryPackageSearchResult(
-        latest = Some(maxAge),
-        results = DynamoToScala.convertToListOfStoryPackages(results).sorted
-      )
-    })
-  }
-
+  
   def getPackage(id: String): Future[StoryPackage] = {
     val errorMessage = s"Unable to find story package with id $id"
     WithExceptionHandling(errorMessage, {

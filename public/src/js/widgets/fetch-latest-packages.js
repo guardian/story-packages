@@ -19,7 +19,15 @@ export default class extends Extension {
                 isHidden: this.baseModel.priority === 'training'
             }
         })
-        .then(response => this.baseModel.latestPackages(response.results))
+        .then(result => {
+            return this.baseModel.latestPackages(result.response.results.map(result => {
+                return {
+                    name: result.packageName,
+                    lastModify: result.lastModified,
+                    id: result.packageId
+                };
+            }));
+        })
         .catch(function () {
             mediator.emit('packages:alert', 'Failed to fetch latest packages');
         });
