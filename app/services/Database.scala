@@ -8,7 +8,7 @@ import com.amazonaws.services.dynamodbv2.model.ReturnValue
 import com.gu.pandomainauth.model.User
 import conf.{Configuration, aws}
 import metrics.StoryPackagesMetrics
-import model.{StoryPackage, StoryPackageSearchResult}
+import model.StoryPackage
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logger
 import updates.ReindexPage
@@ -45,30 +45,6 @@ object Database {
     })
   }
 
-  def searchPackages(term: String, isHidden: Boolean = false): Future[StoryPackageSearchResult] = {
-    val errorMessage = s"Exception in searchPackages while searching $term"
-    WithExceptionHandling(errorMessage, {
-      val values = new ValueMap()
-        .withString(":search_term", term)
-        .withBoolean(":is_hidden", isHidden)
-        .withBoolean(":deleted", true)
-
-      val scanRequest = new ScanSpec()
-        .withFilterExpression("begins_with (searchName, :search_term) and isHidden = :is_hidden and not deleted = :deleted")
-        .withValueMap(values)
-        .withMaxResultSize(Configuration.storage.maxPageSize)
-
-      val results = table.scan(scanRequest)
-      StoryPackagesMetrics.ScanCount.increment()
-
-      import model.SortByName._
-      StoryPackageSearchResult(
-        term = Some(term),
-        results = DynamoToScala.convertToListOfStoryPackages(results).sorted
-      )
-    })
-  }
-  
   def getPackage(id: String): Future[StoryPackage] = {
     val errorMessage = s"Unable to find story package with id $id"
     WithExceptionHandling(errorMessage, {

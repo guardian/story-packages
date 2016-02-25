@@ -5,10 +5,10 @@ import java.net.URLDecoder
 import auth.PanDomainAuthActions
 import conf.Configuration
 import metrics.FaciaToolMetrics
-import model.{Cached, StoryPackage, StoryPackageSearchResult}
+import model.{Cached, StoryPackage}
 import permissions.APIKeyAuthAction
 import play.api.Logger
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WS
 import play.api.mvc._
 import services.Database
@@ -22,8 +22,6 @@ import scala.util.control.NonFatal
 
 object StoryPackagesController extends Controller with PanDomainAuthActions {
   private def serializeSuccess(result: StoryPackage): Future[Result] = {
-    Future.successful(Ok(Json.toJson(result)))}
-  private def serializeSuccess(result: StoryPackageSearchResult): Future[Result] = {
     Future.successful(Ok(Json.toJson(result)))}
 
   private def isHidden(request: Request[AnyContent]): Boolean = {
@@ -40,19 +38,6 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
           }
       case _ => Future.successful(BadRequest)
     }.getOrElse(Future.successful(NotAcceptable))}
-
-
-
-  def search(term: String) = APIAuthAction.async { request =>
-    Database.searchPackages(
-      URLDecoder.decode(term, "UTF-8"),
-      isHidden = isHidden(request)
-    )
-      .flatMap(serializeSuccess)
-      .recover {
-        case NonFatal(e) => InternalServerError(e.getMessage)
-      }
-  }
 
   def capiLatest() = APIAuthAction.async { request =>
 
@@ -74,7 +59,37 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
         Ok(response.body).as("application/javascript")
       }
     }
+  }
 
+  def capiSearch(term: String) = APIAuthAction.async { request =>
+
+    val hidden = isHidden(request)
+
+    FaciaToolMetrics.ProxyCount.increment()
+
+    val contentApiHost = if (hidden)
+      Configuration.contentApi.contentApiDraftHost
+    else
+      Configuration.contentApi.contentApiLiveHost
+
+    val url = s"$contentApiHost/packages?q=$term${Configuration.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
+
+    Logger.info(s"Proxying search query to: $url")
+
+    WS.url(url).get().flatMap { response =>
+      val json: JsValue = Json.parse(response.body)
+
+      val packageIds = (json \ "response" \ "results" \\ "packageId").map(_.as[String])
+
+      for {
+        packages <- Future.sequence(packageIds.map(id => Database.getPackage(id)))
+
+      } yield {
+        Cached(60) {
+          Ok(Json.toJson(packages)).as("application/javascript")
+        }
+      }
+    }
   }
 
   def getPackage(id: String) = APIAuthAction.async { request =>
