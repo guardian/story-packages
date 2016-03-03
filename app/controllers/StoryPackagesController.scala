@@ -1,7 +1,6 @@
 package controllers
 
-import java.net.URLDecoder
-
+import java.net.{URLEncoder, URLDecoder}
 import auth.PanDomainAuthActions
 import conf.Configuration
 import metrics.FaciaToolMetrics
@@ -21,6 +20,7 @@ import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 object StoryPackagesController extends Controller with PanDomainAuthActions {
+
   private def serializeSuccess(result: StoryPackage): Future[Result] = {
     Future.successful(Ok(Json.toJson(result)))}
 
@@ -65,6 +65,8 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
 
     val hidden = isHidden(request)
 
+    val encodedTerm = URLEncoder.encode(URLDecoder.decode(term, "utf-8"), "utf-8")
+
     FaciaToolMetrics.ProxyCount.increment()
 
     val contentApiHost = if (hidden)
@@ -72,7 +74,7 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     else
       Configuration.contentApi.contentApiLiveHost
 
-    val url = s"$contentApiHost/packages?q=$term${Configuration.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
+    val url = s"$contentApiHost/packages?q=$encodedTerm${Configuration.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying search query to: $url")
 
