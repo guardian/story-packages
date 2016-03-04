@@ -58,18 +58,6 @@ function handleInternalClass ({sourceItem, sourceGroup}, targetItem, targetGroup
         return;
     }
 
-    if (targetGroup.parentType === 'Collection') {
-        var numberOfArticles = _.reduce(targetGroup.front.collection().groups, (articleNumber, group) => {
-            return group.items().length + articleNumber;
-        }, 0);
-
-        var collectionCap = vars.model.state().defaults.collectionCap;
-        if (numberOfArticles >= collectionCap) {
-            alert('You can have maximum of ' + collectionCap + ' articles in a strory package. You must delete an article from the package before adding a new one');
-            return;
-        }
-    }
-
     var {position, target, isAfter} = normalizeTarget(sourceItem, targetItem, targetGroup);
 
     var insertAt = 0;

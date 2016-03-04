@@ -173,6 +173,15 @@ export default class Front extends ColumnWidget {
         if (item.meta.snapType()) {
             return 'You cannot add snaps to packages';
         }
+
+        var numberOfArticles = _.reduce(this.collection().groups, (articleNumber, group) => {
+            return group.items().length + articleNumber;
+        }, 0);
+
+        var collectionCap = this.baseModel.state().defaults.collectionCap;
+        if (numberOfArticles > collectionCap) {
+            return 'You can have maximum of ' + collectionCap + ' articles in a strory package. You must delete an article from the package before adding a new one';
+        }
     }
 
     dispose() {
