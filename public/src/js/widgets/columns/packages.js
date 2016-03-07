@@ -149,7 +149,7 @@ function performSearch(searchTerm) {
     });
 }
 
-function displayResults({results} = {}) {
+function displayResults(results = {}) {
     if (this.searchInProgress()) {
         this.searchResults((results || []).map(result => {
             return Object.assign({

@@ -37,12 +37,3 @@ object SortByName {
     }
   }
 }
-
-case class StoryPackageSearchResult(
-  term: Option[String] = None,
-  latest: Option[Int] = None,
-  results: List[StoryPackage] = Nil
-) {}
-object StoryPackageSearchResult {
-  implicit val jsonFormat = Json.format[StoryPackageSearchResult]
-}

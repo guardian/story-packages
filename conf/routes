@@ -47,8 +47,8 @@ GET         /json/proxy/*absUrl                      controllers.FaciaContentApi
 # Updating config
 
 POST        /story-packages/create                   controllers.StoryPackagesController.create()
-GET         /story-packages/search/*term             controllers.StoryPackagesController.search(term)
 GET         /story-packages/latest                   controllers.StoryPackagesController.capiLatest()
+GET         /story-packages/search/*term             controllers.StoryPackagesController.capiSearch(term)
 DELETE      /story-package/*id                       controllers.StoryPackagesController.deletePackage(id)
 
 # Vanity URL
