@@ -67,12 +67,12 @@
     "Mappings": {
         "StageMap": {
             "PROD": {
-                "MinSize": 1,
-                "MaxSize": 2,
-                "DesiredCapacity": 1,
+                "MinSize": 2,
+                "MaxSize": 4,
+                "DesiredCapacity": 2,
                 "InstanceType": "m3.medium",
-                "ReadThroughput": 10,
-                "WriteThroughput": 10,
+                "ReadThroughput": 7,
+                "WriteThroughput": 7,
                 "ReindexReadThroughput": 4,
                 "ReindexWriteThroughput": 4
             },
@@ -80,9 +80,9 @@
                 "MinSize": 1,
                 "MaxSize": 2,
                 "DesiredCapacity": 1,
-                "InstanceType": "t2.nano",
-                "ReadThroughput": 5,
-                "WriteThroughput": 5,
+                "InstanceType": "m3.medium",
+                "ReadThroughput": 4,
+                "WriteThroughput": 4,
                 "ReindexReadThroughput": 2,
                 "ReindexWriteThroughput": 2
             }
