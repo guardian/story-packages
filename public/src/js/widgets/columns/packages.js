@@ -166,15 +166,23 @@ export default class Package extends ColumnWidget {
 
     editPackage(packageId) {
 
-        this.searchInProgress(false);
-        this.searchTerm('');
+        return authedAjax.request({
+            url: '/story-package/' + packageId
+        })
+        .then(response => {
 
-        var beingEdited = new StoryPackage(_.find(this.baseModel.latestPackages(), storyPackage => {
-            return storyPackage.id === packageId;
-        }));
+            this.searchInProgress(false);
+            this.searchTerm('');
 
-        this.searchResults([beingEdited]);
-        this.editingPackage(true);
+            this.editingPackage(true);
+            var beingEdited = new StoryPackage(response);
+
+            this.searchResults([beingEdited]);
+            this.editingPackage(true);
+        })
+        .catch(error => {
+            alert('Unable to edit story package' + '\n' + (error.message || error.responseText));
+        });
     }
 
     displaySearchResults() {
