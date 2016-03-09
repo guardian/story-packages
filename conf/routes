@@ -47,6 +47,7 @@ GET         /json/proxy/*absUrl                      controllers.FaciaContentApi
 # Updating config
 
 POST        /story-packages/create                   controllers.StoryPackagesController.create()
+POST        /story-packages/edit/*id                 controllers.StoryPackagesController.editPackage(id)
 GET         /story-packages/latest                   controllers.StoryPackagesController.capiLatest()
 GET         /story-packages/search/*term             controllers.StoryPackagesController.capiSearch(term)
 DELETE      /story-package/*id                       controllers.StoryPackagesController.deletePackage(id)

@@ -2,6 +2,7 @@ package controllers
 
 import java.net.{URLEncoder, URLDecoder}
 import auth.PanDomainAuthActions
+import com.gu.facia.client.models.CollectionJson
 import conf.Configuration
 import metrics.FaciaToolMetrics
 import model.{Cached, StoryPackage}
@@ -10,9 +11,9 @@ import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WS
 import play.api.mvc._
-import services.Database
+import services.{FrontsApi, Database}
 import switchboard.SwitchManager
-import updates.{Reindex, UpdatesStream}
+import updates._
 import play.api.Play.current
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -111,6 +112,29 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     })
   }
 
+  def editPackage(id: String) = APIAuthAction.async { request =>
+
+    val name = (request.body.asJson.get \ "name").as[String]
+
+    Database.touchPackage(id, request.user, Some(name)).map(storyPackage => {
+      for {
+        packageId <- storyPackage.id
+        displayName <- storyPackage.name
+      } yield {
+        FrontsApi.amazonClient.collection(packageId).map {
+          case Some(coll) =>
+            val collections: Map[String, CollectionJson] = Map((packageId, coll))
+            val updateMessage = UpdateName(packageId, displayName)
+            val streamUpdate = StreamUpdate(updateMessage, request.user.email, collections, storyPackage)
+            UpdatesStream.putStreamUpdate(streamUpdate)
+          case None =>
+            Logger.info(s"Ignore sending update of empty story package $packageId")
+        }
+      }
+      Ok(Json.toJson(storyPackage))
+    })
+  }
+  
   def reindex(isHidden: Boolean) = APIKeyAuthAction.async { request =>
     if (SwitchManager.getStatus("story-packages-disable-reindex-endpoint")) {
       Future.successful(Forbidden("Reindex endpoint disabled by a switch"))
