@@ -101,27 +101,15 @@ object Database {
     WithExceptionHandling(errorMessage, {
       val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
 
-      val updateSpec = newName match {
+      val updateSpec = new UpdateItemSpec()
+        .withPrimaryKey("id", id)
+        .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.toString))
+        .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(user.email))
+        .addAttributeUpdate(new AttributeUpdate("lastModifyByName").put(user.fullName))
+        .withReturnValues(ReturnValue.ALL_NEW)
 
-        case Some(name) => {
-          new UpdateItemSpec()
-            .withPrimaryKey("id", id)
-            .addAttributeUpdate(new AttributeUpdate("packageName").put(name))
-            .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.toString))
-            .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(user.email))
-            .addAttributeUpdate(new AttributeUpdate("lastModifyByName").put(user.fullName))
-            .withReturnValues(ReturnValue.ALL_NEW)
-        }
-
-        case None => {
-
-          new UpdateItemSpec()
-            .withPrimaryKey("id", id)
-            .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.toString))
-            .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(user.email))
-            .addAttributeUpdate(new AttributeUpdate("lastModifyByName").put(user.fullName))
-            .withReturnValues(ReturnValue.ALL_NEW)
-        }
+      if (newName.nonEmpty) {
+        updateSpec.addAttributeUpdate(new AttributeUpdate("packageName").put(newName.get))
       }
 
       val outcome = table.updateItem(updateSpec)
