@@ -130,6 +130,10 @@ object Configuration {
     lazy val key: String = getMandatoryString("reindex.key")
     lazy val progressTable: String = properties.getOrElse("REINDEX_TABLE", throw new BadConfigurationException("REINDEX_TABLE is not configured"))
   }
+
+  object latest {
+    lazy val pageSize = 20
+  }
 }
 
 object Properties extends AutomaticResourceManagement {
