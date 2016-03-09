@@ -1036,6 +1036,20 @@ select {
     resize: none;
 }
 
+.editor.package-editor {
+    border-top: 10px solid #ffffff;
+    background: #eeeeee;
+    margin: 0px;
+}
+
+.editor.package-editor textarea {
+    height: 30px;
+    padding-top: 7px;
+    margin: 0px;
+    color: black;
+    background: #eeeeee;
+}
+
 .editor textarea.active {
     background: #eeeeee;
     color: #000000;
@@ -1465,6 +1479,12 @@ button {
     float: right;
     line-height: 30px;
     text-align: center;
+}
+
+.package-editor > .article-tools {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
 }
 
 .tool--small--copy,
