@@ -96,17 +96,33 @@ object Database {
     })
   }
 
-  def touchPackage(id: String, user: User): Future[StoryPackage] = {
+  def touchPackage(id: String, user: User, newName: Option[String] = None): Future[StoryPackage] = {
     val errorMessage = s"Unable to update modification metadata for story package $id"
     WithExceptionHandling(errorMessage, {
       val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
 
-      val updateSpec = new UpdateItemSpec()
-        .withPrimaryKey("id", id)
-        .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.toString))
-        .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(user.email))
-        .addAttributeUpdate(new AttributeUpdate("lastModifyByName").put(user.fullName))
-        .withReturnValues(ReturnValue.ALL_NEW)
+      val updateSpec = newName match {
+
+        case Some(name) => {
+          new UpdateItemSpec()
+            .withPrimaryKey("id", id)
+            .addAttributeUpdate(new AttributeUpdate("packageName").put(name))
+            .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.toString))
+            .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(user.email))
+            .addAttributeUpdate(new AttributeUpdate("lastModifyByName").put(user.fullName))
+            .withReturnValues(ReturnValue.ALL_NEW)
+        }
+
+        case None => {
+
+          new UpdateItemSpec()
+            .withPrimaryKey("id", id)
+            .addAttributeUpdate(new AttributeUpdate("lastModify").put(modifyDate.toString))
+            .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(user.email))
+            .addAttributeUpdate(new AttributeUpdate("lastModifyByName").put(user.fullName))
+            .withReturnValues(ReturnValue.ALL_NEW)
+        }
+      }
 
       val outcome = table.updateItem(updateSpec)
       StoryPackagesMetrics.UpdateCount.increment()
