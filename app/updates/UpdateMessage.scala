@@ -10,6 +10,7 @@ sealed trait UpdateMessage
 
 /* Config updates */
 case class DeletePackage(id: String) extends UpdateMessage
+case class UpdateName(id: String, name: String) extends UpdateMessage
 
 /* Collection updates */
 case class UpdateList(
