@@ -89,7 +89,7 @@
                             ></textarea>
                             <div class="tools article-tools">
                                 <a class= "tool package--done" data-bind="
-                                click: $parent.savePackageEdits.bind(this, $parent, $index())">Save edits</a>
+                                click: $parent.savePackageEdits.bind($parent, $index())">Save edits</a>
                                 <a class="tool package--cancel" data-bind="
                                 click: $parent.closePackageEdit">Close</a>
                             </div>

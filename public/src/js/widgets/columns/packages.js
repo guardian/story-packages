@@ -122,7 +122,7 @@ export default class Package extends ColumnWidget {
         .catch(() => {});
     }
 
-    savePackageEdits(parent, index, storyPackage) {
+    savePackageEdits(index, storyPackage) {
         var name = storyPackage.meta.name().trim();
         if (name.length < 3) {
             alert('Package name needs to include at least three characters');
@@ -134,17 +134,17 @@ export default class Package extends ColumnWidget {
             type: 'post',
             data: JSON.stringify({
                 name: name,
-                isHidden: parent.baseModel.priority === 'training'
+                isHidden: this.baseModel.priority === 'training'
             })
         })
         .then((response) => {
 
             var storyPackage = new StoryPackage(response);
-            var results = parent.searchResults();
+            var results = this.searchResults();
             results[index] = storyPackage;
             storyPackage.meta.lastModifyHuman(humanTime(storyPackage.meta.lastModify()));
             storyPackage.savedDisplayName = storyPackage.meta.name();
-            parent.searchResults(results);
+            this.searchResults(results);
             mediator.emit('update:package', response);
             storyPackage.editing(false);
         });
