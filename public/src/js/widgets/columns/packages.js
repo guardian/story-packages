@@ -8,6 +8,7 @@ import debounce from 'utils/debounce';
 import humanTime from 'utils/human-time';
 import mediator from 'utils/mediator';
 import ColumnWidget from 'widgets/column-widget';
+import StoryPackage from 'models/story-packages/story-package';
 
 const bouncedSearch = Symbol();
 
@@ -66,7 +67,7 @@ export default class Package extends ColumnWidget {
     }
 
     savePackage() {
-        var name = this.displayName().trim();
+        var name = this.meta.displayName().trim();
         if (name.length < 3) {
             alert('Package name needs to include at least three characters');
         } else {
@@ -121,17 +122,55 @@ export default class Package extends ColumnWidget {
         .catch(() => {});
     }
 
+    savePackageEdits(parent, index, storyPackage) {
+        var name = storyPackage.meta.name().trim();
+        if (name.length < 3) {
+            alert('Package name needs to include at least three characters');
+            return;
+        }
+
+        return authedAjax.request({
+            url: '/story-packages/edit/' + storyPackage.id,
+            type: 'post',
+            data: JSON.stringify({
+                name: name,
+                isHidden: parent.baseModel.priority === 'training'
+            })
+        })
+        .then((response) => {
+
+            var storyPackage = new StoryPackage(response);
+            var results = parent.searchResults();
+            results[index] = storyPackage;
+            storyPackage.meta.lastModifyHuman(humanTime(storyPackage.meta.lastModify()));
+            storyPackage.savedDisplayName = storyPackage.meta.name();
+            parent.searchResults(results);
+            mediator.emit('update:package', response);
+            storyPackage.editing(false);
+        });
+    }
+
+    closePackageEdit(storyPackage) {
+        this.meta.name(this.savedDisplayName);
+        storyPackage.editing(false);
+        return;
+    }
+
+    openEditor(storyPackage) {
+        if (!storyPackage.editing()) {
+            storyPackage.editing(true);
+        }
+    }
+
     editPackage(packageId) {
 
         this.searchInProgress(false);
         this.searchTerm('');
 
-        var beingEdited = _.find(this.baseModel.latestPackages(), storyPackage => {
+        var beingEdited = new StoryPackage(_.find(this.baseModel.latestPackages(), storyPackage => {
             return storyPackage.id === packageId;
-        });
+        }));
 
-        beingEdited.lastModifyHuman = humanTime(new Date(beingEdited.lastModify));
-        beingEdited.createdHuman = humanTime(new Date(beingEdited.created));
         this.searchResults([beingEdited]);
         this.editingPackage(true);
     }
@@ -153,15 +192,13 @@ function performSearch(searchTerm) {
 function displayResults(results = {}) {
     if (this.searchInProgress()) {
         this.searchResults((results || []).map(result => {
-            return Object.assign({
-                lastModifyHuman: humanTime(new Date(result.lastModify)),
-                createdHuman: humanTime(new Date(result.created))
-            }, result);
+            var storyPackage = new StoryPackage(result);
+            storyPackage.meta.lastModifyHuman(humanTime(new Date(result.lastModify)));
+            return storyPackage;
         }));
         this.searchInProgress(false);
         this.searchedPackages(true);
     }
-
 }
 
 function removePackage(storyPackageId) {
