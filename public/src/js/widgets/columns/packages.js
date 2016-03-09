@@ -118,8 +118,7 @@ export default class Package extends ColumnWidget {
         })
         .catch(error => {
             alert('Unable to delete story package \'' + storyPackage.name + '\'\n' + (error.message || error.responseText));
-        })
-        .catch(() => {});
+        });
     }
 
     savePackageEdits(index, storyPackage) {
@@ -147,6 +146,9 @@ export default class Package extends ColumnWidget {
             this.searchResults(results);
             mediator.emit('update:package', response);
             storyPackage.editing(false);
+        })
+        .catch(error => {
+            alert('Unable to edit story package \'' + storyPackage.name + '\'\n' + (error.message || error.responseText));
         });
     }
 
