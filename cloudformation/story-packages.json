@@ -73,18 +73,18 @@
                 "InstanceType": "c4.large",
                 "ReadThroughput": 7,
                 "WriteThroughput": 7,
-                "ReindexReadThroughput": 4,
-                "ReindexWriteThroughput": 4
+                "ReindexReadThroughput": 1,
+                "ReindexWriteThroughput": 1
             },
             "CODE": {
                 "MinSize": 1,
                 "MaxSize": 2,
                 "DesiredCapacity": 1,
-                "InstanceType": "c4.large",
+                "InstanceType": "t2.medium",
                 "ReadThroughput": 4,
                 "WriteThroughput": 4,
-                "ReindexReadThroughput": 2,
-                "ReindexWriteThroughput": 2
+                "ReindexReadThroughput": 1,
+                "ReindexWriteThroughput": 1
             }
         },
         "KinesisStreamMap": {
