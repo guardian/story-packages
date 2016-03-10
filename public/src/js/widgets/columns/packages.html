@@ -61,11 +61,10 @@
                                     text: name,
                                     attr: { href: '/story-package/' + id }
                                 "></a>
-                                <div class="article__ammends">
                                     <div class="article__times">
-                                        <span class="time__publication" data-bind="text: lastModifyHuman"></span>
-                                        <span class="publisher" data-bind="text: lastModifyByName"></span>
-                                    </div>
+                                        <div class="time__creation">Created: <span data-bind="text: creationDateHuman"></span></div>
+                                        <div class="time__publication">Modified: <span data-bind="text: lastModifyHuman"></span>
+                                        <span data-bind="text: lastModifyByName"></span></div>
                                 </div>
                             </div>
                         </div>

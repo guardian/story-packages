@@ -898,13 +898,6 @@ h1 {
     display: none;
 }
 
-.packagesResults .publisher {
-    color: #666666;
-    display: inline;
-    float: right;
-}
-
-
 .article__times {
     text-align: right;
     position: absolute;
@@ -920,6 +913,11 @@ h1 {
 
 .time__publication {
     color: #999999;
+}
+
+.time__creation {
+    text-align: left;
+    padding-bottom: 2px;
 }
 
 .time__front {
