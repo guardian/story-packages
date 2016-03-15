@@ -50,7 +50,9 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     else
       Configuration.contentApi.contentApiLiveHost
 
-    val url = s"$contentApiHost/packages?${Configuration.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
+    val pageSize = Configuration.latest.pageSize
+
+    val url = s"$contentApiHost/packages?page-size=$pageSize&${Configuration.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying latest packages API query to: $url")
 
