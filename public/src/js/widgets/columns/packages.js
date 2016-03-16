@@ -66,7 +66,7 @@ export default class Package extends ColumnWidget {
     }
 
     savePackage() {
-        var name = this.newPackageName().trim();
+        const name = this.newPackageName().trim();
         if (name.length < 3) {
             alert('Package name needs to include at least three characters');
         } else {
@@ -118,7 +118,7 @@ export default class Package extends ColumnWidget {
     }
 
     savePackageEdits(index, storyPackage) {
-        var name = storyPackage.meta.name().trim();
+        const name = storyPackage.meta.name().trim();
         if (name.length < 3) {
             alert('Package name needs to include at least three characters');
             return;
@@ -169,10 +169,7 @@ export default class Package extends ColumnWidget {
             this.searchTerm('');
 
             this.editingPackage(true);
-            var beingEdited = new StoryPackage(response);
-
-            this.searchResults([beingEdited]);
-            this.editingPackage(true);
+            this.searchResults([new StoryPackage(response)]);
         })
         .catch(error => {
             alert('Unable to edit story package' + '\n' + (error.message || error.responseText));

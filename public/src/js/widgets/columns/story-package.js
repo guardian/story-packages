@@ -54,7 +54,7 @@ export default class Front extends ColumnWidget {
 
         this.listenOn(mediator, 'update:package', function(storyPackage) {
             var existingPackages = this.baseModel.latestPackages();
-            var index = _.findIndex(existingPackages, existingPackage => existingPackage.id === storyPackage.id);
+            const index = _.findIndex(existingPackages, existingPackage => existingPackage.id === storyPackage.id);
             if (index !== -1) {
                 existingPackages[index] = storyPackage;
             } else {
