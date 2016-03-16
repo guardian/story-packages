@@ -131,7 +131,7 @@ export default class Package extends ColumnWidget {
         });
 
         beingEdited.lastModifyHuman = humanTime(new Date(beingEdited.lastModify));
-        beingEdited.creationDateHuman = humanTime(new Date(beingEdited.creationDate));
+        beingEdited.createdHuman = humanTime(new Date(beingEdited.created));
         this.searchResults([beingEdited]);
         this.editingPackage(true);
     }
@@ -155,7 +155,7 @@ function displayResults(results = {}) {
         this.searchResults((results || []).map(result => {
             return Object.assign({
                 lastModifyHuman: humanTime(new Date(result.lastModify)),
-                creationDateHuman: humanTime(new Date(result.creationDate))
+                createdHuman: humanTime(new Date(result.created))
             }, result);
         }));
         this.searchInProgress(false);

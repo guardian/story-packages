@@ -11,7 +11,7 @@ case class StoryPackage(
   lastModifyBy: Option[String],
   lastModifyByName: Option[String],
   createdBy: Option[String],
-  creationDate: Option[String],
+  created: Option[String],
   deleted: Option[Boolean]
 ) {}
 object StoryPackage {
