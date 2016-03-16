@@ -158,6 +158,7 @@ object DynamoToScala {
         lastModifyBy = Option(item.getString("lastModifyBy")),
         lastModifyByName = Option(item.getString("lastModifyByName")),
         createdBy = Option(item.getString("createdBy")),
+        created = Option(item.getString("created")),
         deleted = if (item.hasAttribute("deleted")) Option(item.getBOOL("deleted")) else None
       )
     }
