@@ -1,11 +1,9 @@
 import ko from 'knockout';
-import _ from 'underscore';
 import * as authedAjax from 'modules/authed-ajax';
 import modalDialog from 'modules/modal-dialog';
 import {CONST} from 'modules/vars';
 import alert from 'utils/alert';
 import debounce from 'utils/debounce';
-import humanTime from 'utils/human-time';
 import mediator from 'utils/mediator';
 import ColumnWidget from 'widgets/column-widget';
 import StoryPackage from 'models/story-packages/story-package';
@@ -25,6 +23,7 @@ export default class Package extends ColumnWidget {
         this.searchResults = ko.observableArray();
         this.searchedPackages = ko.observable();
         this.editingPackage = ko.observable(false);
+        this.newPackageName = ko.observable();
 
         this[bouncedSearch] = debounce(performSearch.bind(this), CONST.searchDebounceMs);
 
@@ -67,7 +66,7 @@ export default class Package extends ColumnWidget {
     }
 
     savePackage() {
-        var name = this.meta.displayName().trim();
+        var name = this.newPackageName().trim();
         if (name.length < 3) {
             alert('Package name needs to include at least three characters');
         } else {
@@ -80,12 +79,9 @@ export default class Package extends ColumnWidget {
                     isHidden: this.baseModel.priority === 'training'
                 })
             })
-            .then(newPackage => {
-                var packages = this.baseModel.latestPackages();
-                packages.unshift(newPackage);
-                this.baseModel.latestPackages(packages);
-                this.search();
-                mediator.emit('find:package', newPackage);
+            .then(response => {
+                this.newPackageName('');
+                mediator.emit('find:package', response);
             })
             .catch(response => {
                 alert('Unable to create story package:\n' + (response.message || response.responseText));
@@ -141,8 +137,6 @@ export default class Package extends ColumnWidget {
             var storyPackage = new StoryPackage(response);
             var results = this.searchResults();
             results[index] = storyPackage;
-            storyPackage.meta.lastModifyHuman(humanTime(storyPackage.meta.lastModify()));
-            storyPackage.savedDisplayName = storyPackage.meta.name();
             this.searchResults(results);
             mediator.emit('update:package', response);
             storyPackage.editing(false);
@@ -203,7 +197,6 @@ function displayResults(results = {}) {
     if (this.searchInProgress()) {
         this.searchResults((results || []).map(result => {
             var storyPackage = new StoryPackage(result);
-            storyPackage.meta.lastModifyHuman(humanTime(new Date(result.lastModify)));
             return storyPackage;
         }));
         this.searchInProgress(false);
