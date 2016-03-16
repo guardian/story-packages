@@ -126,14 +126,17 @@ export default class Package extends ColumnWidget {
         this.searchInProgress(false);
         this.searchTerm('');
 
-        var beingEdited = _.find(this.baseModel.latestPackages(), storyPackage => {
-            return storyPackage.id === packageId;
-        });
+        return authedAjax.request({
+            url: '/story-package/' + packageId
+        })
+        .then(response => {
 
-        beingEdited.lastModifyHuman = humanTime(new Date(beingEdited.lastModify));
-        beingEdited.createdHuman = humanTime(new Date(beingEdited.created));
-        this.searchResults([beingEdited]);
-        this.editingPackage(true);
+            response.lastModifyHuman = humanTime(new Date(response.lastModify));
+            response.createdHuman = humanTime(new Date(response.created));
+            this.searchResults([response]);
+            this.editingPackage(true);
+            return;
+        });
     }
 
     displaySearchResults() {
