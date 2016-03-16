@@ -7,6 +7,8 @@ import internalPageCode from 'utils/internal-page-code';
 import articlePath from 'utils/article-path';
 import identity from 'utils/identity';
 import isGuardianUrl from 'utils/is-guardian-url';
+import lenientJsonParse from 'utils/lenient-json-parse';
+import mediator from 'utils/mediator';
 import * as snap from 'utils/snap';
 import reportErrors from 'utils/report-errors';
 
@@ -260,7 +262,7 @@ function fetchLatest (options) {
     term = options.term;
     filter = options.filter;
 
-    var url = (options.isDraft ? CONST.apiSearchBase : CONST.apiLiveBase) + '/';
+    let url = (options.isDraft ? CONST.apiSearchBase : CONST.apiLiveBase) + '/';
 
     if (options.article) {
         term = options.article;
