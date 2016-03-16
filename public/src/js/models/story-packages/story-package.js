@@ -18,9 +18,18 @@ export default class StoryPackage extends BaseClass {
 
         this.savedDisplayName = opts.name;
 
-        this.meta = asObservableProps(['name', 'lastModify', 'lastModifyBy', 'lastModifyHuman', 'lastModifyByName']);
+        this.meta = asObservableProps([
+            'name',
+            'lastModify',
+            'lastModifyBy',
+            'lastModifyHuman',
+            'lastModifyByName',
+            'created',
+            'createdHuman'
+        ]);
 
         this.meta.lastModifyHuman(humanTime(new Date(opts.lastModify)));
+        this.meta.createdHuman(humanTime(new Date(opts.created)));
 
         populateObservables(this.meta, opts);
 
