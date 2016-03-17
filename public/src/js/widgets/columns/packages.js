@@ -193,10 +193,7 @@ function performSearch(searchTerm) {
 
 function displayResults(results = {}) {
     if (this.searchInProgress()) {
-        this.searchResults((results || []).map(result => {
-            var storyPackage = new StoryPackage(result);
-            return storyPackage;
-        }));
+        this.searchResults((results || []).map(result => new StoryPackage(result)));
         this.searchInProgress(false);
         this.searchedPackages(true);
     }
