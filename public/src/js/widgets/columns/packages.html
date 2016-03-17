@@ -11,7 +11,7 @@
         <!-- ko if: creatingPackage -->
             <div class="createPackage">
                 <div class="createPackageName">
-                    <input type="text" class="createPackageName_input" placeholder="package name" data-bind="textInput: displayName"/>
+                    <input type="text" class="createPackageName_input" placeholder="package name" data-bind="textInput: newPackageName"/>
                 </div>
                 <button class="tool createPackageSave" data-bind="click: savePackage">save</button>
             </div>
@@ -46,29 +46,55 @@
 
             <ul class="packagesResults" data-bind="foreach: searchResults">
                 <li>
-                    <div class="article" data-bind="click: $parent.displayPackage.bind($parent)">
-                        <div class="closed">
-                            <div class="article__tools">
-                                <a class="tool tool--small large tool--small--delete-package" title="Delete" data-bind="
-                                    click: $parent.displayRemoveModal.bind($parent, $index()),
-                                    clickBubble: false
-                                ">
-                                    <i class="fa fa-trash"></i>
-                                </a>
-                            </div>
-                            <div class="article__content">
-                                <a class="element element__headline" data-bind="
-                                    text: name,
-                                    attr: { href: '/story-package/' + id }
-                                "></a>
-                                    <div class="article__times">
-                                        <div class="time__creation">Created: <span data-bind="text: createdHuman"></span></div>
-                                        <div class="time__publication">Modified: <span data-bind="text: lastModifyHuman"></span>
-                                        <span data-bind="text: lastModifyByName"></span></div>
+                    <!-- ko if: !editing() -->
+                        <div class="article" data-bind="click: $parent.displayPackage">
+                            <div class="closed">
+                                <div class="article__tools">
+                                    <a class="tool tool--small large tool--small--delete-package" title="Delete" data-bind="
+                                        click: $parent.displayRemoveModal.bind($parent, $index()),
+                                        clickBubble: false
+                                    ">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                    <a class="tool tool--small large tool--small--delete-package" title="Edit" data-bind="
+                                        click: $parent.openEditor,
+                                        hasFocus: true
+                                    ">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                </div>
+                                <div class="article__content">
+                                    <a class="element element__headline" data-bind="
+                                        text: meta.name,
+                                        attr: { href: '/story-package/' + id }
+                                    "></a>
+                                    <div class="article__ammends">
+                                        <div class="article__times packages__times">
+                                            <div class="time__publication">Modified: <span data-bind="text: meta.lastModifyHuman"></span>
+                                            <span data-bind="text: meta.lastModifyByName"></span></div>
+                                            <div class="time__creation">Created: <span data-bind="text: meta.createdHuman"></span></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    <!-- /ko -->
+                    <!-- ko if: editing() -->
+                        <div class="package-editor editor">
+                            <textarea data-bind="
+                                      textInput: meta.name,
+                                      tabbableFromField: true,
+                                      hasFocus: true
+                                      "
+                            ></textarea>
+                            <div class="tools article-tools">
+                                <a class= "tool package--done" data-bind="
+                                click: $parent.savePackageEdits.bind($parent, $index())">Save edits</a>
+                                <a class="tool package--cancel" data-bind="
+                                click: $parent.closePackageEdit">Close</a>
+                            </div>
+                        </div>
+                    <!-- /ko -->
                 </li>
             </ul>
         </div>

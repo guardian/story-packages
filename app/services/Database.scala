@@ -96,7 +96,7 @@ object Database {
     })
   }
 
-  def touchPackage(id: String, user: User): Future[StoryPackage] = {
+  def touchPackage(id: String, user: User, newName: Option[String] = None): Future[StoryPackage] = {
     val errorMessage = s"Unable to update modification metadata for story package $id"
     WithExceptionHandling(errorMessage, {
       val modifyDate = new DateTime().withZone(DateTimeZone.UTC)
@@ -107,6 +107,10 @@ object Database {
         .addAttributeUpdate(new AttributeUpdate("lastModifyBy").put(user.email))
         .addAttributeUpdate(new AttributeUpdate("lastModifyByName").put(user.fullName))
         .withReturnValues(ReturnValue.ALL_NEW)
+
+      if (newName.nonEmpty) {
+        updateSpec.addAttributeUpdate(new AttributeUpdate("packageName").put(newName.get))
+      }
 
       val outcome = table.updateItem(updateSpec)
       StoryPackagesMetrics.UpdateCount.increment()

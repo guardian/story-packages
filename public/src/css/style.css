@@ -924,10 +924,6 @@ h1 {
     color: #46c430;
 }
 
-.packagesResults .time__publication {
-    float: left;
-}
-
 .article__overrides {
     margin: 0 0 0 92px;
     font-size: 12px;
@@ -1034,6 +1030,20 @@ select {
     color: #999999;
     background: #dddddd;
     resize: none;
+}
+
+.editor.package-editor {
+    border-top: 10px solid #ffffff;
+    background: #eeeeee;
+    margin: 0px;
+}
+
+.editor.package-editor textarea {
+    height: 30px;
+    padding-top: 7px;
+    margin: 0px;
+    color: black;
+    background: #eeeeee;
 }
 
 .editor textarea.active {
@@ -1433,6 +1443,15 @@ button {
     height: auto;
 }
 
+.article__ammends > .packages__times > .time__publication {
+    text-align: left;
+    display: block;
+}
+
+.article__ammends > .packages__times > .time__creation {
+    display: block;
+}
+
 .article:hover > .closed > .article__tools {
     display: block;
 }
@@ -1465,6 +1484,12 @@ button {
     float: right;
     line-height: 30px;
     text-align: center;
+}
+
+.package-editor > .article-tools {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
 }
 
 .tool--small--copy,

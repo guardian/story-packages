@@ -1,13 +1,12 @@
 import ko from 'knockout';
-import _ from 'underscore';
 import * as authedAjax from 'modules/authed-ajax';
 import modalDialog from 'modules/modal-dialog';
 import {CONST} from 'modules/vars';
 import alert from 'utils/alert';
 import debounce from 'utils/debounce';
-import humanTime from 'utils/human-time';
 import mediator from 'utils/mediator';
 import ColumnWidget from 'widgets/column-widget';
+import StoryPackage from 'models/story-packages/story-package';
 
 const bouncedSearch = Symbol();
 
@@ -24,6 +23,7 @@ export default class Package extends ColumnWidget {
         this.searchResults = ko.observableArray();
         this.searchedPackages = ko.observable();
         this.editingPackage = ko.observable(false);
+        this.newPackageName = ko.observable();
 
         this[bouncedSearch] = debounce(performSearch.bind(this), CONST.searchDebounceMs);
 
@@ -66,7 +66,7 @@ export default class Package extends ColumnWidget {
     }
 
     savePackage() {
-        var name = this.displayName().trim();
+        const name = this.newPackageName().trim();
         if (name.length < 3) {
             alert('Package name needs to include at least three characters');
         } else {
@@ -79,12 +79,10 @@ export default class Package extends ColumnWidget {
                     isHidden: this.baseModel.priority === 'training'
                 })
             })
-            .then(newPackage => {
-                var packages = this.baseModel.latestPackages();
-                packages.unshift(newPackage);
-                this.baseModel.latestPackages(packages);
-                this.search();
-                mediator.emit('find:package', newPackage);
+            .then(response => {
+                this.newPackageName('');
+                var storyPackage = new StoryPackage(response);
+                mediator.emit('find:package', storyPackage);
             })
             .catch(response => {
                 alert('Unable to create story package:\n' + (response.message || response.responseText));
@@ -117,23 +115,66 @@ export default class Package extends ColumnWidget {
         })
         .catch(error => {
             alert('Unable to delete story package \'' + storyPackage.name + '\'\n' + (error.message || error.responseText));
+        });
+    }
+
+    savePackageEdits(index, storyPackage) {
+        const name = storyPackage.meta.name().trim();
+        if (name.length < 3) {
+            alert('Package name needs to include at least three characters');
+            return;
+        }
+
+        return authedAjax.request({
+            url: '/story-packages/edit/' + storyPackage.id,
+            type: 'post',
+            data: JSON.stringify({
+                name: name,
+                isHidden: this.baseModel.priority === 'training'
+            })
         })
-        .catch(() => {});
+        .then((response) => {
+
+            var storyPackage = new StoryPackage(response);
+            var results = this.searchResults();
+            results[index] = storyPackage;
+            this.searchResults(results);
+            mediator.emit('update:package', response);
+            storyPackage.editing(false);
+        })
+        .catch(error => {
+            alert('Unable to edit story package \'' + storyPackage.name + '\'\n' + (error.message || error.responseText));
+        });
+    }
+
+    closePackageEdit(storyPackage) {
+        this.meta.name(this.savedDisplayName);
+        storyPackage.editing(false);
+        return;
+    }
+
+    openEditor(storyPackage) {
+        if (!storyPackage.editing()) {
+            storyPackage.editing(true);
+        }
     }
 
     editPackage(packageId) {
 
-        this.searchInProgress(false);
-        this.searchTerm('');
+        return authedAjax.request({
+            url: '/story-package/' + packageId
+        })
+        .then(response => {
 
-        var beingEdited = _.find(this.baseModel.latestPackages(), storyPackage => {
-            return storyPackage.id === packageId;
+            this.searchInProgress(false);
+            this.searchTerm('');
+
+            this.editingPackage(true);
+            this.searchResults([new StoryPackage(response)]);
+        })
+        .catch(error => {
+            alert('Unable to edit story package' + '\n' + (error.message || error.responseText));
         });
-
-        beingEdited.lastModifyHuman = humanTime(new Date(beingEdited.lastModify));
-        beingEdited.createdHuman = humanTime(new Date(beingEdited.created));
-        this.searchResults([beingEdited]);
-        this.editingPackage(true);
     }
 
     displaySearchResults() {
@@ -152,16 +193,10 @@ function performSearch(searchTerm) {
 
 function displayResults(results = {}) {
     if (this.searchInProgress()) {
-        this.searchResults((results || []).map(result => {
-            return Object.assign({
-                lastModifyHuman: humanTime(new Date(result.lastModify)),
-                createdHuman: humanTime(new Date(result.created))
-            }, result);
-        }));
+        this.searchResults((results || []).map(result => new StoryPackage(result)));
         this.searchInProgress(false);
         this.searchedPackages(true);
     }
-
 }
 
 function removePackage(storyPackageId) {

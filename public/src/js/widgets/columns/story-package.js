@@ -52,18 +52,36 @@ export default class Front extends ColumnWidget {
             }
         });
 
-        this.listenOn(mediator, 'find:package', function(storyPackage) {
+        this.listenOn(mediator, 'update:package', function(storyPackage) {
             var existingPackages = this.baseModel.latestPackages();
+            const index = _.findIndex(existingPackages, existingPackage => existingPackage.id === storyPackage.id);
+            if (index !== -1) {
+                existingPackages[index] = storyPackage;
+            } else {
+                existingPackages.push(storyPackage);
+            }
+            this.baseModel.latestPackages(existingPackages);
+        });
+
+        this.listenOn(mediator, 'find:package', function(storyPackage) {
+
+            var existingPackages = this.baseModel.latestPackages();
+
             if (_.every(existingPackages, existingPackage => {
                 return existingPackage.id !== storyPackage.id;
             })) {
-                var packageDate = new Date(storyPackage.lastModify);
+                var packageDate = new Date(storyPackage.meta.lastModify());
                 var packageIndex = _.findIndex(existingPackages, existingPackage => new Date(existingPackage.lastModify) < packageDate);
 
+                var newPackage = {
+                    id: storyPackage.id,
+                    name: storyPackage.meta.name(),
+                };
+
                 if (packageIndex > -1) {
-                    existingPackages.splice(packageIndex, 0, storyPackage);
+                    existingPackages.splice(packageIndex, 0, newPackage);
                 } else {
-                    existingPackages.push(storyPackage);
+                    existingPackages.push(newPackage);
                 }
             }
             this.baseModel.latestPackages(existingPackages);
