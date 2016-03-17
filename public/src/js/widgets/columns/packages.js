@@ -81,7 +81,8 @@ export default class Package extends ColumnWidget {
             })
             .then(response => {
                 this.newPackageName('');
-                mediator.emit('find:package', response);
+                var storyPackage = new StoryPackage(response);
+                mediator.emit('find:package', storyPackage);
             })
             .catch(response => {
                 alert('Unable to create story package:\n' + (response.message || response.responseText));
