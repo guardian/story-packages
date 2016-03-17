@@ -924,10 +924,6 @@ h1 {
     color: #46c430;
 }
 
-.packagesResults .time__publication {
-    float: left;
-}
-
 .article__overrides {
     margin: 0 0 0 92px;
     font-size: 12px;
@@ -1445,6 +1441,15 @@ button {
 .packagesResults .article__tools {
     width: auto;
     height: auto;
+}
+
+.article__ammends > .packages__times > .time__publication {
+    text-align: left;
+    display: block;
+}
+
+.article__ammends > .packages__times > .time__creation {
+    display: block;
 }
 
 .article:hover > .closed > .article__tools {
