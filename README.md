@@ -124,9 +124,15 @@ Run `sudo nginx -s reload` to restart nginx with the new configuration.
 
 Create the files
 
-* `/etc/gu/story-packages.properties` containing
+* `/etc/gu/story-packages.properties` containing, get the `[redacted]` values from a contributor to this repo.
 
-   > STAGE=CODE
+   ```
+   STAGE=CODE
+   TABLE_CONFIG=[redacted]
+   CAPI_STREAM=[redacted]
+   REINDEX_STREAM=[redacted]
+   REINDEX_TABLE=[redacted]
+   ```
 
 * `/etc/gu/story-packages.application.secrets.conf` this files contains secrets, there's a copy in S3. You need at least
 
