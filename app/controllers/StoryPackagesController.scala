@@ -33,7 +33,10 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     request.body.asJson.flatMap(_.asOpt[StoryPackage]).map {
       case story: StoryPackage =>
         Database.createStoryPackage(story, request.user)
-          .flatMap(serializeSuccess)
+          .flatMap{storyPackage => {
+            UpdatesStream.putStreamCreate(storyPackage, request.user.email)
+            serializeSuccess(storyPackage)
+          }}
           .recover {
             case NonFatal(e) => InternalServerError(e.getMessage)
           }
@@ -41,9 +44,7 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     }.getOrElse(Future.successful(NotAcceptable))}
 
   def capiLatest() = APIAuthAction.async { request =>
-
     val hidden = isHidden(request)
-
     FaciaToolMetrics.ProxyCount.increment()
 
     val contentApiHost = if (hidden)
@@ -52,11 +53,9 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
       Configuration.contentApi.contentApiLiveHost
 
     val pageSize = Configuration.latest.pageSize
-
     val url = s"$contentApiHost/packages?page-size=$pageSize&${Configuration.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying latest packages API query to: $url")
-
     WS.url(url).get().map { response =>
       Cached(60) {
         Ok(response.body).as("application/javascript")
@@ -65,11 +64,8 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
   }
 
   def capiSearch(term: String) = APIAuthAction.async { request =>
-
     val hidden = isHidden(request)
-
     val encodedTerm = URLEncoder.encode(URLDecoder.decode(term, "utf-8"), "utf-8")
-
     FaciaToolMetrics.ProxyCount.increment()
 
     val contentApiHost = if (hidden)
@@ -80,15 +76,11 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     val url = s"$contentApiHost/packages?q=$encodedTerm${Configuration.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying search query to: $url")
-
     WS.url(url).get().flatMap { response =>
       val json: JsValue = Json.parse(response.body)
-
       val packageIds = (json \ "response" \ "results" \\ "packageId").map(_.as[String])
-
       for {
         packages <- Future.sequence(packageIds.map(id => Database.getPackage(id)))
-
       } yield {
         Cached(60) {
           Ok(Json.toJson(packages)).as("application/javascript")
@@ -107,15 +99,16 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
 
   def deletePackage(id: String) = APIAuthAction.async { request =>
     Database.removePackage(id).map(storyPackage => {
-      UpdatesStream.putStreamDelete(id, storyPackage.isHidden.getOrElse(false))
+      val isHidden = storyPackage.isHidden.getOrElse(false)
+      val deleteMessage = DeletePackage(id, isHidden, storyPackage.name.getOrElse("-unknown-"))
+      val streamUpdate = StreamUpdate(deleteMessage, request.user.email, Map(), storyPackage)
+      UpdatesStream.putStreamDelete(streamUpdate, id, isHidden)
       Ok
     })
   }
 
   def editPackage(id: String) = APIAuthAction.async { request =>
-
     val name = (request.body.asJson.get \ "name").as[String]
-
     Database.touchPackage(id, request.user, Some(name)).map(storyPackage => {
       for {
         packageId <- storyPackage.id
@@ -134,7 +127,7 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
       Ok(Json.toJson(storyPackage))
     })
   }
-  
+
   def reindex(isHidden: Boolean) = APIKeyAuthAction.async { request =>
     if (SwitchManager.getStatus("story-packages-disable-reindex-endpoint")) {
       Future.successful(Forbidden("Reindex endpoint disabled by a switch"))

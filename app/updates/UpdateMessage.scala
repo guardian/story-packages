@@ -9,8 +9,9 @@ import play.api.libs.json._
 sealed trait UpdateMessage
 
 /* Config updates */
-case class DeletePackage(id: String) extends UpdateMessage
+case class DeletePackage(id: String, isHidden: Boolean, name: String) extends UpdateMessage
 case class UpdateName(id: String, name: String) extends UpdateMessage
+case class CreatePackage(id: String, isHidden: Boolean, name: String) extends UpdateMessage
 
 /* Collection updates */
 case class UpdateList(
@@ -29,9 +30,6 @@ object UpdateList {
 
 case class Update(update: UpdateList) extends UpdateMessage
 case class Remove(remove: UpdateList) extends UpdateMessage
-
-case class DiscardUpdate(id: String) extends UpdateMessage
-case class PublishUpdate(id: String) extends UpdateMessage
 
 /* Macro - Watch out, this needs to be after the case classes */
 object UpdateMessage {

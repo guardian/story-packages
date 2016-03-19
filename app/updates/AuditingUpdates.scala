@@ -6,6 +6,9 @@ import com.amazonaws.handlers.AsyncHandler
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
 import com.amazonaws.services.kinesis.model.{PutRecordRequest, PutRecordResult}
+import com.gu.auditing.model.v1.App
+import com.gu.auditing.model.v1.Notification
+import com.gu.thrift.serializer.{GzipType, ThriftSerializer}
 import conf.{Configuration, aws}
 import play.api.Logger
 import play.api.libs.json._
@@ -28,22 +31,72 @@ object AuditingUpdates {
     c
   }
 
-  def putStreamUpdate(streamUpdate: StreamUpdate): Unit =
-    Json.toJson(streamUpdate.update).transform[JsObject](Reads.JsObjectReads) match {
-      case JsSuccess(jsonObject, _)  => putString(Json.stringify(jsonObject +
-        ("email", JsString(streamUpdate.email)) +
-        ("date", JsString(streamUpdate.dateTime.toString))
-      ))
-      case JsError(errors)           => Logger.warn(s"Error converting StreamUpdate: $errors")}
+  def putStreamUpdate(streamUpdate: StreamUpdate): Unit = {
+    val updateName = streamUpdate.update.getClass.getSimpleName
+    lazy val updatePayload = serializeUpdateMessage(streamUpdate)
+    lazy val shortMessagePayload = serializeShortMessage(streamUpdate)
+    lazy val expiryDate = computeExpiryDate(streamUpdate)
 
-  private def putString(s: String): Unit =
-    Configuration.updates.stream.map { streamName =>
+    streamUpdate.storyPackage.id.foreach(packageId => putAuditingNotification(
+      Notification(
+        app = App.StoryPackages,
+        operation = updateName,
+        userEmail = streamUpdate.email,
+        date = streamUpdate.dateTime.toString,
+        resourceId = Some(packageId),
+        message = updatePayload,
+        shortMessage = shortMessagePayload,
+        expiryDate = expiryDate
+      )))
+  }
+
+  private def serializeShortMessage(streamUpdate: StreamUpdate): Option[String] = {
+    streamUpdate.update match {
+      case update: CreatePackage => Some(Json.toJson(Json.obj(
+        "isHidden" -> update.isHidden,
+        "name" -> update.name,
+        "email" -> streamUpdate.email
+      )).toString)
+      case update: DeletePackage => Some(Json.toJson(Json.obj(
+        "name" -> update.name,
+        "isHidden" -> update.isHidden,
+        "email" -> streamUpdate.email
+      )).toString)
+      case update: UpdateName => Some(Json.toJson(Json.obj(
+        "name" -> update.name
+      )).toString)
+      case _ => None
+    }
+  }
+
+  private def serializeUpdateMessage(streamUpdate: StreamUpdate): Option[String] = {
+    Some(Json.toJson(streamUpdate.update).toString())
+  }
+
+  private def computeExpiryDate(streamUpdate: StreamUpdate): Option[String] = {
+    streamUpdate.update match {
+      case _: DeletePackage => None
+      case _: UpdateName => None
+      case _: CreatePackage => None
+      case _ => Some(streamUpdate.dateTime.plusMonths(1).toString)
+    }
+  }
+
+  private def putAuditingNotification(notification: Notification): Unit = {
+
+    val streamName = Configuration.auditing.stream
+    val bytes = ThriftSerializer.serializeToBytes(notification, Some(GzipType), None)
+    if (bytes.length > Configuration.auditing.maxDataSize) {
+      Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size(${Configuration.auditing.maxDataSize})")
+    } else {
+      Logger.info(s"$streamName - sending auditing thrift update with size of ${bytes.length} bytes")
       client.putRecordAsync(
         new PutRecordRequest()
-          .withData(ByteBuffer.wrap(s.getBytes))
+          .withData(ByteBuffer.wrap(bytes))
           .withStreamName(streamName)
           .withPartitionKey(partitionKey),
         KinesisLoggingAsyncHandler
       )
-    }.getOrElse(Logger.warn("Cannot put to updates stream: Configuration.updates.stream is not set"))
+    }
+  }
 }
