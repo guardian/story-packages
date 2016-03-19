@@ -96,6 +96,14 @@
                 "CAPIStream": "story-packages-CODE-CAPIStreamUpdate",
                 "ReindexStream": "story-packages-CODE-ReindexStreamUpdate"
             }
+        },
+        "CrossResources": {
+            "CODE": {
+                "AuditingKinesis": "auditing-CODE"
+            },
+            "PROD": {
+                "AuditingKinesis": "auditing-PROD"
+            }
         }
     },
     "Resources": {
@@ -569,6 +577,34 @@
                         "Key": "Reason",
                         "Value": "backup"
                     }]
+            }
+        },
+        "UpdatesStreamPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "UpdatesStreamPolicy",
+                "PolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Action": [
+                            "kinesis:PutRecord"
+                        ],
+                        "Resource": { "Fn::Join": [ "", [
+                            "arn:aws:kinesis:",
+                            { "Ref": "AWS::Region" },
+                            ":",
+                            { "Ref": "AWS::AccountId" },
+                            ":stream/",
+                            { "Fn::FindInMap" : [
+                                "CrossResources",
+                                { "Ref": "Stage" },
+                                "AuditingKinesis"
+                            ]}
+                        ]]}
+                    }]
+                },
+                "Roles": [{ "Ref": "DistributionRole" }]
             }
         },
         "SSHSecurityGroup": {
