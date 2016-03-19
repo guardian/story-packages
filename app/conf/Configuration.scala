@@ -134,6 +134,11 @@ object Configuration {
   object latest {
     lazy val pageSize = 20
   }
+
+  object auditing {
+    lazy val stream: String = getMandatoryString("auditing.stream")
+    lazy val maxDataSize: Int = 102400
+  }
 }
 
 object Properties extends AutomaticResourceManagement {
