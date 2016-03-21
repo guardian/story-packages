@@ -1,4 +1,4 @@
-<div class="modes treats-mode">
+<div class="modes treats-mode packages-manage">
     <a class="treats-mode active">Manage packages</a>
 </div>
 
@@ -6,7 +6,7 @@
     <div class="col__inner">
         <div class="title">
             create a package
-            <span data-bind="click: createPackage" class="linky">+</span>
+            <span data-bind="click: createPackage" class="linky package-create">+</span>
         </div>
         <!-- ko if: creatingPackage -->
             <div class="createPackage">
@@ -50,13 +50,13 @@
                         <div class="article" data-bind="click: $parent.displayPackage">
                             <div class="closed">
                                 <div class="article__tools">
-                                    <a class="tool tool--small large tool--small--delete-package" title="Delete" data-bind="
+                                    <a class="tool tool--small large delete-package" title="Delete" data-bind="
                                         click: $parent.displayRemoveModal.bind($parent, $index()),
                                         clickBubble: false
                                     ">
                                         <i class="fa fa-trash"></i>
                                     </a>
-                                    <a class="tool tool--small large tool--small--delete-package" title="Edit" data-bind="
+                                    <a class="tool tool--small large edit-package" title="Edit" data-bind="
                                         click: $parent.openEditor,
                                         hasFocus: true
                                     ">
