@@ -7,7 +7,9 @@ class LatestPackages extends Mock {
 
     handle(req, data) {
         return {
-            results: data
+            response: {
+                results: data
+            }
         };
     }
 }

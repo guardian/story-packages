@@ -88,6 +88,7 @@ export default class Package extends ColumnWidget {
                 alert('Unable to create story package:\n' + (response.message || response.responseText));
             })
             .then(() => {
+                mediator.emit('package:created');
                 this.creatingPackage(false);
                 this.displayName(null);
             });
@@ -171,6 +172,7 @@ export default class Package extends ColumnWidget {
 
             this.editingPackage(true);
             this.searchResults([new StoryPackage(response)]);
+            mediator.emit('manage:package');
         })
         .catch(error => {
             alert('Unable to edit story package' + '\n' + (error.message || error.responseText));
@@ -196,6 +198,7 @@ function displayResults(results = {}) {
         this.searchResults((results || []).map(result => new StoryPackage(result)));
         this.searchInProgress(false);
         this.searchedPackages(true);
+        mediator.emit('package:searched');
     }
 }
 
