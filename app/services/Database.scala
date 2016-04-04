@@ -33,6 +33,7 @@ object Database {
     WithExceptionHandling(errorMessage, {
       val item = DynamoToScala.convertToItem(story.copy(
         lastModify = Some(new DateTime().withZone(DateTimeZone.UTC).toString),
+        created = Some(new DateTime().withZone(DateTimeZone.UTC).toString),
         lastModifyBy = Some(user.email),
         lastModifyByName = Some(user.fullName),
         createdBy = Some(user.email)
@@ -150,6 +151,7 @@ object DynamoToScala {
         .withOptString("lastModifyBy", story.lastModifyBy)
         .withOptString("lastModifyByName", story.lastModifyByName)
         .withOptString("createdBy", story.createdBy)
+        .withOptString("created", story.created)
         .withBoolean("deleted", story.deleted.getOrElse(false))
     }
 
