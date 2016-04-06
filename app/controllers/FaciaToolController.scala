@@ -20,7 +20,6 @@ object FaciaToolController extends Controller with PanDomainAuthActions {
   override lazy val actorSystem = ActorSystem()
 
   def priorities() = AuthAction { request =>
-    Logger.info("Doing priorities..." + request)
     val identity = request.user
     Cached(60) { Ok(views.html.priority(Option(identity))) }
   }

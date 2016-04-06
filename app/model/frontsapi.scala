@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 import play.api.Logger
 import play.api.libs.json._
 import services.FrontsApi
-import tools.{FaciaApi, FaciaApiIO}
+import tools.FaciaApiIO
 import updates.UpdateList
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -16,91 +16,39 @@ import scala.util.{Failure, Success, Try}
 
 object CollectionJsonFunctions {
 
-  def sortByGroup(collectionJson: CollectionJson) = collectionJson.copy(
-    live = sortTrailsByGroup(collectionJson.live),
-    draft = collectionJson.draft.map(sortTrailsByGroup))
+  def sortByGroupAndCap(collectionJson: CollectionJson) =
+    collectionJson.copy(live = sortTrailsByGroupAndCap(collectionJson.live))
 
-  private def sortTrailsByGroup(trails: List[Trail]): List[Trail] = {
+  private def sortTrailsByGroupAndCap(trails: List[Trail]): List[Trail] = {
     val trailGroups = trails.groupBy(_.meta.flatMap(_.group).map(_.toInt).getOrElse(0))
-    trailGroups.keys.toList.sorted(Ordering.Int.reverse).flatMap(trailGroups.getOrElse(_, Nil))
-  }
-
-  def updatePreviously(collectionJson: CollectionJson, update: UpdateList): CollectionJson = {
-    if (update.live) {
-      val itemFromLive: Option[Trail] = collectionJson.live.find(_.id == update.item)
-      val updatedPreviously: Option[List[Trail]] =
-        (for {
-          previousList <- collectionJson.previously
-          trail <- itemFromLive
-        } yield {
-          val previouslyWithoutItem: List[Trail] = previousList.filterNot(_.id == update.item)
-          (trail +: previouslyWithoutItem).take(20)
-        }).orElse(itemFromLive.map(List.apply(_)))
-      collectionJson.copy(previously=updatedPreviously)
-    }
-    else
-      collectionJson
-  }
-
-  def updatePreviouslyForPublish(collectionJson: CollectionJson): CollectionJson = {
-    val removed: List[Trail] = collectionJson.live.filterNot(t => collectionJson.draft.getOrElse(Nil).exists(_.id == t.id))
-    val updatedPreviously = collectionJson.previously
-      .map(_.filterNot(t => removed.exists(_.id == t.id)))
-      .map(removed ++ _)
-      .orElse(Option(removed))
-      .map(_.take(20))
-    collectionJson.copy(previously=updatedPreviously)
+    trailGroups.keys.toList.sorted(Ordering.Int.reverse).flatMap(groupId => {
+      trailGroups.getOrElse(groupId, Nil).take(groupId match {
+        case 0 => Configuration.facia.linkingCollectionCap
+        case 1 => Configuration.facia.includedCollectionCap
+        case _ => 0
+      })
+    })
   }
 }
 
 trait UpdateActions {
 
-  val collectionCap: Int = Configuration.facia.collectionCap
   implicit val updateListWrite = Json.writes[UpdateList]
 
-  def insertIntoLive(update: UpdateList, identity: User, collectionJson: CollectionJson): CollectionJson =
-    if (update.live) {
-      val live = updateList(update, identity, collectionJson.live)
-      collectionJson.copy(live=live, draft=collectionJson.draft.filter(_ != live))
-    }
-    else
-      collectionJson
-
-  def insertIntoDraft(update: UpdateList, identity: User, collectionJson: CollectionJson): CollectionJson =
-    if (update.draft)
-      collectionJson.copy(
-          draft=collectionJson.draft.map {
-            l => updateList(update, identity, l)}.orElse {
-              Option(updateList(update, identity, collectionJson.live))
-          }.filter(_ != collectionJson.live)
-        )
-    else
-      collectionJson
+  def insertIntoLive(update: UpdateList, identity: User, collectionJson: CollectionJson): CollectionJson = {
+    val live = updateList(update, identity, collectionJson.live)
+    collectionJson.copy(live=live)}
 
   def deleteFromLive(update: UpdateList, collectionJson: CollectionJson): CollectionJson =
-    if (update.live)
-      collectionJson.copy(live=collectionJson.live.filterNot(_.id == update.item))
-    else
-      collectionJson
-
-  def deleteFromDraft(update: UpdateList, collectionJson: CollectionJson): CollectionJson =
-    if (update.draft)
-      collectionJson.copy(draft=collectionJson.draft orElse Option(collectionJson.live) map { l => l.filterNot(_.id == update.item) } filter(_ != collectionJson.live) )
-    else
-      collectionJson
+    collectionJson.copy(live=collectionJson.live.filterNot(_.id == update.item))
 
   def putCollectionJson(id: String, collectionJson: CollectionJson): CollectionJson =
     FaciaApiIO.putCollectionJson(id, collectionJson)
 
+  def updateIdentity(collectionJson: CollectionJson, identity: User): CollectionJson =
+    collectionJson.copy(lastUpdated = DateTime.now, updatedBy = getUserName(identity), updatedEmail = identity.email)
+
   //Archiving
-  def archivePublishBlock(collectionId: String, collectionJson: CollectionJson, identity: User): CollectionJson = {
-    archiveBlock(collectionId, collectionJson, "publish", identity)
-  }
-
-  def archiveDiscardBlock(collectionId: String, collectionJson: CollectionJson, identity: User): CollectionJson = {
-    archiveBlock(collectionId, collectionJson, "discard", identity)
-  }
-
   def archiveUpdateBlock(collectionId: String, collectionJson: CollectionJson, updateJson: JsValue, identity: User): CollectionJson = {
     archiveBlock(collectionId, collectionJson, Json.obj("action" -> "update", "update" -> updateJson), identity)
   }
@@ -126,11 +74,9 @@ trait UpdateActions {
     FrontsApi.amazonClient.collection(id).map { maybeCollectionJson =>
       maybeCollectionJson
         .map(insertIntoLive(update, identity, _))
-        .map(insertIntoDraft(update, identity, _))
         .map(pruneBlock)
-        .map(CollectionJsonFunctions.sortByGroup)
-        .map(capCollection)
-        .map(FaciaApi.updateIdentity(_, identity))
+        .map(CollectionJsonFunctions.sortByGroupAndCap)
+        .map(updateIdentity(_, identity))
         .map(putCollectionJson(id, _))
         .map(archiveUpdateBlock(id, _, updateJson, identity))
         .orElse(Option(createCollectionJson(identity, update)))
@@ -140,13 +86,11 @@ trait UpdateActions {
     lazy val updateJson = Json.toJson(update)
     FrontsApi.amazonClient.collection(id).map { maybeCollectionJson =>
       maybeCollectionJson
-        .map(CollectionJsonFunctions.updatePreviously(_, update))
         .map(deleteFromLive(update, _))
-        .map(deleteFromDraft(update, _))
         .map(pruneBlock)
-        .map(CollectionJsonFunctions.sortByGroup)
+        .map(CollectionJsonFunctions.sortByGroupAndCap)
         .map(archiveDeleteBlock(id, _, updateJson, identity))
-        .map(FaciaApi.updateIdentity(_, identity))
+        .map(updateIdentity(_, identity))
         .map(putCollectionJson(id, _))}}
 
   private def updateList(update: UpdateList, identity: User, blocks: List[Trail]): List[Trail] = {
@@ -180,24 +124,16 @@ trait UpdateActions {
 
   def createCollectionJson(identity: User, update: UpdateList): CollectionJson = {
     val userName = getUserName(identity)
-    if (update.live)
-      CollectionJson(List(Trail(update.item, DateTime.now.getMillis, Some(userName), update.itemMeta)), None, None, DateTime.now, userName, identity.email, None, None, None)
-    else
-      CollectionJson(Nil, Some(List(Trail(update.item, DateTime.now.getMillis, Some(userName), update.itemMeta))), None, DateTime.now, userName, identity.email, None, None, None)
+    CollectionJson(List(Trail(update.item, DateTime.now.getMillis, Some(userName), update.itemMeta)), None, None, DateTime.now, userName, identity.email, None, None, None)
   }
-
-  def capCollection(collectionJson: CollectionJson): CollectionJson =
-    collectionJson.copy(live = collectionJson.live.take(collectionCap), draft = collectionJson.draft.map(_.take(collectionCap)))
 
   private def pruneBlock(collectionJson: CollectionJson): CollectionJson =
     collectionJson.copy(
       live = collectionJson.live
         .map(pruneGroupOfZero)
         .map(pruneMetaDataIfEmpty),
-      draft = collectionJson.draft.map(
-        _.map(pruneGroupOfZero)
-         .map(pruneMetaDataIfEmpty)
-      )
+      draft = None,
+      previously = None
     )
 
   private def pruneGroupOfZero(trail: Trail): Trail =

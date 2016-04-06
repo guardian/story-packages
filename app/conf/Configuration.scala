@@ -76,7 +76,8 @@ object Configuration {
 
   object facia {
     lazy val stage = getString("facia.stage").getOrElse(stageFromProperties)
-    lazy val collectionCap: Int = 60
+    val includedCollectionCap: Int = 12
+    val linkingCollectionCap: Int = 50
   }
 
   object logging {

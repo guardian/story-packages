@@ -192,13 +192,16 @@ export default class Front extends ColumnWidget {
             return 'You cannot add snaps to packages';
         }
 
-        var numberOfArticles = _.reduce(this.collection().groups, (articleNumber, group) => {
-            return group.items().length + articleNumber;
-        }, 0);
+        const groupArticlesCount = {};
+        const {includedCap, linkingCap} = this.baseModel.state().defaults;
+        this.collection().groups.forEach(group => {
+            groupArticlesCount[group.name] = group.items().length;
+        });
 
-        var collectionCap = this.baseModel.state().defaults.collectionCap;
-        if (numberOfArticles > collectionCap) {
-            return 'You can have maximum of ' + collectionCap + ' articles in a strory package. You must delete an article from the package before adding a new one';
+        if (groupArticlesCount.included > includedCap) {
+            return 'You can have maximum of ' + includedCap + ' articles in a story package. Remove an article from the package before adding a new one.';
+        } else if (groupArticlesCount.linked > linkingCap) {
+            return 'You can link up to ' + linkingCap + ' articles to a package. Remove an article from the package before adding a new one.';
         }
     }
 

@@ -19,9 +19,7 @@ case class UpdateList(
   item: String,
   position: Option[String],
   after: Option[Boolean],
-  itemMeta: Option[TrailMetaData],
-  live: Boolean,
-  draft: Boolean
+  itemMeta: Option[TrailMetaData]
 ) extends UpdateMessage
 
 object UpdateList {
