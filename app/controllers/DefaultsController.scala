@@ -23,7 +23,8 @@ case class Defaults(
   mediaBaseUrl: String,
   apiBaseUrl: String,
   switches: JsValue,
-  collectionCap: Int
+  includedCap: Int,
+  linkingCap: Int
 )
 
 object DefaultsController extends Controller with PanDomainAuthActions {
@@ -38,7 +39,8 @@ object DefaultsController extends Controller with PanDomainAuthActions {
         Configuration.media.baseUrl.get,
         Configuration.media.apiUrl.get,
         SwitchManager.getSwitchesAsJson(),
-        Configuration.facia.collectionCap
+        Configuration.facia.includedCollectionCap,
+        Configuration.facia.linkingCollectionCap
       )))
     }
   }
