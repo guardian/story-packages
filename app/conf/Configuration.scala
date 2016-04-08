@@ -3,9 +3,12 @@ package conf
 import java.io.{File, FileInputStream, InputStream}
 import java.net.URL
 
+import com.amazonaws.AmazonClientException
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import org.apache.commons.io.IOUtils
 import play.api.Play.current
-import play.api.{Configuration => PlayConfiguration, Logger}
+import play.api.{Logger, Play, Configuration => PlayConfiguration}
 
 import scala.collection.JavaConversions._
 import scala.io.Source
@@ -13,9 +16,7 @@ import scala.language.reflectiveCalls
 
 class BadConfigurationException(msg: String) extends RuntimeException(msg)
 
-object Configuration {
-  private val playConfiguration: PlayConfiguration = play.api.Play.configuration
-
+class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isProd: Boolean) {
   private val propertiesFile = "/etc/gu/story-packages.properties"
   private val installVars = new File(propertiesFile) match {
     case f if f.exists => IOUtils.toString(new FileInputStream(f))
@@ -63,15 +64,33 @@ object Configuration {
     } yield Auth(user, password)
   }
 
-  object ajax {
-    lazy val corsOrigins: Seq[String] = getString("ajax.cors.origin").map(_.split(",")
-    .map(_.trim).toSeq).getOrElse(Nil)
-  }
-
   object aws {
     lazy val region = getMandatoryString("aws.region")
     lazy val bucket = getMandatoryString("aws.bucket")
     lazy val crossAccount = getMandatoryBoolean("aws.crossAccount")
+
+    def mandatoryCredentials: AWSCredentialsProvider = credentials.getOrElse(throw new BadConfigurationException("AWS credentials are not configured"))
+    val credentials: Option[AWSCredentialsProvider] = {
+      val provider = new AWSCredentialsProviderChain(
+        new ProfileCredentialsProvider("cmsFronts"),
+        new InstanceProfileCredentialsProvider
+      )
+
+      // this is a bit of a convoluted way to check whether we actually have credentials.
+      // I guess in an ideal world there would be some sort of isConfigued() method...
+      try {
+        val creds = provider.getCredentials
+        Some(provider)
+      } catch {
+        case ex: AmazonClientException =>
+          Logger.error("amazon client exception")
+
+          // We really, really want to ensure that PROD is configured before saying a box is OK
+          if (Play.isProd) throw ex
+          // this means that on dev machines you only need to configure keys if you are actually going to use them
+          None
+      }
+    }
   }
 
   object facia {
@@ -98,10 +117,6 @@ object Configuration {
     lazy val domain = getMandatoryString("pandomain.domain")
     lazy val service = getMandatoryString("pandomain.service")
     lazy val roleArn = getMandatoryString("pandomain.roleArn")
-  }
-
-  object permission {
-    lazy val cache = getMandatoryString("permissions.cache")
   }
 
   object sentry {

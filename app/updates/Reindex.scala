@@ -44,10 +44,10 @@ object ReindexProgress {
 }
 
 sealed trait ReindexStatus{val label: String}
-case class InProgress(val label: String = "in progress") extends ReindexStatus
-case class Failed(val label: String = "failed") extends ReindexStatus
-case class Completed(val label: String = "completed") extends ReindexStatus
-case class Cancelled(val label: String = "cancelled") extends ReindexStatus
+case class InProgress(label: String = "in progress") extends ReindexStatus
+case class Failed(label: String = "failed") extends ReindexStatus
+case class Completed(label: String = "completed") extends ReindexStatus
+case class Cancelled(label: String = "cancelled") extends ReindexStatus
 
 object SortItemsByLastStartTime {
   implicit def sortByStartTime: Ordering[Item] = {
@@ -56,16 +56,16 @@ object SortItemsByLastStartTime {
   }
 }
 
-object Reindex {
+class Reindex(dynamoReindexJobs: DynamoReindexJobs, database: Database, frontsApi: FrontsApi, kinesisEventSender: KinesisEventSender) {
   def scheduleJob(isHidden: Boolean = false): Future[Option[RunningJob]] = {
-    if (DynamoReindexJobs.hasJobInProgress(isHidden)) {
+    if (dynamoReindexJobs.hasJobInProgress(isHidden)) {
       Logger.info(s"Cannot run multiple reindex at the same time")
       Future.successful(None)
     } else {
       Logger.info("Scanning table for reindex job")
-      Database.scanAllPackages(isHidden)
+      database.scanAllPackages(isHidden)
         .map(reindexPage => {
-            val job = DynamoReindexJobs.createJob(reindexPage)
+            val job = dynamoReindexJobs.createJob(reindexPage)
             Akka.system.scheduler.scheduleOnce(1.seconds) {
               processJob(job, reindexPage)
             }
@@ -84,7 +84,7 @@ object Reindex {
           processedResults <- previousFuture
           _ <- sendToKinesisStream(nextPackage)
         } yield {
-          if (processedResults % notifyEvery == 0) DynamoReindexJobs.markProgressUpdate(job, processedResults)
+          if (processedResults % notifyEvery == 0) dynamoReindexJobs.markProgressUpdate(job, processedResults)
           processedResults + 1
         }
     }
@@ -93,16 +93,16 @@ object Reindex {
       step.next match {
         case Some(nextPage) =>
           // TODO iterate on next page
-          DynamoReindexJobs.markCompleteJob(job, lastProcessedResult)
+          dynamoReindexJobs.markCompleteJob(job, lastProcessedResult)
           Logger.error("Next page not implemented")
         case None =>
-          DynamoReindexJobs.markCompleteJob(job, lastProcessedResult)
+          dynamoReindexJobs.markCompleteJob(job, lastProcessedResult)
       }
     })
     .recover {
       case NonFatal(e) =>
         Logger.error(s"Error when processing reindexing step of job $job", e)
-        DynamoReindexJobs.markFailedJob(job)
+        dynamoReindexJobs.markFailedJob(job)
     }
   }
 
@@ -112,13 +112,13 @@ object Reindex {
       displayName <- storyPackage.name
     } yield {
       Logger.info(s"Getting stored package with id $packageId from S3")
-      FrontsApi.amazonClient.collection(packageId).map {
+      frontsApi.amazonClient.collection(packageId).map {
         case Some(collectionJson) =>
           Logger.info(s"Sending reindex message on kinesis stream for package ${storyPackage.id}")
           if (storyPackage.deleted.getOrElse(false)) {
-            KinesisEventSender.putReindexDelete(packageId, displayName, collectionJson)
+            kinesisEventSender.putReindexDelete(packageId, displayName, collectionJson)
           } else {
-            KinesisEventSender.putReindexUpdate(packageId, displayName, collectionJson)
+            kinesisEventSender.putReindexUpdate(packageId, displayName, collectionJson)
           }
         case None =>
           Logger.info(s"Ignore reindex of empty story package $packageId")
@@ -130,6 +130,6 @@ object Reindex {
   }
 
   def getJobProgress(isHidden: Boolean): Option[ReindexProgress] = {
-    DynamoReindexJobs.jobInProgress(isHidden).orElse(DynamoReindexJobs.getLastStartedJob(isHidden))
+    dynamoReindexJobs.jobInProgress(isHidden).orElse(dynamoReindexJobs.getLastStartedJob(isHidden))
   }
 }

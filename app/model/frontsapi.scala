@@ -2,7 +2,7 @@ package frontsapi.model
 
 import com.gu.facia.client.models._
 import com.gu.pandomainauth.model.User
-import conf.Configuration
+import conf.ApplicationConfiguration
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.libs.json._
@@ -14,24 +14,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-object CollectionJsonFunctions {
 
-  def sortByGroupAndCap(collectionJson: CollectionJson) =
-    collectionJson.copy(live = sortTrailsByGroupAndCap(collectionJson.live))
-
-  private def sortTrailsByGroupAndCap(trails: List[Trail]): List[Trail] = {
-    val trailGroups = trails.groupBy(_.meta.flatMap(_.group).map(_.toInt).getOrElse(0))
-    trailGroups.keys.toList.sorted(Ordering.Int.reverse).flatMap(groupId => {
-      trailGroups.getOrElse(groupId, Nil).take(groupId match {
-        case 0 => Configuration.facia.linkingCollectionCap
-        case 1 => Configuration.facia.includedCollectionCap
-        case _ => 0
-      })
-    })
-  }
-}
-
-trait UpdateActions {
+trait UpdateActionsTrait {
+  def faciaApiIO: FaciaApiIO
+  def frontsApi: FrontsApi
+  def config: ApplicationConfiguration
 
   implicit val updateListWrite = Json.writes[UpdateList]
 
@@ -43,7 +30,7 @@ trait UpdateActions {
     collectionJson.copy(live=collectionJson.live.filterNot(_.id == update.item))
 
   def putCollectionJson(id: String, collectionJson: CollectionJson): CollectionJson =
-    FaciaApiIO.putCollectionJson(id, collectionJson)
+    faciaApiIO.putCollectionJson(id, collectionJson)
 
   def updateIdentity(collectionJson: CollectionJson, identity: User): CollectionJson =
     collectionJson.copy(lastUpdated = DateTime.now, updatedBy = getUserName(identity), updatedEmail = identity.email)
@@ -61,7 +48,7 @@ trait UpdateActions {
     archiveBlock(id, collectionJson, Json.obj("action" -> action), identity)
 
   private def archiveBlock(id: String, collectionJson: CollectionJson, updateJson: JsValue, identity: User): CollectionJson =
-    Try(FaciaApiIO.archive(id, collectionJson, updateJson, identity)) match {
+    Try(faciaApiIO.archive(id, collectionJson, updateJson, identity)) match {
       case Failure(t: Throwable) => {
         Logger.warn(t.toString)
         collectionJson
@@ -71,11 +58,11 @@ trait UpdateActions {
 
   def updateCollectionList(id: String, update: UpdateList, identity: User): Future[Option[CollectionJson]] = {
     lazy val updateJson = Json.toJson(update)
-    FrontsApi.amazonClient.collection(id).map { maybeCollectionJson =>
+    frontsApi.amazonClient.collection(id).map { maybeCollectionJson =>
       maybeCollectionJson
         .map(insertIntoLive(update, identity, _))
         .map(pruneBlock)
-        .map(CollectionJsonFunctions.sortByGroupAndCap)
+        .map(sortByGroupAndCap)
         .map(updateIdentity(_, identity))
         .map(putCollectionJson(id, _))
         .map(archiveUpdateBlock(id, _, updateJson, identity))
@@ -84,11 +71,11 @@ trait UpdateActions {
 
   def updateCollectionFilter(id: String, update: UpdateList, identity: User): Future[Option[CollectionJson]] = {
     lazy val updateJson = Json.toJson(update)
-    FrontsApi.amazonClient.collection(id).map { maybeCollectionJson =>
+    frontsApi.amazonClient.collection(id).map { maybeCollectionJson =>
       maybeCollectionJson
         .map(deleteFromLive(update, _))
         .map(pruneBlock)
-        .map(CollectionJsonFunctions.sortByGroupAndCap)
+        .map(sortByGroupAndCap)
         .map(archiveDeleteBlock(id, _, updateJson, identity))
         .map(updateIdentity(_, identity))
         .map(putCollectionJson(id, _))}}
@@ -150,6 +137,19 @@ trait UpdateActions {
 
   private def getUserName(identity: User): String = s"${identity.firstName} ${identity.lastName}"
 
+  private def sortByGroupAndCap(collectionJson: CollectionJson) =
+    collectionJson.copy(live = sortTrailsByGroupAndCap(collectionJson.live))
+
+  private def sortTrailsByGroupAndCap(trails: List[Trail]): List[Trail] = {
+    val trailGroups = trails.groupBy(_.meta.flatMap(_.group).map(_.toInt).getOrElse(0))
+    trailGroups.keys.toList.sorted(Ordering.Int.reverse).flatMap(groupId => {
+      trailGroups.getOrElse(groupId, Nil).take(groupId match {
+        case 0 => config.facia.linkingCollectionCap
+        case 1 => config.facia.includedCollectionCap
+        case _ => 0
+      })
+    })
+  }
 }
 
-object UpdateActions extends UpdateActions
+class UpdateActions(val faciaApiIO: FaciaApiIO, val frontsApi: FrontsApi, val config: ApplicationConfiguration) extends UpdateActionsTrait

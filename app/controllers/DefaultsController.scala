@@ -1,7 +1,7 @@
 package controllers
 
 import auth.PanDomainAuthActions
-import conf.Configuration
+import conf.ApplicationConfiguration
 import model.Cached
 import play.api.Play
 import play.api.Play.current
@@ -27,20 +27,20 @@ case class Defaults(
   linkingCap: Int
 )
 
-object DefaultsController extends Controller with PanDomainAuthActions {
+class DefaultsController(val config: ApplicationConfiguration) extends Controller with PanDomainAuthActions {
   def configuration = APIAuthAction { request =>
     Cached(60) {
       Ok(Json.toJson(Defaults(
         Play.isDev,
-        Configuration.environment.stage,
+        config.environment.stage,
         request.user.email,
         request.user.avatarUrl,
-        Configuration.sentry.publicDSN,
-        Configuration.media.baseUrl.get,
-        Configuration.media.apiUrl.get,
+        config.sentry.publicDSN,
+        config.media.baseUrl.get,
+        config.media.apiUrl.get,
         SwitchManager.getSwitchesAsJson(),
-        Configuration.facia.includedCollectionCap,
-        Configuration.facia.linkingCollectionCap
+        config.facia.includedCollectionCap,
+        config.facia.linkingCollectionCap
       )))
     }
   }
