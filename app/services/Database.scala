@@ -2,11 +2,11 @@ package services
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document._
-import com.amazonaws.services.dynamodbv2.document.spec.{DeleteItemSpec, ScanSpec, UpdateItemSpec}
+import com.amazonaws.services.dynamodbv2.document.spec.{ScanSpec, UpdateItemSpec}
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import com.amazonaws.services.dynamodbv2.model.ReturnValue
 import com.gu.pandomainauth.model.User
-import conf.{Configuration, aws}
+import conf.ApplicationConfiguration
 import metrics.StoryPackagesMetrics
 import model.StoryPackage
 import org.joda.time.{DateTime, DateTimeZone}
@@ -20,13 +20,13 @@ import scala.util.{Failure, Success, Try}
 
 class InvalidQueryResult(msg: String) extends Throwable(msg)
 
-object Database {
+class Database(config: ApplicationConfiguration, awsEndpoints: AwsEndpoints) {
   private lazy val client = {
-    val client = new AmazonDynamoDBClient(aws.mandatoryCredentials)
-    client.setEndpoint(AwsEndpoints.dynamoDb)
+    val client = new AmazonDynamoDBClient(config.aws.mandatoryCredentials)
+    client.setEndpoint(awsEndpoints.dynamoDb)
     client
   }
-  private lazy val table = new DynamoDB(client).getTable(Configuration.storage.configTable)
+  private lazy val table = new DynamoDB(client).getTable(config.storage.configTable)
 
   def createStoryPackage(story: StoryPackage, user: User): Future[StoryPackage] = {
     val errorMessage = "Exception in dynamoDB putItem while creating a story package"

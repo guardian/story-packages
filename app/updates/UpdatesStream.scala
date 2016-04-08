@@ -3,18 +3,18 @@ package updates
 import model.StoryPackage
 import play.api.Logger
 
-object UpdatesStream {
+class UpdatesStream(auditingUpdates: AuditingUpdates, kinesisEventSender: KinesisEventSender) {
 
   def putStreamUpdate(streamUpdate: StreamUpdate): Unit = {
 
-    AuditingUpdates.putStreamUpdate(streamUpdate)
+    auditingUpdates.putStreamUpdate(streamUpdate)
     for {
       (collectionId, collectionJson) <- streamUpdate.collections
       isHidden <- streamUpdate.storyPackage.isHidden
       displayName <- streamUpdate.storyPackage.name
     } yield {
       if (!isHidden) {
-        KinesisEventSender.putCapiUpdate(collectionId, displayName, collectionJson)
+        kinesisEventSender.putCapiUpdate(collectionId, displayName, collectionJson)
       } else {
         Logger.info(s"Ignoring CAPI update for hidden package $collectionId")
       }
@@ -22,9 +22,9 @@ object UpdatesStream {
   }
 
   def putStreamDelete(streamUpdate: StreamUpdate, packageId: String, isHidden: Boolean): Unit = {
-    AuditingUpdates.putStreamUpdate(streamUpdate)
+    auditingUpdates.putStreamUpdate(streamUpdate)
     if (!isHidden)
-      KinesisEventSender.putCapiDelete(packageId)
+      kinesisEventSender.putCapiDelete(packageId)
     else
       Logger.info(s"Ignoring CAPI delete for hidden package $packageId")
   }
@@ -37,7 +37,7 @@ object UpdatesStream {
     } yield {
       val updateMessage = CreatePackage(id, isHidden, name)
       val streamUpdate = StreamUpdate(updateMessage, email, Map(), storyPackage)
-      AuditingUpdates.putStreamUpdate(streamUpdate)
+      auditingUpdates.putStreamUpdate(streamUpdate)
     }
   }
 }

@@ -1,9 +1,8 @@
 package switchboard
 
+import akka.actor.Scheduler
 import com.amazonaws.auth.AWSCredentialsProvider
-import conf.{Configuration, aws}
-import play.api.{Application, GlobalSettings, Logger}
-import play.libs.Akka
+import play.api.{GlobalSettings, Logger}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -11,24 +10,18 @@ import scala.concurrent.duration._
 case class SwitchboardConfiguration (
   bucket: String,
   objectKey: String,
-  credentials: AWSCredentialsProvider
+  credentials: AWSCredentialsProvider,
+  endpoint: String
 )
 
-trait Lifecycle extends GlobalSettings {
-  lazy val client: S3client = new S3client(SwitchboardConfiguration(
-    bucket = Configuration.switchBoard.bucket,
-    objectKey = Configuration.switchBoard.objectKey,
-    credentials = aws.mandatoryCredentials
-  ))
+class Lifecycle(conf: SwitchboardConfiguration, scheduler: Scheduler) extends GlobalSettings {
+  lazy val client: S3client = new S3client(conf)
 
-  override def onStart(app: Application) {
-    super.onStart(app)
-    Akka.system.scheduler.schedule(initialDelay = 1.seconds, interval = 1.minute) { refreshSwitches() }
-  }
+  Logger.info("Starting switchboard cache")
+  scheduler.schedule(initialDelay = 1.seconds, interval = 1.minute) { refreshSwitches() }
 
   def refreshSwitches() {
     Logger.info("Refreshing switches from switchboard")
-
     client.getSwitches() foreach { response => SwitchManager.updateSwitches(response) }
   }
 }

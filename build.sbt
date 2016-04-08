@@ -42,6 +42,8 @@ javaOptions in Universal ++= Seq(
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
 )
 
+routesGenerator := InjectedRoutesGenerator
+
 scalacOptions := Seq("-unchecked", "-optimise", "-deprecation", "-target:jvm-1.8",
       "-Xcheckinit", "-encoding", "utf8", "-feature", "-Yinline-warnings","-Xfatal-warnings")
 

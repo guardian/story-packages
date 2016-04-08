@@ -4,11 +4,11 @@ import java.net.URLEncoder
 
 import akka.actor.ActorSystem
 import auth.PanDomainAuthActions
-import conf.Configuration
+import conf.ApplicationConfiguration
 import metrics.FaciaToolMetrics
 import model.Cached
 import play.api.Logger
-import play.api.libs.ws.{WS, WSAuthScheme, WSRequest}
+import play.api.libs.ws.{WSAPI, WSAuthScheme, WSRequest}
 import play.api.mvc._
 import switchboard.SwitchManager
 import util.ContentUpgrade.rewriteBody
@@ -16,22 +16,18 @@ import util.ContentUpgrade.rewriteBody
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-trait WSRequests {
+class FaciaContentApiProxy(ws: WSAPI, val config: ApplicationConfiguration) extends Controller with PanDomainAuthActions {
 
   implicit class RichWSRequest(wsRequest: WSRequest) {
-
-    def withPreviewAuth: WSRequest = Configuration.contentApi.previewAuth
+    def withPreviewAuth: WSRequest = config.contentApi.previewAuth
       .foldLeft(wsRequest){ case (r, auth) => r.withAuth(auth.user, auth.password, WSAuthScheme.BASIC)}
   }
-}
 
-object FaciaContentApiProxy extends Controller with PanDomainAuthActions with WSRequests {
   implicit class string2encodings(s: String) {
     lazy val urlEncoded = URLEncoder.encode(s, "utf-8")
   }
 
   override lazy val actorSystem = ActorSystem()
-  import play.api.Play.current
 
   def capiPreview(path: String) = APIAuthAction.async { request =>
     FaciaToolMetrics.ProxyCount.increment()
@@ -40,15 +36,15 @@ object FaciaContentApiProxy extends Controller with PanDomainAuthActions with WS
     }.mkString("&")
 
     val contentApiHost: String = if (SwitchManager.getStatus("facia-tool-draft-content"))
-      Configuration.contentApi.contentApiDraftHost
+      config.contentApi.contentApiDraftHost
     else
-      Configuration.contentApi.contentApiLiveHost
+      config.contentApi.contentApiLiveHost
 
-    val url = s"$contentApiHost/$path?$queryString${Configuration.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
+    val url = s"$contentApiHost/$path?$queryString${config.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying preview API query to: $url")
 
-    WS.url(url).withPreviewAuth.get().map { response =>
+    ws.url(url).withPreviewAuth.get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/javascript")
       }
@@ -61,13 +57,13 @@ object FaciaContentApiProxy extends Controller with PanDomainAuthActions with WS
        "%s=%s".format(p._1, p._2.head.urlEncoded)
     }.mkString("&")
 
-    val contentApiHost = Configuration.contentApi.contentApiLiveHost
+    val contentApiHost = config.contentApi.contentApiLiveHost
 
-    val url = s"$contentApiHost/$path?$queryString${Configuration.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
+    val url = s"$contentApiHost/$path?$queryString${config.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying live API query to: $url")
 
-    WS.url(url).get().map { response =>
+    ws.url(url).get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/javascript")
       }
@@ -76,8 +72,9 @@ object FaciaContentApiProxy extends Controller with PanDomainAuthActions with WS
 
   def http(url: String) = APIAuthAction.async { request =>
     FaciaToolMetrics.ProxyCount.increment()
+    Logger.info(s"Proxying http request to: $url")
 
-    WS.url(url).get().map { response =>
+    ws.url(url).get().map { response =>
       Cached(60) {
         Ok(response.body).as("text/html")
       }
@@ -88,7 +85,7 @@ object FaciaContentApiProxy extends Controller with PanDomainAuthActions with WS
     FaciaToolMetrics.ProxyCount.increment()
     Logger.info(s"Proxying json request to: $url")
 
-    WS.url(url).withPreviewAuth.get().map { response =>
+    ws.url(url).withPreviewAuth.get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/json")
       }

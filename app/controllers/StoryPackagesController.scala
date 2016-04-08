@@ -1,26 +1,28 @@
 package controllers
 
-import java.net.{URLEncoder, URLDecoder}
+import java.net.{URLDecoder, URLEncoder}
+
 import auth.PanDomainAuthActions
 import com.gu.facia.client.models.CollectionJson
-import conf.Configuration
+import conf.ApplicationConfiguration
 import metrics.FaciaToolMetrics
 import model.{Cached, StoryPackage}
 import permissions.APIKeyAuthAction
 import play.api.Logger
+import play.api.Play.current
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WS
 import play.api.mvc._
-import services.{FrontsApi, Database}
+import services.{Database, FrontsApi}
 import switchboard.SwitchManager
 import updates._
-import play.api.Play.current
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NonFatal
 
-object StoryPackagesController extends Controller with PanDomainAuthActions {
+class StoryPackagesController(val config: ApplicationConfiguration, database: Database, updatesStream: UpdatesStream,
+                              frontsApi: FrontsApi, reindexJob: Reindex) extends Controller with PanDomainAuthActions {
 
   private def serializeSuccess(result: StoryPackage): Future[Result] = {
     Future.successful(Ok(Json.toJson(result)))}
@@ -32,9 +34,9 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
   def create() = APIAuthAction.async { request =>
     request.body.asJson.flatMap(_.asOpt[StoryPackage]).map {
       case story: StoryPackage =>
-        Database.createStoryPackage(story, request.user)
+        database.createStoryPackage(story, request.user)
           .flatMap{storyPackage => {
-            UpdatesStream.putStreamCreate(storyPackage, request.user.email)
+            updatesStream.putStreamCreate(storyPackage, request.user.email)
             serializeSuccess(storyPackage)
           }}
           .recover {
@@ -48,12 +50,12 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     FaciaToolMetrics.ProxyCount.increment()
 
     val contentApiHost = if (hidden)
-      Configuration.contentApi.contentApiDraftHost
+      config.contentApi.contentApiDraftHost
     else
-      Configuration.contentApi.contentApiLiveHost
+      config.contentApi.contentApiLiveHost
 
-    val pageSize = Configuration.latest.pageSize
-    val url = s"$contentApiHost/packages?page-size=$pageSize&${Configuration.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
+    val pageSize = config.latest.pageSize
+    val url = s"$contentApiHost/packages?page-size=$pageSize&${config.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying latest packages API query to: $url")
     WS.url(url).get().map { response =>
@@ -69,18 +71,18 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     FaciaToolMetrics.ProxyCount.increment()
 
     val contentApiHost = if (hidden)
-      Configuration.contentApi.contentApiDraftHost
+      config.contentApi.contentApiDraftHost
     else
-      Configuration.contentApi.contentApiLiveHost
+      config.contentApi.contentApiLiveHost
 
-    val url = s"$contentApiHost/packages?q=$encodedTerm${Configuration.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
+    val url = s"$contentApiHost/packages?q=$encodedTerm${config.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying search query to: $url")
     WS.url(url).get().flatMap { response =>
       val json: JsValue = Json.parse(response.body)
       val packageIds = (json \ "response" \ "results" \\ "packageId").map(_.as[String])
       for {
-        packages <- Future.sequence(packageIds.map(id => Database.getPackage(id)))
+        packages <- Future.sequence(packageIds.map(id => database.getPackage(id)))
       } yield {
         Cached(60) {
           Ok(Json.toJson(packages)).as("application/javascript")
@@ -90,7 +92,7 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
   }
 
   def getPackage(id: String) = APIAuthAction.async { request =>
-    Database.getPackage(id)
+    database.getPackage(id)
       .flatMap(serializeSuccess)
       .recover {
         case NonFatal(e) => NotFound
@@ -98,28 +100,28 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
   }
 
   def deletePackage(id: String) = APIAuthAction.async { request =>
-    Database.removePackage(id).map(storyPackage => {
+    database.removePackage(id).map(storyPackage => {
       val isHidden = storyPackage.isHidden.getOrElse(false)
       val deleteMessage = DeletePackage(id, isHidden, storyPackage.name.getOrElse("-unknown-"))
       val streamUpdate = StreamUpdate(deleteMessage, request.user.email, Map(), storyPackage)
-      UpdatesStream.putStreamDelete(streamUpdate, id, isHidden)
+      updatesStream.putStreamDelete(streamUpdate, id, isHidden)
       Ok
     })
   }
 
   def editPackage(id: String) = APIAuthAction.async { request =>
     val name = (request.body.asJson.get \ "name").as[String]
-    Database.touchPackage(id, request.user, Some(name)).map(storyPackage => {
+    database.touchPackage(id, request.user, Some(name)).map(storyPackage => {
       for {
         packageId <- storyPackage.id
         displayName <- storyPackage.name
       } yield {
-        FrontsApi.amazonClient.collection(packageId).map {
+        frontsApi.amazonClient.collection(packageId).map {
           case Some(coll) =>
             val collections: Map[String, CollectionJson] = Map((packageId, coll))
             val updateMessage = UpdateName(packageId, displayName)
             val streamUpdate = StreamUpdate(updateMessage, request.user.email, collections, storyPackage)
-            UpdatesStream.putStreamUpdate(streamUpdate)
+            updatesStream.putStreamUpdate(streamUpdate)
           case None =>
             Logger.info(s"Ignore sending update of empty story package $packageId")
         }
@@ -128,19 +130,19 @@ object StoryPackagesController extends Controller with PanDomainAuthActions {
     })
   }
 
-  def reindex(isHidden: Boolean) = APIKeyAuthAction.async { request =>
+  def reindex(isHidden: Boolean) = new APIKeyAuthAction(config).async { request =>
     if (SwitchManager.getStatus("story-packages-disable-reindex-endpoint")) {
       Future.successful(Forbidden("Reindex endpoint disabled by a switch"))
     } else {
-      Reindex.scheduleJob(isHidden).map{
+      reindexJob.scheduleJob(isHidden).map{
         case Some(job) => Created(s"Reindex scheduled at ${job.startTime}")
         case None => Forbidden("Reindex already running")
       }
     }
   }
 
-  def reindexProgress(isHidden: Boolean) = APIKeyAuthAction { request =>
-    Reindex.getJobProgress(isHidden) match {
+  def reindexProgress(isHidden: Boolean) = (new APIKeyAuthAction(config)) { request =>
+    reindexJob.getJobProgress(isHidden) match {
       case Some(progress) => Ok(Json.toJson(progress))
       case None => NotFound("Reindex never run")
     }

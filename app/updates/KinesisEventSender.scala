@@ -7,15 +7,15 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient
 import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry, PutRecordsResult}
 import com.gu.facia.client.models.CollectionJson
-import com.gu.storypackage.model.v1.{Article, ArticleType, Event, EventType, Group}
+import com.gu.storypackage.model.v1._
 import com.gu.thrift.serializer.{GzipType, ThriftSerializer}
-import conf.{Configuration, aws}
+import conf.ApplicationConfiguration
 import org.joda.time.DateTime
 import play.api.Logger
 
-object KinesisEventSender {
+class KinesisEventSender(config: ApplicationConfiguration) {
 
-  val streamName: String = Configuration.updates.capi
+  val streamName: String = config.updates.capi
 
   def eventHandler(collectionId: String) = new AsyncHandler[PutRecordsRequest, PutRecordsResult] {
     def onError(exception: Exception): Unit = {
@@ -28,9 +28,9 @@ object KinesisEventSender {
 
   private lazy val client = {
     val kinesisClient = new AmazonKinesisAsyncClient(
-      aws.mandatoryCredentials
+      config.aws.mandatoryCredentials
     )
-    kinesisClient.configureRegion(Regions.fromName(Configuration.aws.region))
+    kinesisClient.configureRegion(Regions.fromName(config.aws.region))
     kinesisClient
   }
 
@@ -78,7 +78,7 @@ object KinesisEventSender {
 
   def putReindexDelete(packageId: String, displayName: String, collectionJson: CollectionJson): Unit = {
     sendUpdate(
-      Configuration.updates.reindex,
+      config.updates.reindex,
       packageId,
       Event(
         eventType = EventType.Delete,
@@ -90,7 +90,7 @@ object KinesisEventSender {
 
   def putReindexUpdate(packageId: String, displayName: String, collectionJson: CollectionJson): Unit = {
     sendUpdate(
-      Configuration.updates.reindex,
+      config.updates.reindex,
       packageId,
       Event(
         eventType = EventType.Update,
@@ -102,7 +102,7 @@ object KinesisEventSender {
 
   def putCapiDelete(packageId: String): Unit = {
     sendUpdate(
-      Configuration.updates.capi,
+      config.updates.capi,
       packageId,
       Event(
         eventType = EventType.Delete,
@@ -114,7 +114,7 @@ object KinesisEventSender {
 
   def putCapiUpdate(packageId: String, displayName: String, collectionJson: CollectionJson): Unit = {
     sendUpdate(
-      Configuration.updates.capi,
+      config.updates.capi,
       packageId,
       Event(
         eventType = EventType.Update,
@@ -127,8 +127,8 @@ object KinesisEventSender {
   def sendUpdate(streamName: String, collectionId: String, event: Event) {
     val request = new PutRecordsRequest().withStreamName(streamName)
     val bytes = ThriftSerializer.serializeToBytes(event, Some(GzipType), Some(128))
-    if (bytes.length > Configuration.updates.maxDataSize) {
-      Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max kinesis size(${Configuration.updates.maxDataSize})")
+    if (bytes.length > config.updates.maxDataSize) {
+      Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max size (${config.updates.maxDataSize})")
     } else {
       Logger.info(s"$streamName - sending thrift update with size of ${bytes.length} bytes")
       val record = new PutRecordsRequestEntry()

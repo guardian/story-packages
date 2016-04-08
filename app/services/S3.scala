@@ -1,25 +1,26 @@
 package services
 
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.CannedAccessControlList.{Private, PublicRead}
+import com.amazonaws.services.s3.model.CannedAccessControlList.Private
 import com.amazonaws.services.s3.model._
 import com.amazonaws.util.StringInputStream
 import com.gu.pandomainauth.model.User
-import conf.{Configuration, aws}
+import conf.ApplicationConfiguration
 import metrics.S3Metrics.S3ClientExceptionsMetric
 import org.joda.time.DateTime
-import play.Play
 import play.api.Logger
 
 import scala.io.{Codec, Source}
 
 trait S3 {
+  def config: ApplicationConfiguration
+  def awsEndpoints: AwsEndpoints
 
-  lazy val bucket = Configuration.aws.bucket
+  lazy val bucket = config.aws.bucket
 
-  lazy val client: Option[AmazonS3Client] = aws.credentials.map{ credentials => {
+  lazy val client: Option[AmazonS3Client] = config.aws.credentials.map{ credentials => {
       val client = new AmazonS3Client(credentials)
-      client.setEndpoint(AwsEndpoints.s3)
+      client.setEndpoint(awsEndpoints.s3)
       client
     }
   }
@@ -92,12 +93,9 @@ trait S3 {
   }
 }
 
-object S3 extends S3
+class S3FrontsApi(val config: ApplicationConfiguration, isTest: Boolean, val awsEndpoints: AwsEndpoints) extends S3 {
 
-object S3FrontsApi extends S3 {
-
-  override lazy val bucket = Configuration.aws.bucket
-  lazy val stage = if (Play.isTest) "TEST" else Configuration.facia.stage.toUpperCase
+  lazy val stage = if (isTest) "TEST" else config.facia.stage.toUpperCase
   val namespace = "frontsapi"
   lazy val location = s"$stage/$namespace"
 

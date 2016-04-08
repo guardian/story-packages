@@ -4,7 +4,6 @@ import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model._
 import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import services.AwsEndpoints
 
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
@@ -16,7 +15,7 @@ class S3client (conf: SwitchboardConfiguration) {
 
   lazy val client: AmazonS3Client = {
     val client = new AmazonS3Client(conf.credentials)
-    client.setEndpoint(AwsEndpoints.s3)
+    client.setEndpoint(conf.endpoint)
     client
   }
 

@@ -1,16 +1,16 @@
 package permissions
 
-import conf.Configuration
-import controllers.StoryPackagesController._
-import play.api.mvc.{Result, Request, ActionBuilder}
+import conf.ApplicationConfiguration
+import play.api.mvc.{ActionBuilder, Request, Result}
+
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import scala.concurrent.Future
+import play.api.mvc.Results.Forbidden
 
-object APIKeyAuthAction extends ActionBuilder[Request] {
+class APIKeyAuthAction(config: ApplicationConfiguration) extends ActionBuilder[Request] {
   override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
     request.queryString.getOrElse("api-key", Nil) match {
-      case Seq(Configuration.reindex.key) => block(request)
+      case Seq(config.reindex.key) => block(request)
       case _ => Future(Forbidden("Missing or invalid api-key"))
     }
   }

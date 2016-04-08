@@ -4,20 +4,20 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.document.spec.{DeleteItemSpec, QuerySpec, ScanSpec, UpdateItemSpec}
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import com.amazonaws.services.dynamodbv2.document.{AttributeUpdate, DynamoDB, Item}
-import conf.{Configuration, aws}
+import conf.ApplicationConfiguration
 import metrics.ReindexMetrics
 import play.api.Logger
 import updates._
 
 import scala.collection.JavaConverters._
 
-object DynamoReindexJobs {
+class DynamoReindexJobs(config: ApplicationConfiguration, awsEndpoints: AwsEndpoints) {
   private lazy val client = {
-    val client = new AmazonDynamoDBClient(aws.mandatoryCredentials)
-    client.setEndpoint(AwsEndpoints.dynamoDb)
+    val client = new AmazonDynamoDBClient(config.aws.mandatoryCredentials)
+    client.setEndpoint(awsEndpoints.dynamoDb)
     client
   }
-  private lazy val table = new DynamoDB(client).getTable(Configuration.reindex.progressTable)
+  private lazy val table = new DynamoDB(client).getTable(config.reindex.progressTable)
 
   private def asReindexProgress(item: Item): ReindexProgress = {
     ReindexProgress(
