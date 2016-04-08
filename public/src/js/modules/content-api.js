@@ -281,22 +281,37 @@ function fetchLatest (options) {
         url += filter ? '&' + options.filterType + '=' + encodeURIComponent(filter) : '';
     }
 
-    return request({
-        url: url
-    }).then(function (data) {
-        var rawArticles = data.response && data.response[propName] ? [].concat(data.response[propName]) : [];
-
-        if (!term && !filter && !rawArticles.length) {
-            throw new Error('Sorry, the Content API is not currently returning content');
-        } else {
-            return _.extend({}, data.response, {
-                results: _.filter(rawArticles, function(opts) {
-                    return opts.fields && opts.fields.headline;
-                })
-            });
+    return request({ url }).then(
+        data => handleFetchLatestResponse(data, propName, term || filter),
+        xhr => {
+            if (xhr.status === 200) {
+                const parsed = lenientJsonParse(xhr.responseText);
+                if (parsed.json) {
+                    mediator.emit('capi:error', parsed.errors[0]);
+                    return handleFetchLatestResponse(parsed.json, propName, term || filter);
+                }
+            } else {
+                return Promise.reject(new Error('Content API error (' + xhr.status + '). Content is currently unavailable'));
+            }
         }
-    }, function (xhr) {
-        throw new Error('Content API error (' + xhr.status + '). Content is currently unavailable');
+    );
+}
+
+function handleFetchLatestResponse (data, propName, isSearch) {
+    const filteredData = cleanFetchResponse(data, propName);
+
+    if (!isSearch && !filteredData[propName].length) {
+        return Promise.reject(new Error('Sorry, the Content API is not currently returning content'));
+    } else {
+        return filteredData;
+    }
+}
+
+function cleanFetchResponse (data, propName) {
+    const rawArticles = data.response && data.response[propName] ? [].concat(data.response[propName]) : [];
+
+    return _.extend({}, data.response, {
+        results: _.filter(rawArticles, opts => opts.fields && opts.fields.headline)
     });
 }
 
