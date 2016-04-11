@@ -12,6 +12,7 @@ import humanTime from 'utils/human-time';
 import mediator from 'utils/mediator';
 import populateObservables from 'utils/populate-observables';
 import reportErrors from 'utils/report-errors';
+import * as sparklines from 'utils/sparklines';
 
 export default class Collection extends BaseClass {
     constructor(opts = {}) {
@@ -73,6 +74,7 @@ export default class Collection extends BaseClass {
 
         this.setPending(true);
         this.loaded = this.load().then(() => onDomLoad);
+        sparklines.subscribe(this);
     }
 
     setPending(asPending) {
@@ -212,7 +214,7 @@ export default class Collection extends BaseClass {
         }
 
         this.setPending(false);
-        Promise.all(loading)
+        return Promise.all(loading)
             .then(() => mediator.emit('collection:populate', this))
             .catch(() => {});
     }
@@ -275,5 +277,6 @@ export default class Collection extends BaseClass {
 
     dispose() {
         this.groups.forEach(group => group.dispose());
+        sparklines.unsubscribe(this);
     }
 }

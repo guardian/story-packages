@@ -1886,6 +1886,7 @@ ol.search_list > li::before {
 .narrow .article .has-playable,
 .narrow .image__overrides,
 .narrow .log-in-out,
+.narrow .sparkline,
 .narrow .list-header__timings {
     display: none;
 }
@@ -1902,6 +1903,12 @@ ol.search_list > li::before {
 .narrow .dropdown.also > ul {
     left:auto;
     right: 0;
+}
+
+.sparkline {
+    position: absolute;
+    right: 0;
+    top: 15px;
 }
 
 .collection-container {

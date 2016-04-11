@@ -91,4 +91,24 @@ class FaciaContentApiProxy(ws: WSAPI, val config: ApplicationConfiguration) exte
       }
     }
   }
+
+  def ophan(path: String) = APIAuthAction.async { request =>
+    FaciaToolMetrics.ProxyCount.increment()
+    val paths = request.queryString.get("path").map(_.mkString("path=", "&path=", "")).getOrElse("")
+    val queryString = request.queryString.filterNot(_._1 == "path").filter(_._2.exists(_.nonEmpty)).map { p =>
+      "%s=%s".format(p._1, p._2.head.urlEncoded)
+    }.mkString("&")
+    val ophanApiHost = config.ophanApi.host.get
+    val ophanKey = config.ophanApi.key.map(key => s"&api-key=$key").getOrElse("")
+
+    val url = s"$ophanApiHost/$path?$queryString&$paths&$ophanKey"
+
+    Logger.info(s"Proxying ophan request to: $url")
+
+    ws.url(url).get().map { response =>
+      Cached(60) {
+        Ok(response.body).as("application/json")
+      }
+    }
+  }
 }

@@ -112,6 +112,11 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
     lazy val apiUrl = getString("media.api.url")
   }
 
+  object ophanApi {
+    lazy val key = getString("ophan.api.key")
+    lazy val host = getString("ophan.api.host")
+  }
+
   object pandomain {
     lazy val host = getMandatoryString("pandomain.host")
     lazy val domain = getMandatoryString("pandomain.domain")

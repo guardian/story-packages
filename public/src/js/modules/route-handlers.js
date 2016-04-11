@@ -20,6 +20,7 @@ export default {
     ], [
         extensions.copyPasteArticles,
         extensions.fetchLatestPackages,
+        extensions.sparklinesTrails,
         extensions.displayAlert
     ])
 };
