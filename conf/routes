@@ -43,6 +43,7 @@ GET         /api/preview/*path                       controllers.FaciaContentApi
 GET         /api/live/*path                          controllers.FaciaContentApiProxy.capiLive(path)
 GET         /http/proxy/*url                         controllers.FaciaContentApiProxy.http(url)
 GET         /json/proxy/*absUrl                      controllers.FaciaContentApiProxy.json(absUrl)
+GET         /ophan/*path                             controllers.FaciaContentApiProxy.ophan(path)
 
 # Updating config
 

@@ -88,5 +88,7 @@ export default {
     ophanBase:             'http://dashboard.ophan.co.uk/summary',
     ophanFrontBase:        'http://dashboard.ophan.co.uk/info-front?path=',
 
-    internalPagePrefix:    'internal-code/page/'
+    internalPagePrefix:    'internal-code/page/',
+
+    sparksBatchQueue:      15
 };

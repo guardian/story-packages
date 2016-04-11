@@ -124,6 +124,10 @@ var register = _.once(() => {
         viewModel: { jspm: 'widgets/display-alerts' },
         template: { text: 'widgets/display-alerts.html' }
     });
+    ko.components.register('sparklines-trails', {
+        viewModel: { jspm: 'widgets/sparklines-trails' },
+        template: '<!-- sparklines for trails -->'
+    });
     ko.bindingHandlers.ownerClass = {
         init: function (element, valueAccessor) {
             var owner = valueAccessor();

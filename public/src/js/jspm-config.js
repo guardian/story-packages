@@ -9,11 +9,13 @@ System.config({
   },
   paths: {
     "*": "js/*.js",
+    "story-packages/*": "js/*.js",
     "npm:*": "jspm_packages/npm/*",
     "github:*": "jspm_packages/github/*"
   },
 
   map: {
+    "highcharts": "story-packages/components/highcharts/highcharts-custom",
     "EventEmitter": "npm:wolfy87-eventemitter@4.3.0",
     "babel": "npm:babel-core@5.8.34",
     "babel-runtime": "npm:babel-runtime@5.8.34",

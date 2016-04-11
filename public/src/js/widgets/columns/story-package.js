@@ -7,24 +7,19 @@ import alert from 'utils/alert';
 import mediator from 'utils/mediator';
 import ColumnWidget from 'widgets/column-widget';
 
-export default class Front extends ColumnWidget {
+export default class StoryPackage extends ColumnWidget {
     constructor(params, element) {
         super(params, element);
 
-        var frontId = params.column.config();
-        this.front = ko.observable(frontId);
-        this.previousFront = frontId;
+        const packageId = params.column.config();
+        this.front = ko.observable(packageId);
+        this.previousFront = packageId;
         this.collection = ko.observable();
         this.mode = ko.observable('live');
         this.maxArticlesInHistory = 5;
         this.controlsVisible = ko.observable(false);
-        this.authorized = ko.observable(isAuthorized(this.baseModel, frontId));
 
         this.subscribeOn(this.front, this.onFrontChange);
-        this.subscribeOn(this.mode, this.onModeChange);
-        this.subscribeOn(this.baseModel.permissions, () => {
-            this.authorized(isAuthorized(this.baseModel, this.front()));
-        });
 
         this.setFront = id => this.front(id);
 
@@ -99,7 +94,7 @@ export default class Front extends ColumnWidget {
         this.refreshCollections(CONST.collectionsPollMs || 60000);
         this.refreshRelativeTimes(CONST.pubTimeRefreshMs || 60000);
 
-        this.load(frontId);
+        this.load(packageId);
     }
 
     load(id) {
@@ -124,15 +119,18 @@ export default class Front extends ColumnWidget {
                 updatedEmail: response.lastModifyBy,
                 groups: ['linked', 'included']
             });
+            const oldCollection = this.collection();
             this.collection(newCollection);
-            var latestPackages = this.baseModel.latestPackages();
+            const latestPackages = this.baseModel.latestPackages();
             if (!_.find(latestPackages, latestPackage => latestPackage.id === newCollection.id )) {
                 latestPackages.unshift(response);
                 this.baseModel.latestPackages(latestPackages);
                 this.front(newCollection.id);
             }
 
-            return newCollection.loaded;
+            return newCollection.loaded.then(() => {
+                oldCollection.dispose();
+            });
         })
         .then(() => mediator.emit('front:loaded', this))
         .catch(response => {
@@ -167,24 +165,8 @@ export default class Front extends ColumnWidget {
         this.load(front);
     }
 
-    onModeChange() {
-        var collection = this.collection();
-        if (collection) {
-            collection.closeAllArticles();
-            collection.populate();
-        }
-    }
-
     getCollectionList(list) {
-        var sublist;
-        if (this.mode() === 'treats') {
-            sublist = list.treats;
-        } else if (this.mode() === 'live') {
-            sublist = list.live;
-        } else {
-            sublist = list.draft || list.live;
-        }
-        return sublist || [];
+        return list.live || [];
     }
 
     newItemValidator(item) {
@@ -215,9 +197,4 @@ export default class Front extends ColumnWidget {
         mediator.emit('package:edit', this.front());
     }
 
-}
-
-function isAuthorized (baseModel, frontId) {
-    var permissions = baseModel.permissions() || {};
-    return (permissions.fronts || {})[frontId] !== false;
 }
