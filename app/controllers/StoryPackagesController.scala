@@ -9,9 +9,8 @@ import metrics.FaciaToolMetrics
 import model.{Cached, StoryPackage}
 import permissions.APIKeyAuthAction
 import play.api.Logger
-import play.api.Play.current
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.WS
+import play.api.libs.ws.WSAPI
 import play.api.mvc._
 import services.{Database, FrontsApi}
 import switchboard.SwitchManager
@@ -22,7 +21,7 @@ import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 class StoryPackagesController(val config: ApplicationConfiguration, database: Database, updatesStream: UpdatesStream,
-                              frontsApi: FrontsApi, reindexJob: Reindex) extends Controller with PanDomainAuthActions {
+                              frontsApi: FrontsApi, reindexJob: Reindex, ws: WSAPI) extends Controller with PanDomainAuthActions {
 
   private def serializeSuccess(result: StoryPackage): Future[Result] = {
     Future.successful(Ok(Json.toJson(result)))}
@@ -50,15 +49,15 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     FaciaToolMetrics.ProxyCount.increment()
 
     val contentApiHost = if (hidden)
-      config.contentApi.contentApiDraftHost
+      config.contentApi.packagesDraftHost
     else
-      config.contentApi.contentApiLiveHost
+      config.contentApi.packagesLiveHost
 
     val pageSize = config.latest.pageSize
     val url = s"$contentApiHost/packages?page-size=$pageSize&${config.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying latest packages API query to: $url")
-    WS.url(url).get().map { response =>
+    ws.url(url).get().map { response =>
       Cached(60) {
         Ok(response.body).as("application/javascript")
       }
@@ -71,14 +70,14 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     FaciaToolMetrics.ProxyCount.increment()
 
     val contentApiHost = if (hidden)
-      config.contentApi.contentApiDraftHost
+      config.contentApi.packagesDraftHost
     else
-      config.contentApi.contentApiLiveHost
+      config.contentApi.packagesLiveHost
 
     val url = s"$contentApiHost/packages?q=$encodedTerm${config.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying search query to: $url")
-    WS.url(url).get().flatMap { response =>
+    ws.url(url).get().flatMap { response =>
       val json: JsValue = Json.parse(response.body)
       val packageIds = (json \ "response" \ "results" \\ "packageId").map(_.as[String])
       for {

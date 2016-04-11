@@ -53,7 +53,9 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
     case class Auth(user: String, password: String)
 
     val contentApiLiveHost: String = getMandatoryString("content.api.host")
-    def contentApiDraftHost: String = getMandatoryString("content.api.draft.host")
+    val packagesLiveHost: String = getString("content.api.packages.host").getOrElse(contentApiLiveHost)
+    val contentApiDraftHost: String = getMandatoryString("content.api.draft.host")
+    val packagesDraftHost: String = getString("content.api.packages.draft.host").getOrElse(contentApiDraftHost)
 
     lazy val key: Option[String] = getString("content.api.key")
     lazy val timeout: Int = 2000

@@ -37,7 +37,7 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   val faciaTool = new FaciaToolController(config, isDev, frontsApi, updateActions, database, updatesStream)
   val pandaAuth = new PandaAuthController(config)
   val status = new StatusController
-  val storyPackages = new StoryPackagesController(config, database, updatesStream, frontsApi, reindex)
+  val storyPackages = new StoryPackagesController(config, database, updatesStream, frontsApi, reindex, wsApi)
   val uncachedAssets = new UncachedAssets
   val vanity = new VanityRedirects(config)
 

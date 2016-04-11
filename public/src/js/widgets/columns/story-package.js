@@ -129,7 +129,9 @@ export default class StoryPackage extends ColumnWidget {
             }
 
             return newCollection.loaded.then(() => {
-                oldCollection.dispose();
+                if (oldCollection) {
+                    oldCollection.dispose();
+                }
             });
         })
         .then(() => mediator.emit('front:loaded', this))
