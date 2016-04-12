@@ -29,7 +29,7 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   val database = new Database(config, awsEndpoints)
   val updatesStream = new UpdatesStream(auditingUpdates, kinesisEventSender)
   val dynamoReindexJobs = new DynamoReindexJobs(config, awsEndpoints)
-  val reindex = new Reindex(dynamoReindexJobs, database, frontsApi, kinesisEventSender)
+  val reindex = new Reindex(dynamoReindexJobs, database, frontsApi, kinesisEventSender, actorSystem.scheduler)
   val cloudwatch = new CloudWatch(config, awsEndpoints)
 
   val defaults = new DefaultsController(config)
