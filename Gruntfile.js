@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     require('time-grunt')(grunt);
 
     var options = {
-        singleRun:       grunt.option('single-run') !== false,
+        singleRun: grunt.option('single-run') !== false,
         color: grunt.option('color') !== false
     };
 
@@ -17,7 +17,7 @@ module.exports = function (grunt) {
 
     // Default task
     grunt.registerTask('default', function () {
-        grunt.task.run(['validate', 'test']);
+        grunt.task.run(['validate', 'test', 'bundle']);
     });
 
     /**
@@ -28,12 +28,38 @@ module.exports = function (grunt) {
     /**
      * Test tasks
      */
-    grunt.registerTask('test', function(app) {
+    grunt.registerTask('test', function() {
         if (options.singleRun === false) {
             grunt.config.set('karma.options.singleRun', false);
             grunt.config.set('karma.options.autoWatch', true);
         }
 
         grunt.task.run('karma');
+    });
+
+    /**
+     * Compile tasks
+     */
+    grunt.registerTask('compile', function () {
+        grunt.task.run(['clean', 'shell:packages', 'replace', 'cacheBust']);
+    });
+    grunt.registerTask('bundle', function () {
+        grunt.task.run(['compile', 'copy:static', 'copy:debian', 'copy:deploy', 'compress:riffraff']);
+    });
+    grunt.registerTask('upload', function () {
+        var done = this.async();
+        process.env.ARTEFACT_PATH = __dirname;
+        var riffraff = require('node-riffraff-artefact');
+        var path = require('path');
+        riffraff.settings.leadDir = path.join(__dirname, 'tmp');
+        riffraff.s3Upload()
+        .then(function () {
+            grunt.log.writeln('Artifacts uploaded!');
+            done();
+        })
+        .catch(function () {
+            grunt.log.error('Error uploading artifacts.');
+            done(false);
+        });
     });
 };

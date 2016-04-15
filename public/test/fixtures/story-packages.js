@@ -31,7 +31,7 @@ var latest = Object.keys(all).map(key => {
     var storyPackage = all[key];
     return {
         packageId: storyPackage.id,
-        packageName: storyPackage.name,
+        packageName: storyPackage.name
     };
 });
 

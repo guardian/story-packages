@@ -1,13 +1,9 @@
 {
     "env": {
         "node": false,
-        "jasmine": true,
         "browser": true,
         "es6": true
     },
-    "plugins": [
-        "jasmine"
-    ],
     "parserOptions": {
         "ecmaVersion": 6,
         "ecmaFeatures": {
@@ -16,10 +12,12 @@
         "sourceType": "module"
     },
     "rules": {
+        "no-shadow": 0,
+        "new-cap": 0,
         // Overrides old
         "camelcase": 2,
-        "no-shadow": 2,
         "strict": 2,
-        "jasmine/no-disabled-tests": 2
+        "consistent-return": 0,
+        "no-underscore-dangle": 0
     }
 }

@@ -58,7 +58,7 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 
-val awsVersion = "1.10.67"
+val awsVersion = "1.10.69"
 
 libraryDependencies ++= Seq(
     ws,
@@ -71,8 +71,8 @@ libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
     "com.gu" %% "auditing-thrift-model" % "0.1.0",
-    "com.gu" %% "content-api-client" % "8.1",
-    "com.gu" %% "fapi-client" % "1.4.0",
+    "com.gu" %% "content-api-client" % "8.5",
+    "com.gu" %% "fapi-client" % "1.5.2",
     "com.gu" % "kinesis-logback-appender" % "1.2.0",
     "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.2.11",
     "com.gu" %% "story-packages-model" % "1.0.4",

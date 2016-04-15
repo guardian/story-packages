@@ -1,3 +1,4 @@
+/* eslint key-spacing: 0 */
 export default {
     editions: ['uk', 'us', 'au'],
 
@@ -10,10 +11,6 @@ export default {
     restrictedHeadlineLength: 90,
 
     restrictHeadlinesOn: [],
-
-    prioritiesWithGroups: [
-        'commercial'
-    ],
 
     detectPendingChangesInClipboard: 4000,
 

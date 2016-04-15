@@ -37,7 +37,7 @@ export default class Collection extends BaseClass {
         };
 
         // properties from the config, about this collection
-        this.configMeta   = asObservableProps(['displayName']);
+        this.configMeta = asObservableProps(['displayName']);
         populateObservables(this.configMeta, opts);
 
         // properties from the collection itself
@@ -48,7 +48,7 @@ export default class Collection extends BaseClass {
             'updatedBy',
             'updatedEmail']);
 
-        this.state  = asObservableProps([
+        this.state = asObservableProps([
             'lastUpdated',
             'hasConcurrentEdits',
             'hasDraft',
@@ -78,11 +78,17 @@ export default class Collection extends BaseClass {
     }
 
     setPending(asPending) {
-        if (asPending) {
-            this.state.pending(true);
-        } else {
-            setTimeout(() => this.state.pending(false));
-        }
+        return new Promise(resolve => {
+            if (asPending) {
+                this.state.pending(true);
+                resolve();
+            } else {
+                setTimeout(() => {
+                    this.state.pending(false);
+                    resolve();
+                }, 10);
+            }
+        });
     }
 
     isPending() {
@@ -114,8 +120,8 @@ export default class Collection extends BaseClass {
         authedAjax.updateCollections({
             remove: {
                 collection: this,
-                item:       item.id(),
-                mode:       mode
+                item: item.id(),
+                mode: mode
             }
         })
         .catch(() => {});
@@ -148,9 +154,7 @@ export default class Collection extends BaseClass {
                 reportErrors(ex);
             }
         })
-        .then(() => {
-            this.setPending(false);
-        });
+        .then(() => this.setPending(false));
     }
 
     hasOpenArticles() {
@@ -213,7 +217,7 @@ export default class Collection extends BaseClass {
             }
         }
 
-        this.setPending(false);
+        loading.push(this.setPending(false));
         return Promise.all(loading)
             .then(() => mediator.emit('collection:populate', this))
             .catch(() => {});

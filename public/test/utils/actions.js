@@ -30,7 +30,7 @@ export default function install(page) {
             return new Action(editAction, testAction, page);
         }
     };
-};
+}
 
 var scheduledMap = new Map();
 
@@ -38,13 +38,17 @@ function schedule (action) {
     if (!scheduledMap.has(action)) {
         const forLater = Promise.resolve(action).then(execute);
         scheduledMap.set(action, forLater);
-        function clear() {
-            action.dispose();
-            scheduledMap.delete(action);
-        }
+        const clear = clearAction(action);
         forLater.then(clear, clear);
         action.done = forLater;
     }
+}
+
+function clearAction (action) {
+    return function () {
+        action.dispose();
+        scheduledMap.delete(action);
+    };
 }
 
 function execute (action) {

@@ -39,8 +39,7 @@ class Story {
         $('.package-management', this.dom).click();
         return wait.event('manage:package');
     }
-
-};
+}
 
 export default function (number = 1) {
     var dom = document.querySelectorAll('.collection-container')[number - 1].parentNode;

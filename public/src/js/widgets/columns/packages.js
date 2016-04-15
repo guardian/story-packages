@@ -28,8 +28,7 @@ export default class Package extends ColumnWidget {
         this[bouncedSearch] = debounce(performSearch.bind(this), CONST.searchDebounceMs);
 
         this.listenOn(mediator, 'package:edit', this.editPackage);
-
-    };
+    }
 
     search() {
         if (this.editingPackage()) {
@@ -96,7 +95,6 @@ export default class Package extends ColumnWidget {
     }
 
     displayRemoveModal(deletedIndex, storyPackage) {
-        var storyPackage = storyPackage;
         return modalDialog.confirm({
             name: 'confirm_package_delete',
             data: {

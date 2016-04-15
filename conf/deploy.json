@@ -1,6 +1,6 @@
 {
     "defaultStacks": ["cms-fronts"],
-    "packages":{
+    "packages": {
         "story-packages": {
             "type": "autoscaling",
             "data": {
@@ -8,17 +8,45 @@
                 "bucket": "story-packages-dist",
                 "publicReadAcl": false
             }
+        },
+        "static-story-packages": {
+            "type": "aws-s3",
+            "data": {
+                "bucket": "cms-fronts-static-assets",
+                "cacheControl": [
+                    {
+                        "pattern": ".*\\.js$",
+                        "value": "public, max-age=315360000"
+                    },
+                    {
+                        "pattern": ".*",
+                        "value": "public, max-age=60"
+                    }
+                ],
+                "mimeTypes": {
+                    "js": "application/javascript",
+                    "map": "text/plain",
+                    "json": "application/json"
+                },
+                "prefixPackage": true,
+                "prefixStack": false,
+                "prefixStage": true,
+                "publicReadAcl": true
+            }
         }
     },
-    "recipes":{
-        "default":{
-            "depends" : ["artifactUpload", "deploy"]
+    "recipes": {
+        "default": {
+            "depends" : ["artifactUpload", "staticUpload", "deploy"]
         },
-        "deploy":{
+        "deploy": {
             "actionsBeforeApp": ["story-packages.deploy"]
         },
-        "artifactUpload":{
+        "artifactUpload": {
             "actionsBeforeApp": ["story-packages.uploadArtifacts"]
+        },
+        "staticUpload": {
+            "actionsBeforeApp": ["static-story-packages.uploadStaticFiles"]
         }
     }
 }

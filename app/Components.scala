@@ -31,15 +31,17 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   val dynamoReindexJobs = new DynamoReindexJobs(config, awsEndpoints)
   val reindex = new Reindex(dynamoReindexJobs, database, frontsApi, kinesisEventSender, actorSystem.scheduler)
   val cloudwatch = new CloudWatch(config, awsEndpoints)
+  var assetsManager = new AssetsManager(config, isDev)
 
   val defaults = new DefaultsController(config)
   val faciaProxy = new FaciaContentApiProxy(wsApi, config)
-  val faciaTool = new FaciaToolController(config, isDev, frontsApi, updateActions, database, updatesStream)
+  val faciaTool = new FaciaToolController(config, frontsApi, updateActions, database, updatesStream)
   val pandaAuth = new PandaAuthController(config)
   val status = new StatusController
   val storyPackages = new StoryPackagesController(config, database, updatesStream, frontsApi, reindex, wsApi)
   val uncachedAssets = new UncachedAssets
   val vanity = new VanityRedirects(config)
+  val views = new ViewsController(config, assetsManager, isDev)
 
   override lazy val injector: Injector =
     new SimpleInjector(NewInstanceInjector) + router + crypto + httpConfiguration + tempFileCreator + wsApi + wsClient
@@ -49,5 +51,5 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
     new CORSFilter
   )
 
-  val router: Router = new Routes(httpErrorHandler, status, pandaAuth, uncachedAssets, faciaTool, defaults, storyPackages, faciaProxy, vanity)
+  val router: Router = new Routes(httpErrorHandler, status, pandaAuth, uncachedAssets, views, faciaTool, defaults, storyPackages, faciaProxy, vanity)
 }

@@ -17,7 +17,7 @@ describe('Article Persistence', function () {
     it('ignores saving in the clipboard', function (done) {
         const clipboard = new Group({
             parentType: 'Clipboard',
-            keepCopy:  true,
+            keepCopy: true,
             front: null
         });
 
@@ -55,7 +55,7 @@ describe('Article Persistence', function () {
                         item: 'banana',
                         position: 'banana',
                         itemMeta: {
-                            group: '0',
+                            group: '0'
                         },
                         mode: 'live'
                     }
