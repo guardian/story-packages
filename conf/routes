@@ -21,9 +21,9 @@ GET         /assets/*file                            controllers.UncachedAssets.
 #######################################################
 
 # Fronts
-GET         /                                        controllers.FaciaToolController.priorities()
-GET         /editorial                               controllers.FaciaToolController.collectionEditor()
-GET         /training                                controllers.FaciaToolController.collectionEditor()
+GET         /                                        controllers.ViewsController.priorities()
+GET         /editorial                               controllers.ViewsController.collectionEditor()
+GET         /training                                controllers.ViewsController.collectionEditor()
 
 GET         /collection/*collectionId                controllers.FaciaToolController.getCollection(collectionId)
 POST        /edits                                   controllers.FaciaToolController.collectionEdits
@@ -57,3 +57,4 @@ DELETE      /story-package/*id                       controllers.StoryPackagesCo
 
 GET         /story/*id                               controllers.VanityRedirects.storyPackage(id)
 GET         /add-trail/*id                           controllers.VanityRedirects.addTrail(id)
+GET         /*path/                                  controllers.VanityRedirects.untrail(path: String)

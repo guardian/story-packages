@@ -44,9 +44,7 @@ function loadApp (res) {
     var model = router.load(res);
     ko.applyBindings(model);
     model.loaded.then(() => {
-        bootstrap.every(function (updatedRes) {
-            model.update(updatedRes);
-        });
+        bootstrap.every(updatedRes => model.update(updatedRes));
         model.on('config:needs:update', callback => {
             bootstrap.get().onload(callback).onfail(callback);
         });

@@ -827,7 +827,15 @@
                                         ]
                                     }, "\n"
                                 ]]}
-                            }
+                            },
+                            "/etc/gu/story-packages.assets-map.json": {
+                                "source": { "Fn::Join" : ["", [
+                                    "https://s3-eu-west-1.amazonaws.com/cms-fronts-static-assets/",
+                                    { "Ref": "Stage" },
+                                    "/static-story-packages/assets-map.json"
+                                ]]},
+                                "authentication": "distributionAuthentication"
+                             }
                         }
                     }
                 }

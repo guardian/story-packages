@@ -70,7 +70,7 @@ export default class StoryPackage extends ColumnWidget {
 
                 var newPackage = {
                     id: storyPackage.id,
-                    name: storyPackage.meta.name(),
+                    name: storyPackage.meta.name()
                 };
 
                 if (packageIndex > -1) {

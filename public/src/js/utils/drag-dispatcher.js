@@ -242,10 +242,10 @@ function persist (sourceItem, newItems, sourceContext, sourceGroup, targetContex
 
             update = {
                 collection: targetGroup.parent,
-                item:     id,
+                item: id,
                 position: position,
-                after:    isAfter,
-                mode:     targetContext.mode(),
+                after: isAfter,
+                mode: targetContext.mode(),
                 itemMeta: _.isEmpty(itemMeta) ? undefined : itemMeta
             };
 
@@ -278,9 +278,9 @@ function remover (sourceContext, sourceGroup, id) {
 
         return {
             collection: sourceGroup.parent,
-            id:     sourceGroup.parent.id,
-            item:   id,
-            mode:   sourceContext.mode()
+            id: sourceGroup.parent.id,
+            item: id,
+            mode: sourceContext.mode()
         };
     }
 }

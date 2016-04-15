@@ -5,7 +5,6 @@ import * as cache from 'modules/cache';
 import modalDialog from 'modules/modal-dialog';
 import internalPageCode from 'utils/internal-page-code';
 import articlePath from 'utils/article-path';
-import identity from 'utils/identity';
 import isGuardianUrl from 'utils/is-guardian-url';
 import lenientJsonParse from 'utils/lenient-json-parse';
 import mediator from 'utils/mediator';
@@ -19,7 +18,7 @@ function populate(article, capiData) {
 function getTagOrSectionTitle(response) {
     return _.chain([response.tag, response.section])
         .pluck('webTitle')
-        .filter(identity)
+        .filter(Boolean)
         .first()
         .value();
 }

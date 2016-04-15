@@ -5,6 +5,7 @@ import java.net.URLEncoder
 import auth.PanDomainAuthActions
 import conf.ApplicationConfiguration
 import model.NoCache
+import play.api.mvc.Action
 import play.mvc.Controller
 
 class VanityRedirects(val config: ApplicationConfiguration) extends Controller with PanDomainAuthActions {
@@ -16,4 +17,7 @@ class VanityRedirects(val config: ApplicationConfiguration) extends Controller w
   def addTrail(id: String) = AuthAction { request => {
     NoCache(Redirect(s"/editorial?layout=latest,content,packages:create&q=${URLEncoder.encode(id, "utf-8")}", 301))
   }}
+
+  def untrail(path: String) = Action { request =>
+    NoCache(Redirect("/" + path, 301))}
 }

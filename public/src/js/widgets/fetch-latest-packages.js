@@ -35,11 +35,11 @@ export default class extends Extension {
 
     pollPackages() {
         this.pollingId = setInterval(() => this.fetchPackages(), CONST.packagesPollMs);
-    };
+    }
 
     dispose() {
         clearInterval(this.pollingId);
         this.pollingId = null;
         super.dispose();
-    };
+    }
 }

@@ -49,23 +49,6 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
     val stage = stageFromProperties.toLowerCase
   }
 
-  object contentApi {
-    case class Auth(user: String, password: String)
-
-    val contentApiLiveHost: String = getMandatoryString("content.api.host")
-    val packagesLiveHost: String = getString("content.api.packages.host").getOrElse(contentApiLiveHost)
-    val contentApiDraftHost: String = getMandatoryString("content.api.draft.host")
-    val packagesDraftHost: String = getString("content.api.packages.draft.host").getOrElse(contentApiDraftHost)
-
-    lazy val key: Option[String] = getString("content.api.key")
-    lazy val timeout: Int = 2000
-
-    lazy val previewAuth: Option[Auth] = for {
-      user <- getString("content.api.preview.user")
-      password <- getString("content.api.preview.password")
-    } yield Auth(user, password)
-  }
-
   object aws {
     lazy val region = getMandatoryString("aws.region")
     lazy val bucket = getMandatoryString("aws.bucket")
@@ -93,6 +76,27 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
           None
       }
     }
+  }
+
+  object cdn {
+    lazy val host = getString("cdn.host").getOrElse("")
+  }
+
+  object contentApi {
+    case class Auth(user: String, password: String)
+
+    val contentApiLiveHost: String = getMandatoryString("content.api.host")
+    val packagesLiveHost: String = getString("content.api.packages.host").getOrElse(contentApiLiveHost)
+    val contentApiDraftHost: String = getMandatoryString("content.api.draft.host")
+    val packagesDraftHost: String = getString("content.api.packages.draft.host").getOrElse(contentApiDraftHost)
+
+    lazy val key: Option[String] = getString("content.api.key")
+    lazy val timeout: Int = 2000
+
+    lazy val previewAuth: Option[Auth] = for {
+      user <- getString("content.api.preview.user")
+      password <- getString("content.api.preview.password")
+    } yield Auth(user, password)
   }
 
   object facia {

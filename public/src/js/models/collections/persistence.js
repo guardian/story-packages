@@ -23,10 +23,10 @@ function updateCollection(article, collection) {
     return authedAjax.updateCollections({
         update: {
             collection: collection,
-            item:       article.id(),
-            position:   article.id(),
-            itemMeta:   serializeArticleMeta(article),
-            mode:       article.front.mode()
+            item: article.id(),
+            position: article.id(),
+            itemMeta: serializeArticleMeta(article),
+            mode: article.front.mode()
         }
     });
 }
