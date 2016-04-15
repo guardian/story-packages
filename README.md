@@ -132,6 +132,8 @@ Create the files
    CAPI_STREAM=[redacted]
    REINDEX_STREAM=[redacted]
    REINDEX_TABLE=[redacted]
+   PREVIEW_CAPI_STREAM=[redacted]
+   PREVIEW_REINDEX_STREAM=[redacted]
    ```
 
 * `/etc/gu/story-packages.application.secrets.conf` this files contains secrets, there's a copy in S3. You need at least

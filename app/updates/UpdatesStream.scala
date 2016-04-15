@@ -13,20 +13,13 @@ class UpdatesStream(auditingUpdates: AuditingUpdates, kinesisEventSender: Kinesi
       isHidden <- streamUpdate.storyPackage.isHidden
       displayName <- streamUpdate.storyPackage.name
     } yield {
-      if (!isHidden) {
-        kinesisEventSender.putCapiUpdate(collectionId, displayName, collectionJson)
-      } else {
-        Logger.info(s"Ignoring CAPI update for hidden package $collectionId")
-      }
+      kinesisEventSender.putCapiUpdate(collectionId, displayName, collectionJson, isHidden)
     }
   }
 
   def putStreamDelete(streamUpdate: StreamUpdate, packageId: String, isHidden: Boolean): Unit = {
     auditingUpdates.putStreamUpdate(streamUpdate)
-    if (!isHidden)
-      kinesisEventSender.putCapiDelete(packageId)
-    else
-      Logger.info(s"Ignoring CAPI delete for hidden package $packageId")
+    kinesisEventSender.putCapiDelete(packageId, isHidden)
   }
 
   def putStreamCreate(storyPackage: StoryPackage, email: String): Unit = {

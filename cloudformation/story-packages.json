@@ -90,11 +90,15 @@
         "KinesisStreamMap": {
             "PROD": {
                 "CAPIStream": "story-packages-PROD-CAPIStreamUpdate",
-                "ReindexStream": "story-packages-PROD-ReindexStreamUpdate"
+                "ReindexStream": "story-packages-PROD-ReindexStreamUpdate",
+                "PreviewCAPIStream": "story-packages-PROD-PreviewCAPIStreamUpdate",
+                "PreviewReindexStream": "story-packages-PROD-PreviewReindexStreamUpdate"
             },
             "CODE": {
                 "CAPIStream": "story-packages-CODE-CAPIStreamUpdate",
-                "ReindexStream": "story-packages-CODE-ReindexStreamUpdate"
+                "ReindexStream": "story-packages-CODE-ReindexStreamUpdate",
+                "PreviewCAPIStream": "story-packages-CODE-PreviewCAPIStreamUpdate",
+                "PreviewReindexStream": "story-packages-CODE-PreviewReindexStreamUpdate"
             }
         },
         "CrossResources": {
@@ -230,23 +234,6 @@
                           "cloudwatch:PutMetricData"
                         ],
                         "Resource": "*"
-                    } ]
-                },
-                "Roles": [{ "Ref": "DistributionRole" }]
-            }
-        },
-        "UpdatesStreamPolicy": {
-            "Type": "AWS::IAM::Policy",
-            "Properties": {
-                "PolicyName": "UpdatesStreamPolicy",
-                "PolicyDocument": {
-                    "Version" : "2012-10-17",
-                    "Statement": [{
-                        "Effect": "Allow",
-                        "Action": [
-                            "kinesis:*"
-                        ],
-                        "Resource": { "Fn::Join" : [ "", [ "arn:aws:kinesis:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":stream/", { "Ref": "KinesisUpdateStream" } ]]}
                     } ]
                 },
                 "Roles": [{ "Ref": "DistributionRole" }]
@@ -762,12 +749,6 @@
                 ]
             }
         },
-        "KinesisUpdateStream": {
-            "Type": "AWS::Kinesis::Stream",
-            "Properties": {
-                "ShardCount": 1
-            }
-        },
         "ApplicationLaunchConfig": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Metadata": {
@@ -809,12 +790,18 @@
                             "/etc/gu/story-packages.properties": {
                                 "content": { "Fn::Join" : ["", [
                                     "STAGE=", { "Ref" : "Stage" }, "\n",
-                                    "STREAM=", { "Ref" : "KinesisUpdateStream" }, "\n",
                                     "CAPI_STREAM=", {
                                         "Fn::FindInMap": [
                                             "KinesisStreamMap",
                                             { "Ref": "Stage" },
                                             "CAPIStream"
+                                        ]
+                                    }, "\n",
+                                    "PREVIEW_CAPI_STREAM=", {
+                                        "Fn::FindInMap": [
+                                            "KinesisStreamMap",
+                                            { "Ref": "Stage" },
+                                            "PreviewCAPIStream"
                                         ]
                                     }, "\n",
                                     "TABLE_CONFIG=", { "Ref" : "DynamoDBTable" }, "\n",
@@ -824,6 +811,13 @@
                                             "KinesisStreamMap",
                                             { "Ref": "Stage" },
                                             "ReindexStream"
+                                        ]
+                                    }, "\n",
+                                    "PREVIEW_REINDEX_STREAM=", {
+                                        "Fn::FindInMap": [
+                                            "KinesisStreamMap",
+                                            { "Ref": "Stage" },
+                                            "PreviewReindexStream"
                                         ]
                                     }, "\n"
                                 ]]}
@@ -886,12 +880,6 @@
                     "ApplicationLoadBalancer",
                     "DNSName"
                 ]
-            }
-        },
-        "UpdateStream": {
-            "Description": "Kinesis stream with stream updates",
-            "Value": {
-                "Ref": "KinesisUpdateStream"
             }
         },
         "DynamoTable": {

@@ -83,7 +83,7 @@ class Reindex(dynamoReindexJobs: DynamoReindexJobs, database: Database, frontsAp
       (previousFuture, nextPackage) =>
         for {
           processedResults <- previousFuture
-          _ <- sendToKinesisStream(nextPackage)
+          _ <- sendToKinesisStream(nextPackage, job)
         } yield {
           if (processedResults % notifyEvery == 0) dynamoReindexJobs.markProgressUpdate(job, processedResults)
           processedResults + 1
@@ -107,7 +107,7 @@ class Reindex(dynamoReindexJobs: DynamoReindexJobs, database: Database, frontsAp
     }
   }
 
-  private def sendToKinesisStream(storyPackage: StoryPackage): Future[Unit] = {
+  private def sendToKinesisStream(storyPackage: StoryPackage, job: RunningJob): Future[Unit] = {
     (for {
       packageId <- storyPackage.id
       displayName <- storyPackage.name
@@ -117,9 +117,9 @@ class Reindex(dynamoReindexJobs: DynamoReindexJobs, database: Database, frontsAp
         case Some(collectionJson) =>
           Logger.info(s"Sending reindex message on kinesis stream for package ${storyPackage.id}")
           if (storyPackage.deleted.getOrElse(false)) {
-            kinesisEventSender.putReindexDelete(packageId, displayName, collectionJson)
+            kinesisEventSender.putReindexDelete(packageId, displayName, collectionJson, job.isHidden)
           } else {
-            kinesisEventSender.putReindexUpdate(packageId, displayName, collectionJson)
+            kinesisEventSender.putReindexUpdate(packageId, displayName, collectionJson, job.isHidden)
           }
         case None =>
           Logger.info(s"Ignore reindex of empty story package $packageId")
