@@ -76,9 +76,9 @@ class KinesisEventSender(config: ApplicationConfiguration) {
     })
   }
 
-  def putReindexDelete(packageId: String, displayName: String, collectionJson: CollectionJson): Unit = {
+  def putReindexDelete(packageId: String, displayName: String, collectionJson: CollectionJson, isHidden: Boolean): Unit = {
     sendUpdate(
-      config.updates.reindex,
+      if (isHidden) config.updates.reindexPreview else config.updates.reindex,
       packageId,
       Event(
         eventType = EventType.Delete,
@@ -88,9 +88,9 @@ class KinesisEventSender(config: ApplicationConfiguration) {
         articles = createUpdatePayload(collectionJson)))
   }
 
-  def putReindexUpdate(packageId: String, displayName: String, collectionJson: CollectionJson): Unit = {
+  def putReindexUpdate(packageId: String, displayName: String, collectionJson: CollectionJson, isHidden: Boolean): Unit = {
     sendUpdate(
-      config.updates.reindex,
+      if (isHidden) config.updates.reindexPreview else config.updates.reindex,
       packageId,
       Event(
         eventType = EventType.Update,
@@ -100,9 +100,9 @@ class KinesisEventSender(config: ApplicationConfiguration) {
         articles = createUpdatePayload(collectionJson)))
   }
 
-  def putCapiDelete(packageId: String): Unit = {
+  def putCapiDelete(packageId: String, isHidden: Boolean): Unit = {
     sendUpdate(
-      config.updates.capi,
+      if (isHidden) config.updates.preview else config.updates.capi,
       packageId,
       Event(
         eventType = EventType.Delete,
@@ -112,9 +112,9 @@ class KinesisEventSender(config: ApplicationConfiguration) {
         articles = Nil))
   }
 
-  def putCapiUpdate(packageId: String, displayName: String, collectionJson: CollectionJson): Unit = {
+  def putCapiUpdate(packageId: String, displayName: String, collectionJson: CollectionJson, isHidden: Boolean): Unit = {
     sendUpdate(
-      config.updates.capi,
+      if (isHidden) config.updates.preview else config.updates.capi,
       packageId,
       Event(
         eventType = EventType.Update,
