@@ -34,7 +34,7 @@
         "AvailabilityZones": {
             "Description": "The availability zone where instances are allowed to run",
             "Type": "List<AWS::EC2::AvailabilityZone::Name>",
-            "Default": "eu-west-1a,eu-west-1b,eu-west-1c"
+            "Default": "eu-west-1b,eu-west-1c"
         },
         "SwitchboardBucket": {
             "Description": "Bucket where switchboard writes switches status",
