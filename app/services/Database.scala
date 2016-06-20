@@ -70,7 +70,7 @@ class Database(config: ApplicationConfiguration, awsEndpoints: AwsEndpoints) {
         StoryPackagesMetrics.ScanCount.increment()
 
         val listIds = DynamoToScala.convertToListOfStoryPackages(outcome)
-        val totalCount = math.max(listIds.size, outcome.getTotalCount)
+        val totalCount = math.max(listIds.size, outcome.getAccumulatedItemCount)
 
         ReindexPage(
           totalCount = totalCount,
