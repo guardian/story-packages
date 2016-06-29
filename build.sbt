@@ -58,8 +58,8 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 
-val awsVersion = "1.11.8"
-val capiModelsVersion = "8.12"
+val awsVersion = "1.11.12"
+val capiModelsVersion = "8.17"
 
 libraryDependencies ++= Seq(
     ws,
@@ -75,11 +75,11 @@ libraryDependencies ++= Seq(
     "com.gu" % "content-api-models" % capiModelsVersion,
     "com.gu" % "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "fapi-client" % "2.0.0",
-    "com.gu" % "kinesis-logback-appender" % "1.2.0",
+    "com.gu" % "kinesis-logback-appender" % "1.3.0",
     "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.3.0",
     "com.gu" %% "story-packages-model" % "1.0.4",
-    "com.gu" %% "thrift-serializer" % "1.0.0",
-    "net.logstash.logback" % "logstash-logback-encoder" % "4.6",
+    "com.gu" %% "thrift-serializer" % "1.1.0",
+    "net.logstash.logback" % "logstash-logback-encoder" % "4.7",
     "org.julienrf" %% "play-json-variants" % "2.0",
     "org.scalatest" %% "scalatest" % "2.2.6" % "test"
 )
