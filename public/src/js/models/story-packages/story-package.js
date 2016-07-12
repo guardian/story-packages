@@ -29,7 +29,7 @@ export default class StoryPackage extends BaseClass {
         ]);
 
         this.meta.lastModifyHuman(humanTime(new Date(opts.lastModify)));
-        this.meta.createdHuman(humanTime(new Date(opts.created)));
+        this.meta.createdHuman(humanTime(opts.created ? new Date(opts.created) : new Date('2016-04-04T17:00:00.000Z')));
 
         populateObservables(this.meta, opts);
     }
