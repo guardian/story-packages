@@ -1,5 +1,5 @@
-Story Packages
-========
+Story Packages [![Build Status](https://travis-ci.org/guardian/story-packages.svg?branch=master)](https://travis-ci.org/guardian/story-packages)
+==============
 Create story packages. Heavily inspired by [facia-tool](https://github.com/guardian/facia-tool)
 
 
