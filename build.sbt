@@ -77,7 +77,7 @@ libraryDependencies ++= Seq(
     "com.gu" %% "fapi-client" % "2.0.0",
     "com.gu" % "kinesis-logback-appender" % "1.3.0",
     "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.3.0",
-    "com.gu" %% "story-packages-model" % "1.0.4",
+    "com.gu" %% "story-packages-model" % "1.0.5",
     "com.gu" %% "thrift-serializer" % "1.1.0",
     "net.logstash.logback" % "logstash-logback-encoder" % "4.7",
     "org.julienrf" %% "play-json-variants" % "2.0",
