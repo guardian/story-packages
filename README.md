@@ -164,7 +164,7 @@ Create the files
 
 ### Credentials
 
-You need valid developer credentials for `cmsFronts` and `workflow`.
+You need valid developer credentials for `cmsFronts` and `workflow.s3Read`.
 You can get keys temporary keys from `janus`.
 
 
