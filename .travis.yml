@@ -16,7 +16,7 @@ install:
 - jspm install
 script:
 - grunt --stack validate test
-- sbt ++$TRAVIS_SCALA_VERSION compile test assets riffRaffArtifact && grunt --stack
+- sbt ++$TRAVIS_SCALA_VERSION compile test assets && grunt --stack sbt ++$TRAVIS_SCALA_VERSION riffRaffUpload
   bundle upload
 env:
   global:
