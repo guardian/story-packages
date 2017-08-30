@@ -15,9 +15,7 @@ install:
 - jspm config registries.github.handler jspm-github
 - jspm install
 script:
-- grunt --stack validate test
-- sbt ++$TRAVIS_SCALA_VERSION compile test assets && grunt --stack sbt ++$TRAVIS_SCALA_VERSION riffRaffUpload
-  bundle upload
+- grunt --stack validate test && sbt ++$TRAVIS_SCALA_VERSION compile test assets && grunt --stack bundle && sbt ++$TRAVIS_SCALA_VERSION riffRaffUpload
 env:
   global:
   - secure: Fq9NhK56PaheU0i2hmXMgJ6p6P0Sb+zDjjTexoTAmgoJ48I16PS5+PWkJ8m6vs+w152uugv8ngsQxQr3/kMwvPufAy4a4hdzEliVRVPUSOPIhRDBoxR692GmPgJwdI7dmVRXpprIIsOJpPEyFuFpoS4Kkd7jscTnZhmlujuY30o3SO96oLT8Ad6vZxQT2VRTs1Cck0k8P83PvCJI4cXBLVaytIW3VbjJUcph/AYyyfH/YQ7NGCFkpJDo6IebGV/kdz9Azcx8W47uVHCbw7OD7wWEbWHj6YCXFsJben7fyVIFAsTNSYBQKx0pAAPKHDMFqqDEiNkp0XRSQq9AksYOQ0CZlrU8DaDg0gXKc5FbrQLzp5snIXbvvJe6XWJfNxE1wxdw3jAhd8oANBANEgcN+6QIC3J4iu9VJYF/rAnf1WhkHgW/7cxP9MK62vKiinwEXLESL0gxofYeSTW6ykzrG6DnhJfnz2JYMShmb8V9iFqlASfzU4C/RY5RhcfSHPlE4RhR8bHqD2Fb+lXY7S+jX7Nf0FuaKfZcya2K+wjKuY+aSgR6/NXGYx3PwIAtERL3bkH+F7+G4hAtmUYPad4mgznIWFAhRcTlMrQtgE/rNOqgtlD4fGVbcHW7ZNXa0CWFHvnomCMHhXT0EaXoRK8y6yBUK9+E1Yy5zj1Z+Uj47GY=
