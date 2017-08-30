@@ -23,9 +23,11 @@ def branch(): Option[String] = {
     }
 }
 
+riffRaffPackageName := name.value
+riffRaffManifestProjectName := s"cms-fronts:${name.value}"
 riffRaffPackageType := (packageBin in Debian).value
 riffRaffBuildIdentifier := env("TRAVIS_BUILD_NUMBER").getOrElse("DEV")
-riffRaffManifestBranch := branch().getOrElse(git.gitCurrentBranch.value)
+riffRaffManifestBranch := env("TRAVIS_BUILD_NUMBER").getOrElse("DEV")
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
 
