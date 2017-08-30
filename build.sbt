@@ -23,14 +23,20 @@ def branch(): Option[String] = {
     }
 }
 
-riffRaffPackageName := name.value
-riffRaffManifestProjectName := s"cms-fronts:${name.value}"
+riffRaffPackageName := s"cms-fronts::${name.value}"
+riffRaffManifestProjectName := riffRaffPackageName.value
 riffRaffPackageType := (packageBin in Debian).value
 riffRaffBuildIdentifier := env("TRAVIS_BUILD_NUMBER").getOrElse("DEV")
-riffRaffManifestBranch := env("TRAVIS_BUILD_NUMBER").getOrElse("DEV")
+riffRaffManifestBranch := branch().getOrElse(git.gitCurrentBranch.value)
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
-
+riffRaffArtifactResources := {
+    val jsBundlesDir = baseDirectory.value / "tmp" / "bundles"
+    Seq(
+        (packageBin in Debian).value -> s"${name.value}/${name.value}_1.0_all.deb",
+        baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml"
+    ) ++ ((jsBundlesDir * "*") pair rebase(jsBundlesDir, "static-story-packages"))
+}
 
 javacOptions := Seq("-g","-encoding", "utf8")
 
