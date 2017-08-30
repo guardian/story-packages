@@ -25,7 +25,6 @@ deployments:
       cloudFormationStackByTags: false
       prependStackToCloudFormationStackName: false
       cloudFormationStackName: story-packages
-      appendStageToCloudFormationStackName: true
       amiTags:
         Recipe: ubuntu-wily-java8
         AmigoStage: PROD
