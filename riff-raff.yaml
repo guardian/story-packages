@@ -8,22 +8,21 @@ deployments:
         value: public, max-age=315360000
       - pattern: .*
         value: public, max-age=60
-      publicReadAcl: true
-      prefixPackage: true
       mimeTypes:
         js: application/javascript
         json: application/json
         map: text/plain
       prefixStack: false
       bucket: cms-fronts-static-assets
-      prefixStage: true
     type: aws-s3
   story-packages:
     parameters:
       bucket: story-packages-dist
     type: autoscaling
-  machine-images:
+    dependencies: [packages-ami]
+  packages-ami:
     parameters:
+      cloudFormationStackByTags: false
       prependStackToCloudFormationStackName: false
       cloudFormationStackName: story-packages
       appendStageToCloudFormationStackName: true
