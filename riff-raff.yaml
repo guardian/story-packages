@@ -1,0 +1,34 @@
+stacks:
+- cms-fronts
+deployments:
+  static-story-packages:
+    parameters:
+      cacheControl:
+      - pattern: .*\.js$
+        value: public, max-age=315360000
+      - pattern: .*
+        value: public, max-age=60
+      mimeTypes:
+        js: application/javascript
+        json: application/json
+        map: text/plain
+      prefixStack: false
+      bucket: cms-fronts-static-assets
+    type: aws-s3
+  story-packages:
+    parameters:
+      bucket: story-packages-dist
+    type: autoscaling
+    dependencies: [packages-ami]
+  packages-ami:
+    parameters:
+      cloudFormationStackByTags: false
+      prependStackToCloudFormationStackName: false
+      cloudFormationStackName: story-packages
+      amiTags:
+        Recipe: ubuntu-wily-java8
+        AmigoStage: PROD
+      amiParameter: MachineImageID
+    type: ami-cloudformation-parameter
+regions:
+- eu-west-1
