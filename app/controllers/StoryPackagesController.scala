@@ -54,7 +54,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
       config.contentApi.packagesLiveHost
 
     val pageSize = config.latest.pageSize
-    val url = s"$contentApiHost/packages?page-size=$pageSize&${config.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
+    val url = s"$contentApiHost/packages?order-by=newest&page-size=$pageSize&${config.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying latest packages API query to: $url")
     ws.url(url).get().map { response =>
