@@ -4,18 +4,45 @@ import './App.css';
 
 import { Item } from './components/Item';
 import { ContainerGrid } from './components/ContainerGrid';
+import { Package } from './components/Package';
 
-function item(id) {
-  return { id };
+function testItems(size) {
+  const ret = [];
+
+  for(let i = 0; i < size; i++) {
+    ret.push({ id: i });
+  }
+
+  return ret;
 }
+
+function fill(size, value) {
+  const ret = [];
+
+  for(let i = 0; i < size; i++) {
+    ret.push(value);
+  }
+
+  return ret;
+}
+
+const PACKAGE_SIZE = 9;
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      items: { 1: item(1), 2: item(2), 3: item(3), 4: item(4), 5: item(5) },
-      included: [null, null, null, null, null, null, null, null, null]
+      items: testItems(15),
+      packageItems: fill(PACKAGE_SIZE + 1, null)
     };
+  }
+
+  setPackageItems = (items) => {
+    // Need a placeholder at the end so people can drag into linked
+    const lastSlotFilled = items[items.length - 1] !== null;
+    const packageItems = lastSlotFilled ? items.concat([null]) : items;
+
+    this.setState({ packageItems });
   }
 
   render() {
@@ -31,10 +58,10 @@ class App extends Component {
         )}
       </div>
       <div className="right">
-        <h3>Package</h3>
-        <ContainerGrid
-          items={this.state.included}
-          updateFn={(included) => this.setState({ included })}
+        <Package
+          size={PACKAGE_SIZE}
+          items={this.state.packageItems}
+          updateFn={this.setPackageItems}
         />
       </div>
     </div>;
