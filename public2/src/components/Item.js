@@ -16,7 +16,9 @@ export function Item({ item, draggable }) {
     return <div className="item" draggable={draggable} onDragStart={onDragStart}>
         <img className="item__thumbnail" src={item.thumbnail} height="50px" />
         <div className="item__data">
-            <div className="item__headline">{item.title}</div>
+            <div className="item__headline">
+                <a href={`https://www.theguardian.com/${item.path}`} target="_blank" rel="noreferrer">{item.title}</a>
+            </div>
             <div className="item__metadata">
                 <div className="item__tone">{item.tone}</div>
                 <div>

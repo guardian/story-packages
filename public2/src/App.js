@@ -79,7 +79,11 @@ class App extends Component {
     const items = Object.values(this.state.items);
 
     return <div className="app">
-      <ItemSearch items={this.getSearchItems()} />
+      <div className="left">
+        <h1>story packages</h1>
+        <hr />
+        <ItemSearch items={this.getSearchItems()} />
+      </div>
       <div className="right">
         <PackageSelector
           searchText={this.state.searchText}
