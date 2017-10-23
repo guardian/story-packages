@@ -37,11 +37,18 @@ export class Package extends React.Component {
 
     onDragLeave = (ix) => {
         const { items } = this.props;
-        this.setState({ items: items });
+        this.setState({ items });
     }
 
-    onDrop = (ix, id) => {
-        const items = insert(ix, { id }, this.props.items);
+    onDrop = (ix, newId) => {
+        const existingIx = this.props.items.findIndex(item => item ? item.id === newId : false);
+        let items = this.props.items.slice();
+
+        if(existingIx !== -1) {
+            items[existingIx] = null;
+        }
+
+        items = insert(ix, { id: newId }, items);
         this.props.updateFn(items);
     }
 
