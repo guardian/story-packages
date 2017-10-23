@@ -108,7 +108,12 @@ ul {
   justify-content: space-between;
   align-items: center;
   
-  margin: 5px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.package-list__item--highlighted {
+  background-color: #767676;
 }
 
 .package-list__timestamp {
