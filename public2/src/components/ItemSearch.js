@@ -3,12 +3,13 @@ import React from 'react';
 import { Item } from './Item';
 
 export function ItemSearch({ items }) {
-    return <div>
-        <h3>Items</h3>
-        {items.map(({ id, inUse }, ix) =>
-            <div key={ix} className={`container ${inUse ? "container--collapsed" : ""}`}>
-                <Item id={id} draggable={!inUse} />
-            </div>
-        )}
+    return <div className="left">
+        {items.map((item, ix) => {
+            const { inUse } = item;
+
+            return <div key={ix} className={`container ${inUse ? "container--collapsed" : ""}`}>
+                <Item draggable={!inUse} item={item} />
+            </div>;
+        })}
     </div>;
 }

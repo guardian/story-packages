@@ -11,8 +11,8 @@ function handleDrop(fn, ix) {
     return (ev) => {
         ev.preventDefault();
         
-        const { id } = JSON.parse(ev.dataTransfer.getData("application/json"));
-        fn(ix, id);
+        const { item } = JSON.parse(ev.dataTransfer.getData("application/json"));
+        fn(ix, item);
     }
 }
 
@@ -31,6 +31,6 @@ export function Container({ ix, item, onDragEnter, onDragLeave, onDrop }) {
         onDragLeave={handleEvent(onDragLeave, ix)}
         onDrop={handleDrop(onDrop, ix)}
     >
-        {item ? <Item draggable={true} {...item} /> : false}
+        {item ? <Item draggable={true} item={item} /> : false}
     </div>;
 }

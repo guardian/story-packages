@@ -76,7 +76,7 @@ export class ContainerGrid extends React.Component {
                     onDragLeave={this.onDragLeave(ix)}
                     onDrop={this.onDrop(ix)}
                 >
-                    {item ? <Item {...item} /> : false}
+                    {item ? <Item item={item} /> : false}
                 </div>;
             })}
         </div>;

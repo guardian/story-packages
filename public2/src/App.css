@@ -1,27 +1,73 @@
 .app {
   display: flex;
+
+  font-family: "Guardian Agate Sans";
+  font-size: .9em;
+  background-color: #f6f6f6;
+}
+
+.left {
+  background-color: #eaeaea;
 }
 
 .right {
   flex-grow: 1;
 }
 
-.item {
-  background-color: grey;
-  color: white;
+.title {
+  font-size: 2em;
+  font-weight: bold;
+}
 
+.item {
+  background-color:#dcdcdc;
   text-align: center;
 
-  width: 350px;
+  width: 400px;
   height: 100%;
+
+  display: flex;
+}
+
+.item__data {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 5px;
+}
+
+.item__thumbnail {
+  margin-right: 5px;
+}
+
+.item__metadata {
+  display: flex;
+  justify-content: space-between;
+  font-size: .8em;
+}
+
+.item__tone {
+  font-weight: bold;
+}
+
+.item__timestamp {
+  margin: 0 5px;
+}
+
+.item__timestamp__modified {
+  color: #4a7801;
 }
 
 .container {
-  border: 1px solid grey;
-  width: 350px;
+  width: 400px;
   height: 50px;
 
   margin: 10px;
+  overflow: hidden;
+
+  background-color: #767676;
+  box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.40);
 }
 
 .container--collapsed {

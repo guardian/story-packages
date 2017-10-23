@@ -40,15 +40,15 @@ export class Package extends React.Component {
         this.setState({ items });
     }
 
-    onDrop = (ix, newId) => {
-        const existingIx = this.props.items.findIndex(item => item ? item.id === newId : false);
+    onDrop = (ix, newItem) => {
+        const existingIx = this.props.items.findIndex(item => item ? item.id === newItem.id : false);
         let items = this.props.items.slice();
 
         if(existingIx !== -1) {
             items[existingIx] = null;
         }
 
-        items = insert(ix, { id: newId }, items);
+        items = insert(ix, newItem, items);
         this.props.updateFn(items);
     }
 
@@ -70,12 +70,12 @@ export class Package extends React.Component {
         const linked = indexedItems.slice(this.props.size);
 
         return <div>
-            <h3>Package</h3>
+            <h3 className="title">Package</h3>
             <div className="container-grid">
                 {included.map(this.renderContainer)}
             </div>
 
-            <h3>Linked</h3>
+            <hr />
             <div className="container-grid">
                 {linked.map(this.renderContainer)}
             </div>

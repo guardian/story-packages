@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
+import './fonts/fonts.css';
 import './App.css';
 
 import { Item } from './components/Item';
 import { ItemSearch } from './components/ItemSearch';
 import { ContainerGrid } from './components/ContainerGrid';
 import { Package } from './components/Package';
+
+import { getLatestItems } from './services/capi';
 
 function testItems(size) {
   const ret = [];
@@ -33,9 +36,15 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      items: testItems(15),
+      items: [],
       packageItems: fill(PACKAGE_SIZE + 1, null)
     };
+  }
+
+  componentDidMount() {
+    getLatestItems().then(items => {
+      this.setState({ items });
+    });
   }
 
   setPackageItems = (items) => {
