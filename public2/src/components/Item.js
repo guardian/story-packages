@@ -1,11 +1,11 @@
 import React from 'react';
 
-export function Item({ id }) {
+export function Item({ id, draggable }) {
     function onDragStart(ev) {
         ev.dataTransfer.setData("application/json", JSON.stringify({ id }));
     }
 
-    return <div className="item" draggable="true" onDragStart={onDragStart}>
+    return <div className="item" draggable={draggable} onDragStart={onDragStart}>
         {id}
     </div>;
 }

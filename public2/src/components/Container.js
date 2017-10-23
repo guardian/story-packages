@@ -31,6 +31,6 @@ export function Container({ ix, item, onDragEnter, onDragLeave, onDrop }) {
         onDragLeave={handleEvent(onDragLeave, ix)}
         onDrop={handleDrop(onDrop, ix)}
     >
-        {item ? <Item {...item} /> : false}
+        {item ? <Item draggable={true} {...item} /> : false}
     </div>;
 }
