@@ -70,7 +70,6 @@ export class Package extends React.Component {
         const linked = indexedItems.slice(this.props.size);
 
         return <div>
-            <h3 className="title">Package</h3>
             <div className="container-grid">
                 {included.map(this.renderContainer)}
             </div>

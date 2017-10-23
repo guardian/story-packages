@@ -1,3 +1,9 @@
+ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
 .app {
   display: flex;
 
@@ -79,4 +85,34 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.package-selector {
+  margin: 10px;
+  font-size: 2em;
+}
+
+.package-selector input {
+  font-size: 1em;
+  font-weight: bold;
+  width: 100%;
+}
+
+.package-list {
+  position: absolute;
+  background-color: #eaeaea;
+}
+
+.package-list__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  margin: 5px;
+}
+
+.package-list__timestamp {
+  font-weight: bold;
+  font-size: .6em;
+  margin-left: 20px;
 }
