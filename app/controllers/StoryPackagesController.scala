@@ -74,7 +74,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     else
       config.contentApi.packagesLiveHost
 
-    val url = s"$contentApiHost/packages?q=$encodedTerm${config.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
+    val url = s"$contentApiHost/packages?order-by=newest&q=$encodedTerm${config.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying search query to: $url")
     ws.url(url).get().flatMap { response =>
