@@ -33,7 +33,7 @@ riffRaffUploadManifestBucket := Option("riffraff-builds")
 riffRaffArtifactResources := {
     val jsBundlesDir = baseDirectory.value / "tmp" / "bundles"
     Seq(
-        (packageBin in Debian).value -> s"${name.value}/${name.value}_1.0_all.deb",
+        (packageBin in Debian).value -> s"${name.value}/${name.value}_${version.value}_all.deb",
         baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml"
     ) ++ ((jsBundlesDir * "*") pair rebase(jsBundlesDir, "static-story-packages"))
 }
