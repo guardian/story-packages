@@ -42,7 +42,7 @@ class FaciaToolController(val config: ApplicationConfiguration, frontsApi: Front
 
           if (updatedCollections.nonEmpty) {
             database.touchPackage(update.update.id, identity).map(storyPackage => {
-              updatesStream.putStreamUpdate(StreamUpdate(update, identity.email, updatedCollections, storyPackage))
+              updatesStream.putStreamUpdate(AuditUpdate(update, identity.email, updatedCollections, storyPackage))
               Ok(Json.toJson(updatedCollections)).as("application/json")
             })
             .recover {
@@ -55,7 +55,7 @@ class FaciaToolController(val config: ApplicationConfiguration, frontsApi: Front
         updateActions.updateCollectionFilter(remove.remove.id, remove.remove, identity).flatMap { maybeCollectionJson =>
           val updatedCollections = maybeCollectionJson.map(remove.remove.id -> _).toMap
           database.touchPackage(remove.remove.id, identity).map(storyPackage => {
-            updatesStream.putStreamUpdate(StreamUpdate(remove, identity.email, updatedCollections, storyPackage))
+            updatesStream.putStreamUpdate(AuditUpdate(remove, identity.email, updatedCollections, storyPackage))
             Ok(Json.toJson(updatedCollections)).as("application/json")
           })
           .recover {
