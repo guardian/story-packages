@@ -11,7 +11,6 @@ import play.api.Play.current
 import play.api.{Logger, Play, Configuration => PlayConfiguration}
 
 import scala.collection.JavaConversions._
-import scala.io.Source
 import scala.language.reflectiveCalls
 
 class BadConfigurationException(msg: String) extends RuntimeException(msg)
@@ -161,11 +160,6 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
 
   object latest {
     lazy val pageSize = 20
-  }
-
-  object auditing {
-    lazy val stream: String = getMandatoryString("auditing.stream")
-    lazy val maxDataSize: Int = 102400
   }
 }
 

@@ -5,9 +5,9 @@ import play.api.Logger
 
 class UpdatesStream(auditingUpdates: AuditingUpdates, kinesisEventSender: KinesisEventSender) {
 
-  def putStreamUpdate(streamUpdate: StreamUpdate): Unit = {
+  def putStreamUpdate(streamUpdate: AuditUpdate): Unit = {
 
-    auditingUpdates.putStreamUpdate(streamUpdate)
+    auditingUpdates.putAudit(streamUpdate)
     for {
       (collectionId, collectionJson) <- streamUpdate.collections
       isHidden <- streamUpdate.storyPackage.isHidden
@@ -17,8 +17,8 @@ class UpdatesStream(auditingUpdates: AuditingUpdates, kinesisEventSender: Kinesi
     }
   }
 
-  def putStreamDelete(streamUpdate: StreamUpdate, packageId: String, isHidden: Boolean): Unit = {
-    auditingUpdates.putStreamUpdate(streamUpdate)
+  def putStreamDelete(streamUpdate: AuditUpdate, packageId: String, isHidden: Boolean): Unit = {
+    auditingUpdates.putAudit(streamUpdate)
     kinesisEventSender.putCapiDelete(packageId, isHidden)
   }
 
@@ -29,8 +29,8 @@ class UpdatesStream(auditingUpdates: AuditingUpdates, kinesisEventSender: Kinesi
       name <- storyPackage.name
     } yield {
       val updateMessage = CreatePackage(id, isHidden, name)
-      val streamUpdate = StreamUpdate(updateMessage, email, Map(), storyPackage)
-      auditingUpdates.putStreamUpdate(streamUpdate)
+      val streamUpdate = AuditUpdate(updateMessage, email, Map(), storyPackage)
+      auditingUpdates.putAudit(streamUpdate)
     }
   }
 }

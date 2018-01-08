@@ -102,7 +102,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     database.removePackage(id).map(storyPackage => {
       val isHidden = storyPackage.isHidden.getOrElse(false)
       val deleteMessage = DeletePackage(id, isHidden, storyPackage.name.getOrElse("-unknown-"))
-      val streamUpdate = StreamUpdate(deleteMessage, request.user.email, Map(), storyPackage)
+      val streamUpdate = AuditUpdate(deleteMessage, request.user.email, Map(), storyPackage)
       updatesStream.putStreamDelete(streamUpdate, id, isHidden)
       Ok
     })
@@ -119,7 +119,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
           case Some(coll) =>
             val collections: Map[String, CollectionJson] = Map((packageId, coll))
             val updateMessage = UpdateName(packageId, displayName)
-            val streamUpdate = StreamUpdate(updateMessage, request.user.email, collections, storyPackage)
+            val streamUpdate = AuditUpdate(updateMessage, request.user.email, collections, storyPackage)
             updatesStream.putStreamUpdate(streamUpdate)
           case None =>
             Logger.info(s"Ignore sending update of empty story package $packageId")

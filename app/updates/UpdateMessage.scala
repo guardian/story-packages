@@ -35,7 +35,7 @@ object UpdateMessage {
 }
 
 /* Kinesis messages */
-case class StreamUpdate(
+case class AuditUpdate(
   update: UpdateMessage,
   email: String,
   collections: Map[String, CollectionJson],
@@ -43,6 +43,6 @@ case class StreamUpdate(
 ) {
   val dateTime: DateTime = new DateTime()
 }
-object StreamUpdate {
-  implicit val streamUpdateFormat: Format[StreamUpdate] = Json.format[StreamUpdate]
+object AuditUpdate {
+  implicit val streamUpdateFormat: Format[AuditUpdate] = Json.format[AuditUpdate]
 }
