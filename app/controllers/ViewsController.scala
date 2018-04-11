@@ -1,11 +1,11 @@
 package controllers
 
-import auth.PanDomainAuthActions
+import story_packages.auth.PanDomainAuthActions
 import com.gu.pandomainauth.action.UserRequest
-import conf.ApplicationConfiguration
-import model.Cached
+import story_packages.model.Cached
 import play.api.mvc.{AnyContent, Controller}
-import services.AssetsManager
+import story_packages.services.AssetsManager
+import conf.ApplicationConfiguration
 
 class ViewsController(val config: ApplicationConfiguration, assetsManager: AssetsManager, isDev: Boolean) extends Controller with PanDomainAuthActions {
   def priorities() = AuthAction { request =>

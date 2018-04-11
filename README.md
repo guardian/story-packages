@@ -164,10 +164,11 @@ Create the files
 
 ### Credentials
 
-You need valid developer credentials for `cmsFronts` and `workflow.s3Read`.
-You can get keys temporary keys from `janus`.
-
-
+You need the following credentials:
+- cmsFronts - developer
+- workflow - S3 Read
+- capi - API Gateway invocation
+You can get keys temporary keys from janus. You can copy these credentials manually from janus
 
 ### Code Dependencies
 

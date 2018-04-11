@@ -1,13 +1,13 @@
 package controllers
 
-import auth.PanDomainAuthActions
-import conf.ApplicationConfiguration
-import model.Cached
+import story_packages.auth.PanDomainAuthActions
+import story_packages.model.Cached
 import play.api.Play
 import play.api.Play.current
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import switchboard.SwitchManager
+import conf.ApplicationConfiguration
+import story_packages.switchboard.SwitchManager
 
 
 object Defaults {

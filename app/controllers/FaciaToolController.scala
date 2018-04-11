@@ -1,16 +1,16 @@
 package controllers
 
 import akka.actor.ActorSystem
-import auth.PanDomainAuthActions
-import conf.ApplicationConfiguration
+import story_packages.auth.PanDomainAuthActions
 import frontsapi.model._
-import metrics.FaciaToolMetrics
-import model.NoCache
+import story_packages.metrics.FaciaToolMetrics
+import story_packages.model.NoCache
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
-import services._
-import updates._
+import story_packages.services._
+import conf.ApplicationConfiguration
+import story_packages.updates._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

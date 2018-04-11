@@ -57,7 +57,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
     val credentials: Option[AWSCredentialsProvider] = {
       val provider = new AWSCredentialsProviderChain(
         new ProfileCredentialsProvider("cmsFronts"),
-        new InstanceProfileCredentialsProvider
+        InstanceProfileCredentialsProvider.getInstance
       )
 
       // this is a bit of a convoluted way to check whether we actually have credentials.
@@ -86,16 +86,13 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
 
     val contentApiLiveHost: String = getMandatoryString("content.api.host")
     val packagesLiveHost: String = getString("content.api.packages.host").getOrElse(contentApiLiveHost)
-    val contentApiDraftHost: String = getMandatoryString("content.api.draft.host")
+    val contentApiDraftHost: String = getMandatoryString("content.api.draft.iam-host")
     val packagesDraftHost: String = getString("content.api.packages.draft.host").getOrElse(contentApiDraftHost)
 
     lazy val key: Option[String] = getString("content.api.key")
     lazy val timeout: Int = 2000
 
-    lazy val previewAuth: Option[Auth] = for {
-      user <- getString("content.api.preview.user")
-      password <- getString("content.api.preview.password")
-    } yield Auth(user, password)
+    lazy val previewRole = getMandatoryString("content.api.draft.role")
   }
 
   object facia {

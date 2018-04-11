@@ -1,17 +1,17 @@
-import conf.{ApplicationConfiguration, CustomGzipFilter}
 import controllers._
 import frontsapi.model.UpdateActions
-import metrics.CloudWatch
+import story_packages.metrics.CloudWatch
 import play.api.ApplicationLoader.Context
 import play.api.inject.{Injector, NewInstanceInjector, SimpleInjector}
 import play.api.{BuiltInComponentsFromContext, Mode}
 import play.api.libs.ws.ning.NingWSComponents
 import play.api.routing.Router
 import play.filters.cors.CORSFilter
-import services._
-import tools.FaciaApiIO
-import updates.{AuditingUpdates, KinesisEventSender, Reindex, UpdatesStream}
+import story_packages.services._
+import story_packages.tools.FaciaApiIO
+import story_packages.updates.{AuditingUpdates, KinesisEventSender, Reindex, UpdatesStream}
 import router.Routes
+import conf.{ApplicationConfiguration, CustomGzipFilter}
 
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with NingWSComponents {
   val isTest = context.environment.mode == Mode.Test
