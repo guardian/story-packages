@@ -38,7 +38,6 @@ class FaciaContentApiProxy(ws: WSAPI, val config: ApplicationConfiguration) exte
       awsRegion = config.aws.region
     )
   }
-  println(s"created previewSigner")
 
   private def getPreviewHeaders(url: String): Seq[(String,String)] =
     previewSigner.addIAMHeaders(headers = Map.empty, URI.create(url)).toSeq
