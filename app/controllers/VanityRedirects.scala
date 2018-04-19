@@ -2,11 +2,11 @@ package controllers
 
 import java.net.URLEncoder
 
-import auth.PanDomainAuthActions
-import conf.ApplicationConfiguration
-import model.NoCache
+import story_packages.auth.PanDomainAuthActions
+import story_packages.model.NoCache
 import play.api.mvc.Action
 import play.mvc.Controller
+import conf.ApplicationConfiguration
 
 class VanityRedirects(val config: ApplicationConfiguration) extends Controller with PanDomainAuthActions {
 

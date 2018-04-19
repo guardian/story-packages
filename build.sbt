@@ -8,9 +8,10 @@ packageSummary := "Story packages"
 
 packageDescription := "Guardian story packages editor"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.12"
 
 import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
+import sbt.{Path, Resolver}
 serverLoading in Debian := Systemd
 
 debianPackageDependencies := Seq("openjdk-8-jre-headless")
@@ -66,8 +67,14 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 
-val awsVersion = "1.11.12"
-val capiModelsVersion = "8.17"
+val awsVersion = "1.11.280"
+val capiModelsVersion = "11.33"
+val json4sVersion = "3.5.0"
+
+resolvers ++= Seq(
+    Resolver.file("Local", file( Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
+    "Guardian Frontend Bintray" at "https://dl.bintray.com/guardian/frontend"
+)
 
 libraryDependencies ++= Seq(
     ws,
@@ -79,14 +86,18 @@ libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
-    "com.gu" % "content-api-models" % capiModelsVersion,
-    "com.gu" % "content-api-models-json" % capiModelsVersion,
-    "com.gu" %% "fapi-client" % "2.0.0",
+    "com.gu" %% "content-api-models" % capiModelsVersion,
+    "com.gu" %% "content-api-models-json" % capiModelsVersion,
+    "com.gu" %% "content-api-client-aws" % "0.5",
+    "com.gu" %% "fapi-client" % "2.5.4",
     "com.gu" % "kinesis-logback-appender" % "1.3.0",
-    "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.3.0",
+    "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.5.1",
     "com.gu" %% "story-packages-model" % "1.0.5",
     "com.gu" %% "thrift-serializer" % "1.1.0",
-    "net.logstash.logback" % "logstash-logback-encoder" % "4.7",
+    "org.json4s" %% "json4s-native" % json4sVersion,
+    "org.json4s" %% "json4s-jackson" % json4sVersion,
+    "net.logstash.logback" % "logstash-logback-encoder" % "5.0",
+    "com.typesafe.akka" %% "akka-slf4j" % "2.4.0",
     "org.julienrf" %% "play-json-variants" % "2.0",
     "org.scalatest" %% "scalatest" % "2.2.6" % "test"
 )

@@ -2,19 +2,19 @@ package controllers
 
 import java.net.{URLDecoder, URLEncoder}
 
-import auth.PanDomainAuthActions
+import story_packages.auth.PanDomainAuthActions
 import com.gu.facia.client.models.CollectionJson
-import conf.ApplicationConfiguration
-import metrics.FaciaToolMetrics
-import model.{Cached, StoryPackage}
-import permissions.APIKeyAuthAction
+import story_packages.metrics.FaciaToolMetrics
+import story_packages.model.{Cached, StoryPackage}
+import story_packages.permissions.APIKeyAuthAction
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSAPI
 import play.api.mvc._
-import services.{Database, FrontsApi}
-import switchboard.SwitchManager
-import updates._
+import story_packages.services.{Database, FrontsApi}
+import conf.ApplicationConfiguration
+import story_packages.switchboard.SwitchManager
+import story_packages.updates._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

@@ -1,8 +1,8 @@
 package controllers
 
-import auth.PanDomainAuthActions
-import conf.ApplicationConfiguration
+import story_packages.auth.PanDomainAuthActions
 import play.api.mvc.{Action, Controller}
+import conf.ApplicationConfiguration
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

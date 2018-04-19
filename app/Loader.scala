@@ -1,8 +1,8 @@
-import logging.LogStashConfig
-import metrics.CloudWatchApplicationMetrics
+import story_packages.logging.LogStashConfig
+import story_packages.metrics.CloudWatchApplicationMetrics
 import play.api.ApplicationLoader.Context
 import play.api.{Application, ApplicationLoader, Logger}
-import switchboard.{SwitchboardConfiguration, Lifecycle => SwitchboardLifecycle}
+import story_packages.switchboard.{SwitchboardConfiguration, Lifecycle => SwitchboardLifecycle}
 
 class Loader extends ApplicationLoader {
   override def load(context: Context): Application = {
