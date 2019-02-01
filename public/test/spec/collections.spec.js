@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import Page from 'test/utils/page';
+import * as wait from 'test/utils/wait';
 
 describe('Collections', function () {
     beforeEach(function (done) {
@@ -240,6 +241,7 @@ describe('Collections', function () {
 
     it('copy to clipboard', function (done) {
         this.testPage.regions.latest().trail(5).copyToClipboard()
+        .then(() => wait.ms(100))
         .then(() => {
             expect(this.testPage.regions.clipboard().trail(1).fieldText('headline')).toBe('Nothing happened for once');
         })

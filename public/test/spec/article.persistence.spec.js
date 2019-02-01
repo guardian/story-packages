@@ -5,6 +5,7 @@ import Group from 'models/group';
 import MockCollections from 'mock/collection';
 import * as authedAjax from 'modules/authed-ajax';
 import * as contentApi from 'modules/content-api';
+import * as wait from 'test/utils/wait';
 
 describe('Article Persistence', function () {
     beforeEach(function () {
@@ -48,6 +49,7 @@ describe('Article Persistence', function () {
             id: 'banana'
         }, this.mock).then(({collection, article}) => {
             return persistence.article.save(article)
+            .then(() => wait.ms(100))
             .then(() => {
                 expect(request).toEqual({
                     update: {
