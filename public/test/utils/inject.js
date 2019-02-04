@@ -48,6 +48,7 @@ export default function inject (html) {
                     setTimeout(() => resolve(model), 10);
                 }
                 vars.setModel(model);
+                wait.ms(100);
                 ko.applyBindings(model, container);
             });
         },
