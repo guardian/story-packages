@@ -22,7 +22,7 @@ class Clipboard extends BaseWidget {
         this.column = params.column;
         this.group = new Group({
             parentType: 'Clipboard',
-            keepCopy:  true,
+            keepCopy: true,
             front: null
         });
         this.group.items(this.getItemsFromStorage());
