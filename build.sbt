@@ -57,7 +57,7 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 
-val awsVersion = "1.11.280"
+val awsVersion = "1.11.999"
 val capiModelsVersion = "14.1"
 val json4sVersion = "3.5.0"
 
