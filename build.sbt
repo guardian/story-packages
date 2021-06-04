@@ -91,4 +91,7 @@ libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % "2.2.6" % "test"
 )
 
+//TODO Upgrade fapi-client once play has been upgraded, then this can be removed.
+dependencyOverrides ++= Set("com.gu" %% "commercial-shared" % "6.1.6")
+
 lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
