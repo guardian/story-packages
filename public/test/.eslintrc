@@ -19,7 +19,6 @@
         // Overrides old
         "camelcase": 2,
         "no-shadow": 2,
-        "strict": 2,
-        "jasmine/no-disabled-tests": 2
+        "strict": 2
     }
 }
