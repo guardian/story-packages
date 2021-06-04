@@ -7,14 +7,16 @@ export NVM_DIR="$HOME/.nvm"
 
 nvm install
 npm install -g grunt-cli
-npm install -g jspm #@0.16.55
+npm install -g jspm@0.16.55
 
 npm install
+jspm config registries.github.auth ${JSPM_GITHUB_AUTH_SECRET}
+jspm config registries.github.remote https://github.jspm.io
+jspm config registries.github.handler jspm-github
+jspm registry export github
+jspm install
 
 grunt --stack validate test
 sbt compile test assets
 grunt --stack bundle
 sbt riffRaffUpload
-
-
-
