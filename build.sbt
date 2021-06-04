@@ -62,8 +62,7 @@ val capiModelsVersion = "14.1"
 val json4sVersion = "3.5.0"
 
 resolvers ++= Seq(
-    Resolver.file("Local", file( Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
-    "Guardian Frontend Bintray" at "https://dl.bintray.com/guardian/frontend"
+    Resolver.file("Local", file( Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 )
 
 libraryDependencies ++= Seq(
