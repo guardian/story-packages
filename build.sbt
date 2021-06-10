@@ -16,19 +16,9 @@ serverLoading in Debian := Systemd
 
 debianPackageDependencies := Seq("openjdk-8-jre-headless")
 
-def env(key: String): Option[String] = Option(System.getenv(key))
-def branch(): Option[String] = {
-    env("TRAVIS_PULL_REQUEST") match {
-        case Some("false") => env("TRAVIS_BRANCH")
-        case _ => env("TRAVIS_PULL_REQUEST")
-    }
-}
-
 riffRaffPackageName := s"cms-fronts::${name.value}"
 riffRaffManifestProjectName := riffRaffPackageName.value
 riffRaffPackageType := (packageBin in Debian).value
-riffRaffBuildIdentifier := env("TRAVIS_BUILD_NUMBER").getOrElse("DEV")
-riffRaffManifestBranch := branch().getOrElse("unknown_branch")
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
 riffRaffArtifactResources := {
@@ -72,8 +62,7 @@ val capiModelsVersion = "14.1"
 val json4sVersion = "3.5.0"
 
 resolvers ++= Seq(
-    Resolver.file("Local", file( Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns),
-    "Guardian Frontend Bintray" at "https://dl.bintray.com/guardian/frontend"
+    Resolver.file("Local", file( Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 )
 
 libraryDependencies ++= Seq(
@@ -101,5 +90,8 @@ libraryDependencies ++= Seq(
     "org.julienrf" %% "play-json-variants" % "2.0",
     "org.scalatest" %% "scalatest" % "2.2.6" % "test"
 )
+
+//TODO Upgrade fapi-client once play has been upgraded, then this can be removed.
+dependencyOverrides ++= Set("com.gu" %% "commercial-shared" % "6.1.6")
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)

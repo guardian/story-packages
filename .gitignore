@@ -42,6 +42,3 @@ screenshots
 
 # Scala test framework #
 *.local.conf
-
-#Node Version Manager
-.nvmrc
