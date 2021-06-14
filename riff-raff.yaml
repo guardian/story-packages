@@ -26,7 +26,7 @@ deployments:
       prependStackToCloudFormationStackName: false
       cloudFormationStackName: story-packages
       amiTags:
-        Recipe: editorial-tools-bionic-java
+        Recipe: editorial-tools-bionic-java8
         AmigoStage: PROD
       amiParameter: MachineImageID
     type: ami-cloudformation-parameter
