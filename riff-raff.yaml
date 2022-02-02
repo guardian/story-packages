@@ -2,7 +2,9 @@ stacks:
 - cms-fronts
 deployments:
   static-story-packages:
+    type: aws-s3
     parameters:
+      publicReadAcl: true
       cacheControl:
       - pattern: .*\.js$
         value: public, max-age=315360000
@@ -14,13 +16,13 @@ deployments:
         map: text/plain
       prefixStack: false
       bucket: cms-fronts-static-assets
-    type: aws-s3
   story-packages:
+    type: autoscaling
     parameters:
       bucket: story-packages-dist
-    type: autoscaling
     dependencies: [packages-ami]
   packages-ami:
+    type: ami-cloudformation-parameter
     parameters:
       cloudFormationStackByTags: false
       prependStackToCloudFormationStackName: false
@@ -29,6 +31,6 @@ deployments:
         Recipe: editorial-tools-bionic-java8
         AmigoStage: PROD
       amiParameter: MachineImageID
-    type: ami-cloudformation-parameter
+
 regions:
 - eu-west-1
