@@ -1,4 +1,3 @@
-# This action runs snyk monitor on every push to main
 name: Snyk
 
 on:
@@ -14,5 +13,6 @@ jobs:
       DEBUG: true
       ORG: guardian
       SKIP_NODE: false
+      JAVA_VERSION: 8
     secrets:
        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
