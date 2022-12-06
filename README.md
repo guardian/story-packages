@@ -97,13 +97,13 @@ You will need the following credentials:
 - workflow - S3 Read
 - capi - API Gateway invocation
 
-1. Run the setup script
+#### 1. Run the setup script
 ```bash
 ./setup.sh
 ```
 This will fetch the required config files, set the nginx mappings, and install the Javascript dependencies.
 
-2. Run the application
+#### 2. Run the application
 ```bash
 sbt
 ```
