@@ -7,9 +7,6 @@ New developers quick-start
 ===========================
 
 1. [Application dependencies](#application-dependencies)
-1. [Clone repository](#clone-repository)
-1. [Local test server](#local-test-server)
-1. [Code Dependencies](#code-dependencies)
 1. [Run the App](#run-the-app)
 1. [Unit tests](#unit-tests)
 
@@ -93,94 +90,20 @@ pip install awscli
 ```
 
 
+### Run the App
 
-### Clone repository
-1. [Generate and add an SSH key](https://help.github.com/articles/generating-ssh-keys) to your GitHub account.
-1. Check out the repository:
-
-    ```bash
-    git clone git@github.com:guardian/story-packages.git
-    cd story-packages
-    ```
-
-
-
-### Local test server
-
-Clone and follows the instructions to set up [dev-nginx](https://github.com/guardian/dev-nginx). The steps to follow are 'Install SSL certificates' and 'Install config for an application'. The path for nginx mapping is `nginx/nginx-mapping.yml`.
-
-Modify the files
-
-* `/usr/local/etc/nginx/nginx.conf` and add this line at the bottom, inside the main block
-
-   > include sites-enabled/*.conf;
-
-* `/usr/local/etc/nginx/sites-enabled/packages.conf` and add this line inside the `server` block
-
-   > merge_slashes off;
-
-Run `sudo nginx -s reload` to restart nginx with the new configuration.
-
-
-Create the files
-
-* `/etc/gu/story-packages.properties` containing, get the `[redacted]` values from a contributor to this repo.
-
-   ```
-   STAGE=CODE
-   TABLE_CONFIG=[redacted]
-   CAPI_STREAM=[redacted]
-   REINDEX_STREAM=[redacted]
-   REINDEX_TABLE=[redacted]
-   PREVIEW_CAPI_STREAM=[redacted]
-   PREVIEW_REINDEX_STREAM=[redacted]
-   ```
-
-* `/etc/gu/story-packages.application.secrets.conf` this files contains secrets, there's a copy in S3. You need at least
-
-   ```
-   content.api.draft.host=[redacted]
-   content.api.host=[redacted]
-   content.api.key=[redacted]
-   content.api.preview.password=[redacted]
-   content.api.preview.user=[redacted]
-
-   media.base.url=[redacted]
-   media.api.url=[redacted]
-
-   ophan.api.host=[redacted]
-   ophan.api.key=[redacted]
-
-
-   ## Local development
-
-   pandomain.domain="local.dev-gutools.co.uk"
-   pandomain.host="https://packages.local.dev-gutools.co.uk"
-
-   facia.stage="CODE"
-   ```
-
-
-
-### Credentials
-
-You need the following credentials:
+You will need the following credentials:
 - cmsFronts - developer
 - workflow - S3 Read
 - capi - API Gateway invocation
-You can get keys temporary keys from janus. You can copy these credentials manually from janus
 
-### Code Dependencies
-
-Inside the project
-
+1. Run the setup script
 ```bash
-npm install
-jspm install
+./setup.sh
 ```
+This will fetch the required config files, set the nginx mappings, and install the Javascript dependencies.
 
-### Run the App
-
+2. Run the application
 ```bash
 sbt
 ```
