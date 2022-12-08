@@ -1,13 +1,12 @@
 package story_packages.metrics
 
+import akka.actor.Scheduler
+import com.amazonaws.services.cloudwatch.model.{Dimension, StandardUnit}
+import play.api.{Logger, Application => PlayApp}
+
 import java.io.File
 import java.lang.management.{GarbageCollectorMXBean, ManagementFactory}
 import java.util.concurrent.atomic.AtomicLong
-
-import akka.actor.Scheduler
-import com.amazonaws.services.cloudwatch.model.{Dimension, StandardUnit}
-import play.api.{GlobalSettings, Logger, Application => PlayApp}
-
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -168,7 +167,7 @@ object ReindexMetrics {
   )
 }
 
-class CloudWatchApplicationMetrics(appName: String, stage: String, cloudWatch: CloudWatch, scheduler: Scheduler, isDev: Boolean) extends GlobalSettings {
+class CloudWatchApplicationMetrics(appName: String, stage: String, cloudWatch: CloudWatch, scheduler: Scheduler, isDev: Boolean) {
   val applicationMetricsNamespace: String = "Application"
   val applicationDimension: Dimension = new Dimension().withName("ApplicationName").withValue(appName)
   def applicationMetrics: List[FrontendMetric] = List(

@@ -1,23 +1,23 @@
+import conf.{ApplicationConfiguration, CustomGzipFilter}
 import controllers._
 import frontsapi.model.UpdateActions
-import story_packages.metrics.CloudWatch
 import play.api.ApplicationLoader.Context
 import play.api.inject.{Injector, NewInstanceInjector, SimpleInjector}
-import play.api.{BuiltInComponentsFromContext, Mode}
-import play.api.libs.ws.ning.NingWSComponents
+import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.routing.Router
+import play.api.{BuiltInComponentsFromContext, Mode}
 import play.filters.cors.CORSFilter
+import router.Routes
+import story_packages.metrics.CloudWatch
 import story_packages.services._
 import story_packages.tools.FaciaApiIO
 import story_packages.updates.{AuditingUpdates, KinesisEventSender, Reindex, UpdatesStream}
-import router.Routes
-import conf.{ApplicationConfiguration, CustomGzipFilter}
 
-class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with NingWSComponents {
+class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with AhcWSComponents {
   val isTest = context.environment.mode == Mode.Test
   val isProd = context.environment.mode == Mode.Prod
   val isDev = context.environment.mode == Mode.Dev
-  val config = new ApplicationConfiguration(configuration, isProd)
+  val config = new ApplicationConfiguration(configuration, isProd, isDev)
   val awsEndpoints = new AwsEndpoints(config)
 
   val auditingUpdates = new AuditingUpdates(config)
@@ -33,7 +33,7 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   val cloudwatch = new CloudWatch(config, awsEndpoints)
   var assetsManager = new AssetsManager(config, isDev)
 
-  val defaults = new DefaultsController(config)
+  val defaults = new DefaultsController(config, wsClient)
   val faciaProxy = new FaciaContentApiProxy(wsApi, config)
   val faciaTool = new FaciaToolController(config, frontsApi, updateActions, database, updatesStream)
   val pandaAuth = new PandaAuthController(config)

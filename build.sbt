@@ -80,13 +80,13 @@ libraryDependencies ++= Seq(
     "com.gu" %% "content-api-client-aws" % "0.5",
     "com.gu" %% "fapi-client" % "3.0.0",
     "com.gu" % "kinesis-logback-appender" % "1.3.0",
-    "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.5.1",
+    "com.gu" %% "pan-domain-auth-play_2-5" % "0.5.1",
     "com.gu" %% "story-packages-model" % "2.0.1",
     "com.gu" %% "thrift-serializer" % "4.0.0",
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "5.0",
-    "com.typesafe.akka" %% "akka-slf4j" % "2.4.0",
+    "com.typesafe.akka" %% "akka-slf4j" % "2.4.20",
     "org.julienrf" %% "play-json-variants" % "2.0",
     "org.scalatest" %% "scalatest" % "2.2.6" % "test"
 )

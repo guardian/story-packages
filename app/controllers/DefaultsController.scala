@@ -1,12 +1,11 @@
 package controllers
 
+import conf.ApplicationConfiguration
+import play.api.libs.json.{JsValue, Json}
+import play.api.libs.ws.WSClient
+import play.api.mvc._
 import story_packages.auth.PanDomainAuthActions
 import story_packages.model.Cached
-import play.api.Play
-import play.api.Play.current
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc._
-import conf.ApplicationConfiguration
 import story_packages.switchboard.SwitchManager
 
 
@@ -27,11 +26,11 @@ case class Defaults(
   linkingCap: Int
 )
 
-class DefaultsController(val config: ApplicationConfiguration) extends Controller with PanDomainAuthActions {
+class DefaultsController(val config: ApplicationConfiguration, override val wsClient: WSClient) extends Controller with PanDomainAuthActions {
   def configuration = APIAuthAction { request =>
     Cached(60) {
       Ok(Json.toJson(Defaults(
-        Play.isDev,
+        config.isProd,
         config.environment.stage,
         request.user.email,
         request.user.avatarUrl,
@@ -44,4 +43,5 @@ class DefaultsController(val config: ApplicationConfiguration) extends Controlle
       )))
     }
   }
+
 }

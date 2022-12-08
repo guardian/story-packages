@@ -66,6 +66,10 @@ object LogStash {
           "stage" -> config.environment.stage.toUpperCase,
           "app"   -> config.environment.applicationName
         )
+        lb.info(s"stage: ${config.environment.stage.toUpperCase}")
+        lb.info(s"appName: ${config.environment.applicationName}")
+        lb.info(s"stream : ${config.logging.stream}")
+        lb.info(s"role: : ${config.logging.streamRole}")
         val layout = makeLayout(makeCustomFields(customFields))
         val bufferSize = 1000
         // remove the default configuration

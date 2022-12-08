@@ -1,21 +1,19 @@
 package conf
 
-import java.io.{File, FileInputStream, InputStream}
-import java.net.URL
-
 import com.amazonaws.AmazonClientException
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import org.apache.commons.io.IOUtils
-import play.api.Play.current
-import play.api.{Logger, Play, Configuration => PlayConfiguration}
+import play.api.{Environment, Logger, Mode, Play, Configuration => PlayConfiguration}
 
+import java.io.{File, FileInputStream, InputStream}
+import java.net.URL
 import scala.collection.JavaConversions._
 import scala.language.reflectiveCalls
 
 class BadConfigurationException(msg: String) extends RuntimeException(msg)
 
-class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isProd: Boolean) {
+class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isProd: Boolean, val isDev: Boolean) {
   private val propertiesFile = "/etc/gu/story-packages.properties"
   private val installVars = new File(propertiesFile) match {
     case f if f.exists => IOUtils.toString(new FileInputStream(f))
@@ -70,7 +68,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
           Logger.error("amazon client exception")
 
           // We really, really want to ensure that PROD is configured before saying a box is OK
-          if (Play.isProd) throw ex
+          if (isProd) throw ex
           // this means that on dev machines you only need to configure keys if you are actually going to use them
           None
       }
