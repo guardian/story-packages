@@ -1,12 +1,9 @@
 package conf
 
-import play.api.mvc.ResponseHeader
-import play.filters.gzip.GzipFilter
-
-class CustomGzipFilter extends GzipFilter(shouldGzip = (_, resp) => !Responses.isImage(resp))
+import play.api.mvc.RequestHeader
 
 object Responses {
-  def isImage(r: ResponseHeader): Boolean = {
+  def isImage(r: RequestHeader): Boolean = {
     r.headers.get("Content-Type").exists(_.startsWith("image/"))
   }
 }

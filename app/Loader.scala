@@ -1,12 +1,12 @@
 import story_packages.logging.LogStashConfig
 import story_packages.metrics.CloudWatchApplicationMetrics
 import play.api.ApplicationLoader.Context
-import play.api.{Application, ApplicationLoader, Logger}
+import play.api.{Application, ApplicationLoader, Logger, LoggerConfigurator}
 import story_packages.switchboard.{SwitchboardConfiguration, Lifecycle => SwitchboardLifecycle}
 
 class Loader extends ApplicationLoader {
   override def load(context: Context): Application = {
-    Logger.configure(context.environment)
+    LoggerConfigurator(context.environment.classLoader).foreach { _.configure(context.environment )}
 
     val components = new AppComponents(context)
 

@@ -2,20 +2,19 @@ package conf
 
 import java.io.{File, FileInputStream, InputStream}
 import java.net.URL
-
 import com.amazonaws.AmazonClientException
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import org.apache.commons.io.IOUtils
-import play.api.Play.current
-import play.api.{Logger, Play, Configuration => PlayConfiguration}
+import play.api.Mode
+import play.api.{Logger, Configuration => PlayConfiguration}
 
 import scala.collection.JavaConversions._
 import scala.language.reflectiveCalls
 
 class BadConfigurationException(msg: String) extends RuntimeException(msg)
 
-class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isProd: Boolean) {
+class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val envMode: Mode.Mode) {
   private val propertiesFile = "/etc/gu/story-packages.properties"
   private val installVars = new File(propertiesFile) match {
     case f if f.exists => IOUtils.toString(new FileInputStream(f))
@@ -41,11 +40,10 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
   private def getMandatoryBoolean(property: String): Boolean = getBoolean(property)
     .getOrElse(throw new BadConfigurationException(s"$property of type boolean not configured for stage $stageFromProperties"))
 
-
-
   object environment {
-    lazy val applicationName = getMandatoryString("environment.applicationName")
-    val stage = stageFromProperties.toLowerCase
+    lazy val applicationName: String = getMandatoryString("environment.applicationName")
+    val stage: String = stageFromProperties.toLowerCase
+    val mode = envMode
   }
 
   object aws {
@@ -70,7 +68,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val isP
           Logger.error("amazon client exception")
 
           // We really, really want to ensure that PROD is configured before saying a box is OK
-          if (Play.isProd) throw ex
+          if (envMode == Mode.Prod) throw ex
           // this means that on dev machines you only need to configure keys if you are actually going to use them
           None
       }
