@@ -10,6 +10,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import story_packages.services._
 import conf.ApplicationConfiguration
+import play.api.libs.ws.WSClient
 import story_packages.updates._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -17,7 +18,7 @@ import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 class FaciaToolController(val config: ApplicationConfiguration, frontsApi: FrontsApi, updateActions: UpdateActions,
-                          database: Database, updatesStream: UpdatesStream) extends Controller with PanDomainAuthActions {
+                          database: Database, updatesStream: UpdatesStream, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
 
   override lazy val actorSystem = ActorSystem()
 

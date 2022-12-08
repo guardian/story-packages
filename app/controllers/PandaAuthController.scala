@@ -3,11 +3,12 @@ package controllers
 import story_packages.auth.PanDomainAuthActions
 import play.api.mvc.{Action, Controller}
 import conf.ApplicationConfiguration
+import play.api.libs.ws.WSClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class PandaAuthController(val config: ApplicationConfiguration) extends Controller with PanDomainAuthActions {
+class PandaAuthController(val config: ApplicationConfiguration, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
 
   def oauthCallback = Action.async { implicit request =>
     processGoogleCallback()

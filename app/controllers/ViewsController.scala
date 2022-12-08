@@ -6,12 +6,14 @@ import story_packages.model.Cached
 import play.api.mvc.{AnyContent, Controller}
 import story_packages.services.AssetsManager
 import conf.ApplicationConfiguration
+import play.api.Mode
+import play.api.libs.ws.WSClient
 
-class ViewsController(val config: ApplicationConfiguration, assetsManager: AssetsManager, isDev: Boolean) extends Controller with PanDomainAuthActions {
+class ViewsController(val config: ApplicationConfiguration, assetsManager: AssetsManager, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
   def priorities() = AuthAction { request =>
     val identity = request.user
     Cached(60) {
-      Ok(views.html.priority(Option(identity), config.facia.stage, isDev))
+      Ok(views.html.priority(Option(identity), config.facia.stage, config.environment.mode == Mode.Dev))
     }
   }
 
