@@ -10,26 +10,27 @@ packageDescription := "Guardian story packages editor"
 
 scalaVersion := "2.12.16"
 
-import sbt.{Path, Resolver}
+import sbt.Resolver
+import sbt.io.Path._
 
 debianPackageDependencies := Seq("openjdk-8-jre-headless")
 
 riffRaffPackageName := s"cms-fronts::${name.value}"
 riffRaffManifestProjectName := riffRaffPackageName.value
-riffRaffPackageType := (packageBin in Debian).value
+riffRaffPackageType := (Debian / packageBin).value
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
 riffRaffArtifactResources := {
     val jsBundlesDir = baseDirectory.value / "tmp" / "bundles"
     Seq(
-        (packageBin in Debian).value -> s"${name.value}/${name.value}_${version.value}_all.deb",
+        (Debian / packageBin).value -> s"${name.value}/${name.value}_${version.value}_all.deb",
         baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml"
     ) ++ ((jsBundlesDir * "*") pair rebase(jsBundlesDir, "static-story-packages"))
 }
 
 javacOptions := Seq("-g","-encoding", "utf8")
 
-javaOptions in Universal ++= Seq(
+Universal / javaOptions ++= Seq(
     "-Dpidfile.path=/dev/null",
     "-J-XX:MaxRAMFraction=2",
     "-J-XX:InitialRAMFraction=2",
@@ -39,12 +40,12 @@ javaOptions in Universal ++= Seq(
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
 )
 
-scalacOptions := Seq("-unchecked", "-optimise", "-deprecation", "-target:jvm-1.8",
-      "-Xcheckinit", "-encoding", "utf8", "-feature", "-Yinline-warnings","-Xfatal-warnings")
+scalacOptions := Seq("-unchecked", "-deprecation", "-target:jvm-1.8",
+      "-Xcheckinit", "-encoding", "utf8", "-feature", "-Xfatal-warnings")
 
-sources in (Compile, doc) := Seq.empty
+Compile / doc / sources := Seq.empty
 
-publishArtifact in (Compile, packageDoc) := false
+Compile / packageDoc / publishArtifact := false
 
 TwirlKeys.templateImports ++= Seq(
     "conf._",
@@ -58,7 +59,7 @@ val capiModelsVersion = "17.4.0"
 val json4sVersion = "3.5.0"
 
 resolvers ++= Seq(
-    Resolver.file("Local", file( Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
+    Resolver.file("Local", file(Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 )
 
 libraryDependencies ++= Seq(
@@ -71,7 +72,7 @@ libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
-    "com.gu" %% "content-api-models" % capiModelsVersion,
+    "com.gu" %% "content-api-models-scala" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "0.5",
     "com.gu" %% "fapi-client-play26" % "3.3.13",
@@ -82,12 +83,8 @@ libraryDependencies ++= Seq(
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "5.0",
-    "com.typesafe.akka" %% "akka-slf4j" % "2.4.0",
     "org.julienrf" %% "play-json-derived-codecs" % "4.0.0",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
-
-//TODO Upgrade fapi-client once play has been upgraded, then this can be removed.
-dependencyOverrides ++= Set("com.gu" %% "commercial-shared" % "6.1.6")
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin)
