@@ -6,7 +6,7 @@
   "dependencies": {
     "@babel/cli": "^7.19.3",
     "eslint-plugin-jasmine": "^1.8.1",
-    "grunt": "1.0.3",
+    "grunt": "1.5.3",
     "grunt-cache-bust": "1.6.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-compress": "^2.0.0",
