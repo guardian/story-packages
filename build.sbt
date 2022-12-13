@@ -8,11 +8,9 @@ packageSummary := "Story packages"
 
 packageDescription := "Guardian story packages editor"
 
-scalaVersion := "2.11.12"
+scalaVersion := "2.12.16"
 
-import com.typesafe.sbt.packager.archetypes.ServerLoader.Systemd
 import sbt.{Path, Resolver}
-serverLoading in Debian := Systemd
 
 debianPackageDependencies := Seq("openjdk-8-jre-headless")
 
@@ -56,7 +54,7 @@ TwirlKeys.templateImports ++= Seq(
 
 
 val awsVersion = "1.11.999"
-val capiModelsVersion = "14.1"
+val capiModelsVersion = "17.4.0"
 val json4sVersion = "3.5.0"
 
 resolvers ++= Seq(
@@ -76,20 +74,20 @@ libraryDependencies ++= Seq(
     "com.gu" %% "content-api-models" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "0.5",
-    "com.gu" %% "fapi-client-play25" % "3.0.4",
+    "com.gu" %% "fapi-client-play26" % "3.3.13",
     "com.gu" % "kinesis-logback-appender" % "1.3.0",
-    "com.gu" %% "pan-domain-auth-play_2-5" % "0.5.1",
+    "com.gu" %% "pan-domain-auth-play_2-6" % "0.7.1",
     "com.gu" %% "story-packages-model" % "2.0.1",
     "com.gu" %% "thrift-serializer" % "4.0.0",
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "5.0",
     "com.typesafe.akka" %% "akka-slf4j" % "2.4.0",
-    "org.julienrf" %% "play-json-variants" % "2.0",
-    "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+    "org.julienrf" %% "play-json-derived-codecs" % "4.0.0",
+    "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
 
 //TODO Upgrade fapi-client once play has been upgraded, then this can be removed.
 dependencyOverrides ++= Set("com.gu" %% "commercial-shared" % "6.1.6")
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin)
