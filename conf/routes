@@ -13,9 +13,6 @@ GET         /login/status                            controllers.PandaAuthContro
 # healthcheck
 GET         /status                                  controllers.StatusController.healthStatus
 
-# static files
-GET         /assets/*file                            controllers.UncachedAssets.at(file)
-
 ##################### NOTE ############################
 #all endpoints below this line should be authenticated#
 #######################################################
@@ -58,3 +55,6 @@ DELETE      /story-package/*id                       controllers.StoryPackagesCo
 GET         /story/*id                               controllers.VanityRedirects.storyPackage(id)
 GET         /add-trail/*id                           controllers.VanityRedirects.addTrail(id)
 GET         /*path/                                  controllers.VanityRedirects.untrail(path: String)
+
+# static files
+GET         /assets/*file  controllers.Assets.at(path = "/public/src", file)
