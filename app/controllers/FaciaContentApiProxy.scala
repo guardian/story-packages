@@ -10,7 +10,7 @@ import com.gu.contentapi.client.{IAMEncoder, IAMSigner}
 import story_packages.metrics.FaciaToolMetrics
 import story_packages.model.Cached
 import play.api.Logger
-import play.api.libs.ws.WSAPI
+import play.api.libs.ws.WSClient
 import play.api.mvc._
 import conf.ApplicationConfiguration
 import story_packages.switchboard.SwitchManager
@@ -19,7 +19,7 @@ import story_packages.util.ContentUpgrade.rewriteBody
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class FaciaContentApiProxy(ws: WSAPI, val config: ApplicationConfiguration) extends Controller with PanDomainAuthActions {
+class FaciaContentApiProxy(val config: ApplicationConfiguration, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
 
   implicit class string2encodings(s: String) {
     lazy val urlEncoded = URLEncoder.encode(s, "utf-8")
@@ -55,7 +55,7 @@ class FaciaContentApiProxy(ws: WSAPI, val config: ApplicationConfiguration) exte
 
     Logger.info(s"Proxying preview API query to: $url")
 
-    ws.url(url).withHeaders(getPreviewHeaders(url): _*).get().map { response =>
+    wsClient.url(url).withHeaders(getPreviewHeaders(url): _*).get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/javascript")
       }
@@ -74,7 +74,7 @@ class FaciaContentApiProxy(ws: WSAPI, val config: ApplicationConfiguration) exte
 
     Logger.info(s"Proxying live API query to: $url")
 
-    ws.url(url).get().map { response =>
+    wsClient.url(url).get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/javascript")
       }
@@ -85,7 +85,7 @@ class FaciaContentApiProxy(ws: WSAPI, val config: ApplicationConfiguration) exte
     FaciaToolMetrics.ProxyCount.increment()
     Logger.info(s"Proxying http request to: $url")
 
-    ws.url(url).get().map { response =>
+    wsClient.url(url).get().map { response =>
       Cached(60) {
         Ok(response.body).as("text/html")
       }
@@ -96,7 +96,7 @@ class FaciaContentApiProxy(ws: WSAPI, val config: ApplicationConfiguration) exte
     FaciaToolMetrics.ProxyCount.increment()
     Logger.info(s"Proxying json request to: $url")
 
-    ws.url(url).withHeaders(getPreviewHeaders(url): _*).get().map { response =>
+    wsClient.url(url).withHeaders(getPreviewHeaders(url): _*).get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/json")
       }
@@ -116,7 +116,7 @@ class FaciaContentApiProxy(ws: WSAPI, val config: ApplicationConfiguration) exte
 
     Logger.info(s"Proxying ophan request to: $url")
 
-    ws.url(url).get().map { response =>
+    wsClient.url(url).get().map { response =>
       Cached(60) {
         Ok(response.body).as("application/json")
       }

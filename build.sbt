@@ -41,8 +41,6 @@ javaOptions in Universal ++= Seq(
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
 )
 
-routesGenerator := InjectedRoutesGenerator
-
 scalacOptions := Seq("-unchecked", "-optimise", "-deprecation", "-target:jvm-1.8",
       "-Xcheckinit", "-encoding", "utf8", "-feature", "-Yinline-warnings","-Xfatal-warnings")
 
@@ -78,9 +76,9 @@ libraryDependencies ++= Seq(
     "com.gu" %% "content-api-models" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "0.5",
-    "com.gu" %% "fapi-client" % "3.0.0",
+    "com.gu" %% "fapi-client-play25" % "3.0.4",
     "com.gu" % "kinesis-logback-appender" % "1.3.0",
-    "com.gu" %% "pan-domain-auth-play_2-4-0" % "0.5.1",
+    "com.gu" %% "pan-domain-auth-play_2-5" % "0.5.1",
     "com.gu" %% "story-packages-model" % "2.0.1",
     "com.gu" %% "thrift-serializer" % "4.0.0",
     "org.json4s" %% "json4s-native" % json4sVersion,

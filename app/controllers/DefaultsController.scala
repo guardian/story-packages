@@ -2,13 +2,12 @@ package controllers
 
 import story_packages.auth.PanDomainAuthActions
 import story_packages.model.Cached
-import play.api.Play
-import play.api.Play.current
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import conf.ApplicationConfiguration
+import play.api.Mode.Dev
+import play.api.libs.ws.WSClient
 import story_packages.switchboard.SwitchManager
-
 
 object Defaults {
   implicit val jsonFormat = Json.writes[Defaults]
@@ -27,11 +26,11 @@ case class Defaults(
   linkingCap: Int
 )
 
-class DefaultsController(val config: ApplicationConfiguration) extends Controller with PanDomainAuthActions {
+class DefaultsController(val config: ApplicationConfiguration, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
   def configuration = APIAuthAction { request =>
     Cached(60) {
       Ok(Json.toJson(Defaults(
-        Play.isDev,
+        config.environment.mode == Dev,
         config.environment.stage,
         request.user.email,
         request.user.avatarUrl,

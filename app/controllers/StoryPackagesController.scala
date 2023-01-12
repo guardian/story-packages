@@ -1,7 +1,6 @@
 package controllers
 
 import java.net.{URLDecoder, URLEncoder}
-
 import story_packages.auth.PanDomainAuthActions
 import com.gu.facia.client.models.CollectionJson
 import story_packages.metrics.FaciaToolMetrics
@@ -9,7 +8,7 @@ import story_packages.model.{Cached, StoryPackage}
 import story_packages.permissions.APIKeyAuthAction
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.WSAPI
+import play.api.libs.ws.WSClient
 import play.api.mvc._
 import story_packages.services.{Database, FrontsApi}
 import conf.ApplicationConfiguration
@@ -21,7 +20,7 @@ import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 class StoryPackagesController(val config: ApplicationConfiguration, database: Database, updatesStream: UpdatesStream,
-                              frontsApi: FrontsApi, reindexJob: Reindex, ws: WSAPI) extends Controller with PanDomainAuthActions {
+                              frontsApi: FrontsApi, reindexJob: Reindex, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
 
   private def serializeSuccess(result: StoryPackage): Future[Result] = {
     Future.successful(Ok(Json.toJson(result)))}
@@ -57,7 +56,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     val url = s"$contentApiHost/packages?order-by=newest&page-size=$pageSize&${config.contentApi.key.map(key => s"api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying latest packages API query to: $url")
-    ws.url(url).get().map { response =>
+    wsClient.url(url).get().map { response =>
       Cached(60) {
         Ok(response.body).as("application/javascript")
       }
@@ -77,7 +76,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     val url = s"$contentApiHost/packages?order-by=newest&q=$encodedTerm${config.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying search query to: $url")
-    ws.url(url).get().flatMap { response =>
+    wsClient.url(url).get().flatMap { response =>
       val json: JsValue = Json.parse(response.body)
       val packageIds = (json \ "response" \ "results" \\ "packageId").map(_.as[String])
       for {
