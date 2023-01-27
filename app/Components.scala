@@ -1,3 +1,6 @@
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.auth.{AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import controllers._
 import frontsapi.model.UpdateActions
 import story_packages.metrics.CloudWatch
@@ -19,6 +22,16 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   val config = new ApplicationConfiguration(configuration, context.environment.mode)
   val awsEndpoints = new AwsEndpoints(config)
 
+  val panDomainSettings = new PanDomainAuthSettingsRefresher(
+    domain = config.pandomain.domain,
+    system = config.pandomain.service,
+    actorSystem = actorSystem,
+    awsCredentialsProvider = new AWSCredentialsProviderChain(
+      new ProfileCredentialsProvider("workflow"),
+      new STSAssumeRoleSessionCredentialsProvider.Builder(config.pandomain.roleArn, config.pandomain.service).build
+    )
+  )
+
   val auditingUpdates = new AuditingUpdates(config)
   val kinesisEventSender = new KinesisEventSender(config)
   val frontsApi = new FrontsApi(config, awsEndpoints)
@@ -32,14 +45,14 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   val cloudwatch = new CloudWatch(config, awsEndpoints)
   var assetsManager = new AssetsManager(config, isDev)
 
-  val defaults = new DefaultsController(config, wsClient)
-  val faciaProxy = new FaciaContentApiProxy(config, wsClient)
-  val faciaTool = new FaciaToolController(config, frontsApi, updateActions, database, updatesStream, wsClient)
-  val pandaAuth = new PandaAuthController(config, wsClient)
-  val status = new StatusController
-  val storyPackages = new StoryPackagesController(config, database, updatesStream, frontsApi, reindex, wsClient)
-  val vanity = new VanityRedirects(config, wsClient)
-  val views = new ViewsController(config, assetsManager, wsClient)
+  val defaults = new DefaultsController(config, wsClient, controllerComponents, panDomainSettings)
+  val faciaProxy = new FaciaContentApiProxy(config, wsClient, controllerComponents, panDomainSettings)
+  val faciaTool = new FaciaToolController(config, frontsApi, updateActions, database, updatesStream, wsClient, controllerComponents, panDomainSettings)
+  val pandaAuth = new PandaAuthController(config, wsClient, controllerComponents, panDomainSettings)
+  val status = new StatusController(controllerComponents)
+  val storyPackages = new StoryPackagesController(config, database, updatesStream, frontsApi, reindex, wsClient, controllerComponents, panDomainSettings)
+  val vanity = new VanityRedirects(config, wsClient, controllerComponents, panDomainSettings)
+  val views = new ViewsController(config, assetsManager, wsClient, controllerComponents, panDomainSettings)
 
   val customGzipFilter = new GzipFilter(shouldGzip = (header, _) => !Responses.isImage(header))
 

@@ -1,15 +1,22 @@
 package controllers
 
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import story_packages.auth.PanDomainAuthActions
 import com.gu.pandomainauth.action.UserRequest
 import story_packages.model.Cached
-import play.api.mvc.{AnyContent, Controller}
+import play.api.mvc.{AnyContent, BaseController, ControllerComponents}
 import story_packages.services.AssetsManager
 import conf.ApplicationConfiguration
 import play.api.Mode
 import play.api.libs.ws.WSClient
 
-class ViewsController(val config: ApplicationConfiguration, assetsManager: AssetsManager, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
+class ViewsController(
+  val config: ApplicationConfiguration,
+  assetsManager: AssetsManager,
+  val wsClient: WSClient,
+  val controllerComponents: ControllerComponents,
+  val panDomainSettings: PanDomainAuthSettingsRefresher
+) extends BaseController with PanDomainAuthActions {
   def priorities() = AuthAction { request =>
     val identity = request.user
     Cached(60) {

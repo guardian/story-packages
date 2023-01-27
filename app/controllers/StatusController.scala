@@ -1,10 +1,10 @@
 package controllers
 
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{BaseController, ControllerComponents}
 
-class StatusController extends Controller {
+class StatusController(val controllerComponents: ControllerComponents) extends BaseController {
 
-  def healthStatus = Action { request =>
+  def healthStatus = Action {
     Ok("Ok.")
   }
 }

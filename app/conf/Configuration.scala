@@ -121,6 +121,8 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
     lazy val domain = getMandatoryString("pandomain.domain")
     lazy val service = getMandatoryString("pandomain.service")
     lazy val roleArn = getMandatoryString("pandomain.roleArn")
+    lazy val bucketName = getString("pandomain.bucketName").getOrElse("pan-domain-auth-settings")
+    lazy val settingsFileKey = s"$domain.settings"
   }
 
   object sentry {

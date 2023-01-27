@@ -1,23 +1,30 @@
 package controllers
 
-import java.net.URLEncoder
-import story_packages.auth.PanDomainAuthActions
-import story_packages.model.NoCache
-import play.api.mvc.Action
-import play.mvc.Controller
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import conf.ApplicationConfiguration
 import play.api.libs.ws.WSClient
+import play.api.mvc.{BaseController, ControllerComponents}
+import story_packages.auth.PanDomainAuthActions
+import story_packages.model.NoCache
 
-class VanityRedirects(val config: ApplicationConfiguration, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
+import java.net.URLEncoder
 
-  def storyPackage(id: String) = AuthAction { request => {
-    NoCache(Redirect(s"/editorial?layout=latest,content:$id,packages", 301))}
+class VanityRedirects(
+  val config: ApplicationConfiguration,
+  val wsClient: WSClient,
+  val controllerComponents: ControllerComponents,
+  val panDomainSettings: PanDomainAuthSettingsRefresher
+) extends BaseController with PanDomainAuthActions {
+
+  def storyPackage(id: String) = AuthAction {
+    NoCache(Redirect(s"/editorial?layout=latest,content:$id,packages", 301))
   }
 
-  def addTrail(id: String) = AuthAction { request => {
+  def addTrail(id: String) = AuthAction {
     NoCache(Redirect(s"/editorial?layout=latest,content,packages:create&q=${URLEncoder.encode(id, "utf-8")}", 301))
-  }}
+  }
 
-  def untrail(path: String) = Action { request =>
-    NoCache(Redirect("/" + path, 301))}
+  def untrail(path: String) = Action {
+    NoCache(Redirect("/" + path, 301))
+  }
 }

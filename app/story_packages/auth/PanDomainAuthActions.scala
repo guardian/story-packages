@@ -4,12 +4,12 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
 import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
-import com.gu.pandomainauth.{PanDomain, PanDomainAuth}
+import com.gu.pandomainauth.{PanDomain}
 import play.api.Logger
 import play.api.mvc._
 import conf.ApplicationConfiguration
 
-trait PanDomainAuthActions extends AuthActions with PanDomainAuth with Results {
+trait PanDomainAuthActions extends AuthActions with Results {
   def config: ApplicationConfiguration
 
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {
@@ -31,11 +31,4 @@ trait PanDomainAuthActions extends AuthActions with PanDomainAuth with Results {
       s"${claimedAuth.user.email} is not valid for use with the Fronts Tool. You need to use your Guardian Google account to login. Please sign in with your Guardian Google account first, then retry logging in."
     }
   }
-
-  override lazy val domain: String = config.pandomain.domain
-  override lazy val system: String = config.pandomain.service
-  override def awsCredentialsProvider = new AWSCredentialsProviderChain(
-    new ProfileCredentialsProvider("workflow"),
-    new STSAssumeRoleSessionCredentialsProvider.Builder(config.pandomain.roleArn, config.pandomain.service).build
-  )
 }

@@ -3,6 +3,7 @@ package controllers
 import java.net.{URLDecoder, URLEncoder}
 import story_packages.auth.PanDomainAuthActions
 import com.gu.facia.client.models.CollectionJson
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import story_packages.metrics.FaciaToolMetrics
 import story_packages.model.{Cached, StoryPackage}
 import story_packages.permissions.APIKeyAuthAction
@@ -19,8 +20,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NonFatal
 
-class StoryPackagesController(val config: ApplicationConfiguration, database: Database, updatesStream: UpdatesStream,
-                              frontsApi: FrontsApi, reindexJob: Reindex, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
+class StoryPackagesController(
+  val config: ApplicationConfiguration,
+  database: Database,
+  updatesStream: UpdatesStream,
+  frontsApi: FrontsApi,
+  reindexJob: Reindex,
+  val wsClient: WSClient,
+  val controllerComponents: ControllerComponents,
+  val panDomainSettings: PanDomainAuthSettingsRefresher
+) extends BaseController with PanDomainAuthActions {
 
   private def serializeSuccess(result: StoryPackage): Future[Result] = {
     Future.successful(Ok(Json.toJson(result)))}

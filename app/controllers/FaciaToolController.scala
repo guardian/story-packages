@@ -1,26 +1,32 @@
 package controllers
 
-import akka.actor.ActorSystem
-import story_packages.auth.PanDomainAuthActions
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import conf.ApplicationConfiguration
 import frontsapi.model._
-import story_packages.metrics.FaciaToolMetrics
-import story_packages.model.NoCache
 import play.api.Logger
 import play.api.libs.json._
-import play.api.mvc._
-import story_packages.services._
-import conf.ApplicationConfiguration
 import play.api.libs.ws.WSClient
+import play.api.mvc._
+import story_packages.auth.PanDomainAuthActions
+import story_packages.metrics.FaciaToolMetrics
+import story_packages.model.NoCache
+import story_packages.services._
 import story_packages.updates._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NonFatal
 
-class FaciaToolController(val config: ApplicationConfiguration, frontsApi: FrontsApi, updateActions: UpdateActions,
-                          database: Database, updatesStream: UpdatesStream, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
-
-  override lazy val actorSystem = ActorSystem()
+class FaciaToolController(
+  val config: ApplicationConfiguration,
+  frontsApi: FrontsApi,
+  updateActions: UpdateActions,
+  database: Database,
+  updatesStream: UpdatesStream,
+  val wsClient: WSClient,
+  val controllerComponents: ControllerComponents,
+  val panDomainSettings: PanDomainAuthSettingsRefresher
+) extends BaseController with PanDomainAuthActions {
 
   def getCollection(collectionId: String) = APIAuthAction.async { request =>
     FaciaToolMetrics.ApiUsageCount.increment()

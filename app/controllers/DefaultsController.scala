@@ -1,5 +1,6 @@
 package controllers
 
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import story_packages.auth.PanDomainAuthActions
 import story_packages.model.Cached
 import play.api.libs.json.{JsValue, Json}
@@ -26,7 +27,12 @@ case class Defaults(
   linkingCap: Int
 )
 
-class DefaultsController(val config: ApplicationConfiguration, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
+class DefaultsController(
+  val config: ApplicationConfiguration,
+  val wsClient: WSClient,
+  override val controllerComponents: ControllerComponents,
+  val panDomainSettings: PanDomainAuthSettingsRefresher
+) extends BaseController with PanDomainAuthActions {
   def configuration = APIAuthAction { request =>
     Cached(60) {
       Ok(Json.toJson(Defaults(

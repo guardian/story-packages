@@ -1,12 +1,11 @@
 package controllers
 
 import java.net.{URI, URLEncoder}
-
-import akka.actor.ActorSystem
 import story_packages.auth.PanDomainAuthActions
 import com.amazonaws.auth.{AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.gu.contentapi.client.{IAMEncoder, IAMSigner}
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import story_packages.metrics.FaciaToolMetrics
 import story_packages.model.Cached
 import play.api.Logger
@@ -19,13 +18,16 @@ import story_packages.util.ContentUpgrade.rewriteBody
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class FaciaContentApiProxy(val config: ApplicationConfiguration, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
+class FaciaContentApiProxy(
+  val config: ApplicationConfiguration,
+  val wsClient: WSClient,
+  val controllerComponents: ControllerComponents,
+  val panDomainSettings: PanDomainAuthSettingsRefresher
+) extends BaseController with PanDomainAuthActions {
 
   implicit class string2encodings(s: String) {
     lazy val urlEncoded = URLEncoder.encode(s, "utf-8")
   }
-
-  override lazy val actorSystem = ActorSystem()
 
   private val previewSigner = {
     val capiPreviewCredentials = new AWSCredentialsProviderChain(
