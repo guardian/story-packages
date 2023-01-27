@@ -6,15 +6,14 @@ import com.amazonaws.AmazonClientException
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import org.apache.commons.io.IOUtils
-import play.api.Mode
-import play.api.{Logger, Configuration => PlayConfiguration}
+import play.api.{Logger, Mode, Configuration => PlayConfiguration}
 
 import scala.collection.JavaConversions._
 import scala.language.reflectiveCalls
 
 class BadConfigurationException(msg: String) extends RuntimeException(msg)
 
-class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val envMode: Mode.Mode) {
+class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val envMode: Mode) {
   private val propertiesFile = "/etc/gu/story-packages.properties"
   private val installVars = new File(propertiesFile) match {
     case f if f.exists => IOUtils.toString(new FileInputStream(f))
