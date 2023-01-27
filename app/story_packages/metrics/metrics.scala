@@ -5,7 +5,7 @@ import java.lang.management.{GarbageCollectorMXBean, ManagementFactory}
 import java.util.concurrent.atomic.AtomicLong
 import akka.actor.Scheduler
 import com.amazonaws.services.cloudwatch.model.{Dimension, StandardUnit}
-import play.api.{GlobalSettings, Logger}
+import play.api.Logger
 
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
