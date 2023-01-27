@@ -26,15 +26,15 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
   private val stageFromProperties = properties.getOrElse("STAGE", "CODE")
 
   private def getString(property: String): Option[String] =
-    playConfiguration.getString(stageFromProperties + "." + property)
-      .orElse(playConfiguration.getString(property))
+    playConfiguration.get[Option[String]](stageFromProperties + "." + property)
+      .orElse(playConfiguration.get[Option[String]](property))
 
   private def getMandatoryString(property: String): String = getString(property)
     .getOrElse(throw new BadConfigurationException(s"$property of type string not configured for stage $stageFromProperties"))
 
   private def getBoolean(property: String): Option[Boolean] =
-    playConfiguration.getBoolean(stageFromProperties + "." + property)
-      .orElse(playConfiguration.getBoolean(property))
+    playConfiguration.get[Option[Boolean]](stageFromProperties + "." + property)
+      .orElse(playConfiguration.get[Option[Boolean]](property))
 
   private def getMandatoryBoolean(property: String): Boolean = getBoolean(property)
     .getOrElse(throw new BadConfigurationException(s"$property of type boolean not configured for stage $stageFromProperties"))
