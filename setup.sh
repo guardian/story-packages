@@ -43,5 +43,5 @@ dev-nginx setup-app ${DIR}/nginx/mapping.yml
 
 echo "🚀   Installing javascript dependencies"
 npm install
-jspm install
+npm run jspm install
 
