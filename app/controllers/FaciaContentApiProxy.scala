@@ -57,7 +57,7 @@ class FaciaContentApiProxy(
 
     Logger.info(s"Proxying preview API query to: $url")
 
-    wsClient.url(url).withHeaders(getPreviewHeaders(url): _*).get().map { response =>
+    wsClient.url(url).withHttpHeaders(getPreviewHeaders(url): _*).get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/javascript")
       }
@@ -98,7 +98,7 @@ class FaciaContentApiProxy(
     FaciaToolMetrics.ProxyCount.increment()
     Logger.info(s"Proxying json request to: $url")
 
-    wsClient.url(url).withHeaders(getPreviewHeaders(url): _*).get().map { response =>
+    wsClient.url(url).withHttpHeaders(getPreviewHeaders(url): _*).get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/json")
       }
