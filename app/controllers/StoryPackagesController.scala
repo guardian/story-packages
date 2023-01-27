@@ -128,7 +128,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     })
   }
 
-  def reindex(isHidden: Boolean) = new APIKeyAuthAction(config).async { request =>
+  def reindex(isHidden: Boolean) = new APIKeyAuthAction(config).async {
     if (SwitchManager.getStatus("story-packages-disable-reindex-endpoint")) {
       Future.successful(Forbidden("Reindex endpoint disabled by a switch"))
     } else {
@@ -139,7 +139,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     }
   }
 
-  def reindexProgress(isHidden: Boolean) = (new APIKeyAuthAction(config)) { request =>
+  def reindexProgress(isHidden: Boolean) = (new APIKeyAuthAction(config)).apply {
     reindexJob.getJobProgress(isHidden) match {
       case Some(progress) => Ok(Json.toJson(progress))
       case None => NotFound("Reindex never run")
