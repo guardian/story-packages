@@ -4,8 +4,7 @@ logLevel := Level.Warn
 resolvers ++= Seq(
   Classpaths.typesafeReleases,
   Resolver.sonatypeRepo("releases"),
-  Resolver.typesafeRepo("releases"),
-  "Spy" at "https://files.couchbase.com/maven2/"
+  Resolver.typesafeRepo("releases")
 )
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.19")
