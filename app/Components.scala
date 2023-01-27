@@ -13,7 +13,7 @@ import conf.{ApplicationConfiguration, Responses}
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.filters.gzip.GzipFilter
 
-class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with AhcWSComponents {
+class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with AhcWSComponents with AssetsComponents {
   val isTest = context.environment.mode == Mode.Test
   val isDev = context.environment.mode == Mode.Dev
   val config = new ApplicationConfiguration(configuration, context.environment.mode)
@@ -47,8 +47,6 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
     customGzipFilter,
     new CORSFilter
   )
-
-  val assets = new Assets(httpErrorHandler)
 
   val router: Router = new Routes(httpErrorHandler, status, pandaAuth, views, faciaTool, defaults, storyPackages, faciaProxy, vanity, assets)
 }
