@@ -3,11 +3,11 @@ package story_packages.auth
 import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import com.gu.pandomainauth.PanDomain
-import play.api.Logger
 import play.api.mvc._
 import conf.ApplicationConfiguration
+import story_packages.services.Logging
 
-trait PanDomainAuthActions extends AuthActions with Results {
+trait PanDomainAuthActions extends AuthActions with Results with Logging {
   def config: ApplicationConfiguration
 
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {

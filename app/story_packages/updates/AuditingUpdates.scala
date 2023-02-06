@@ -1,13 +1,13 @@
 package story_packages.updates
 
 import net.logstash.logback.marker.Markers
-import play.api.Logger
 import play.api.libs.json.Json
 import conf.ApplicationConfiguration
+import story_packages.services.Logging
 
 import scala.collection.JavaConverters._
 
-class AuditingUpdates(config: ApplicationConfiguration) {
+class AuditingUpdates(config: ApplicationConfiguration) extends Logging {
 
   def putAudit(audit: AuditUpdate): Unit = {
     lazy val updatePayload = serializeUpdateMessage(audit)

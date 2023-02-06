@@ -3,9 +3,8 @@ package frontsapi.model
 import com.gu.facia.client.models._
 import com.gu.pandomainauth.model.User
 import org.joda.time.DateTime
-import play.api.Logger
 import play.api.libs.json._
-import story_packages.services.FrontsApi
+import story_packages.services.{FrontsApi, Logging}
 import conf.ApplicationConfiguration
 import story_packages.tools.FaciaApiIO
 import story_packages.updates.UpdateList
@@ -15,7 +14,7 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 
-trait UpdateActionsTrait {
+trait UpdateActionsTrait extends Logging {
   def faciaApiIO: FaciaApiIO
   def frontsApi: FrontsApi
   def config: ApplicationConfiguration

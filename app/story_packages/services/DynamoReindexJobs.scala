@@ -1,18 +1,17 @@
 package story_packages.services
 
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBClient, AmazonDynamoDBClientBuilder}
+import com.amazonaws.services.dynamodbv2.{AmazonDynamoDBClientBuilder}
 import com.amazonaws.services.dynamodbv2.document.spec.{DeleteItemSpec, QuerySpec, ScanSpec, UpdateItemSpec}
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import com.amazonaws.services.dynamodbv2.document.{AttributeUpdate, DynamoDB, Item}
 import story_packages.metrics.ReindexMetrics
-import play.api.Logger
 import conf.ApplicationConfiguration
 import story_packages.updates._
 
 import scala.collection.JavaConverters._
 
-class DynamoReindexJobs(config: ApplicationConfiguration) {
+class DynamoReindexJobs(config: ApplicationConfiguration) extends Logging {
   private lazy val client =
     AmazonDynamoDBClientBuilder.standard
       .withCredentials(config.aws.mandatoryCredentials)

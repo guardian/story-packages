@@ -42,7 +42,7 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   val status = new StatusController(config, controllerComponents, wsClient)
   val storyPackages = new StoryPackagesController(config, controllerComponents, database, updatesStream, frontsApi, reindex, wsClient)
   val vanity = new VanityRedirects(config, controllerComponents, wsClient)
-  val views = new ViewsController(config, assetsManager, wsClient)
+  val views = new ViewsController(config, controllerComponents, assetsManager, wsClient)
 
   val customGzipFilter = new GzipFilter(shouldGzip = (header, _) => !Responses.isImage(header))
 

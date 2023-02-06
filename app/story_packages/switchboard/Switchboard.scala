@@ -2,7 +2,7 @@ package story_packages.switchboard
 
 import akka.actor.Scheduler
 import com.amazonaws.auth.AWSCredentialsProvider
-import play.api.Logger
+import story_packages.services.Logging
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -14,7 +14,7 @@ case class SwitchboardConfiguration (
   endpoint: String
 )
 
-class Lifecycle(conf: SwitchboardConfiguration, scheduler: Scheduler) {
+class Lifecycle(conf: SwitchboardConfiguration, scheduler: Scheduler) extends Logging {
   lazy val client: S3client = new S3client(conf)
 
   Logger.info("Starting switchboard cache")

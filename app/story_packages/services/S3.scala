@@ -8,12 +8,11 @@ import com.amazonaws.util.StringInputStream
 import com.gu.pandomainauth.model.User
 import story_packages.metrics.S3Metrics.S3ClientExceptionsMetric
 import org.joda.time.DateTime
-import play.api.Logger
 import conf.ApplicationConfiguration
 
 import scala.io.{Codec, Source}
 
-trait S3 {
+trait S3 extends Logging {
   def config: ApplicationConfiguration
 
   lazy val bucket = config.aws.bucket

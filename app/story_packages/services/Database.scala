@@ -10,7 +10,6 @@ import com.gu.pandomainauth.model.User
 import story_packages.metrics.StoryPackagesMetrics
 import story_packages.model.StoryPackage
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.Logger
 import conf.ApplicationConfiguration
 import story_packages.updates.ReindexPage
 import story_packages.util.Identity._
@@ -21,7 +20,7 @@ import scala.util.{Failure, Success, Try}
 
 class InvalidQueryResult(msg: String) extends Throwable(msg)
 
-class Database(config: ApplicationConfiguration) {
+class Database(config: ApplicationConfiguration) extends Logging {
   private lazy val client =
     AmazonDynamoDBClientBuilder.standard
       .withCredentials(config.aws.mandatoryCredentials)
@@ -122,7 +121,7 @@ class Database(config: ApplicationConfiguration) {
   }
 }
 
-private object WithExceptionHandling {
+private object WithExceptionHandling extends Logging {
   def apply[T](errorMessage: String, block: => T): Future[T] = {
     Try(block) match {
       case Success(result) =>

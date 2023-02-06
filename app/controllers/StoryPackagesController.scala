@@ -6,7 +6,6 @@ import com.gu.facia.client.models.CollectionJson
 import story_packages.metrics.FaciaToolMetrics
 import story_packages.model.{Cached, StoryPackage}
 import story_packages.permissions.APIKeyAuthAction
-import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._

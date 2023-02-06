@@ -3,13 +3,13 @@ package story_packages.switchboard
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import com.amazonaws.services.s3.model._
-import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, Json}
+import story_packages.services.Logging
 
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
-class S3client (conf: SwitchboardConfiguration) {
+class S3client (conf: SwitchboardConfiguration) extends Logging {
 
   lazy val bucket = conf.bucket
   lazy val objectKey = conf.objectKey

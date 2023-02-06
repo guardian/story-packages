@@ -2,9 +2,8 @@ package story_packages.tools
 
 import com.gu.facia.client.models.CollectionJson
 import com.gu.pandomainauth.model.User
-import play.api.Logger
 import play.api.libs.json.{JsValue, _}
-import story_packages.services.{FrontsApi, S3FrontsApi}
+import story_packages.services.{FrontsApi, Logging, S3FrontsApi}
 
 import scala.concurrent.Future
 import scala.util.Try
@@ -18,7 +17,7 @@ trait FaciaApiWrite {
   def archive(id: String, collectionJson: CollectionJson, update: JsValue, identity: User): Unit
 }
 
-class FaciaApiIO(val frontsApi: FrontsApi, val s3FrontsApi: S3FrontsApi) extends FaciaApiRead with FaciaApiWrite {
+class FaciaApiIO(val frontsApi: FrontsApi, val s3FrontsApi: S3FrontsApi) extends FaciaApiRead with FaciaApiWrite with Logging {
 
   def getCollectionJson(id: String): Future[Option[CollectionJson]] = frontsApi.amazonClient.collection(id)
 

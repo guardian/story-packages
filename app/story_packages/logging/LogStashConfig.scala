@@ -1,11 +1,11 @@
 package story_packages.logging
 
-import play.api.Logger
 import conf.ApplicationConfiguration
+import story_packages.services.Logging
 
 import scala.util.control.NonFatal
 
-class LogStashConfig(config: ApplicationConfiguration) {
+class LogStashConfig(config: ApplicationConfiguration) extends Logging {
   Logger.info("Starting log stash")
   try LogStash.init(config)
   catch {

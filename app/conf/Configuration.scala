@@ -12,14 +12,15 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import org.apache.commons.io.IOUtils
 import play.api.Mode
-import play.api.{Logger, Configuration => PlayConfiguration}
+import play.api.{Configuration => PlayConfiguration}
+import story_packages.services.Logging
 
 import scala.language.reflectiveCalls
 import scala.collection.JavaConverters._
 
 class BadConfigurationException(msg: String) extends RuntimeException(msg)
 
-class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val envMode: Mode) {
+class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val envMode: Mode) extends Logging  {
   private val propertiesFile = "/etc/gu/story-packages.properties"
   private val installVars = new File(propertiesFile) match {
     case f if f.exists => IOUtils.toString(new FileInputStream(f))

@@ -1,7 +1,7 @@
 package controllers
 
 import story_packages.auth.PanDomainAuthActions
-import play.api.mvc.{Action, Controller, ControllerComponents}
+import play.api.mvc.ControllerComponents
 import conf.ApplicationConfiguration
 import play.api.libs.ws.WSClient
 
@@ -13,7 +13,7 @@ class PandaAuthController(config: ApplicationConfiguration, components: Controll
     with PanDomainAuthActions {
 
   def oauthCallback = Action.async { implicit request =>
-    processGoogleCallback()
+    processOAuthCallback()
   }
 
   def logout = Action.async { implicit request =>

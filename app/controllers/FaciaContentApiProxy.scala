@@ -9,7 +9,6 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.gu.contentapi.client.{IAMEncoder, IAMSigner}
 import story_packages.metrics.FaciaToolMetrics
 import story_packages.model.Cached
-import play.api.Logger
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import conf.ApplicationConfiguration

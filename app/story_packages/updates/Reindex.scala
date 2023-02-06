@@ -4,9 +4,8 @@ import akka.actor.Scheduler
 import com.amazonaws.services.dynamodbv2.document.Item
 import story_packages.model.StoryPackage
 import org.joda.time.DateTime
-import play.api.Logger
 import play.api.libs.json.Json
-import story_packages.services.{Database, DynamoReindexJobs, FrontsApi}
+import story_packages.services.{Database, DynamoReindexJobs, FrontsApi, Logging}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -57,7 +56,7 @@ object SortItemsByLastStartTime {
 }
 
 class Reindex(dynamoReindexJobs: DynamoReindexJobs, database: Database, frontsApi: FrontsApi, kinesisEventSender: KinesisEventSender,
-              scheduler: Scheduler) {
+              scheduler: Scheduler) extends Logging {
   def scheduleJob(isHidden: Boolean = false): Future[Option[RunningJob]] = {
     if (dynamoReindexJobs.hasJobInProgress(isHidden)) {
       Logger.info(s"Cannot run multiple reindex at the same time")
