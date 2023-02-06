@@ -7,7 +7,7 @@ resolvers ++= Seq(
   Resolver.typesafeRepo("releases")
 )
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.23")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.19")
 
 addSbtPlugin("com.gu" % "sbt-riffraff-artifact" % "1.1.12")
 

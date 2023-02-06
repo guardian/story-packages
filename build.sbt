@@ -77,7 +77,7 @@ libraryDependencies ++= Seq(
     "com.gu" %% "content-api-client-aws" % "0.5",
     "com.gu" %% "fapi-client-play26" % "3.3.13",
     "com.gu" % "kinesis-logback-appender" % "1.3.0",
-    "com.gu" %% "pan-domain-auth-play_2-6" % "0.7.2",
+    "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.0",
     "com.gu" %% "story-packages-model" % "2.0.1",
     "com.gu" %% "thrift-serializer" % "4.0.0",
     "org.json4s" %% "json4s-native" % json4sVersion,
