@@ -5,11 +5,11 @@ import java.lang.management.{GarbageCollectorMXBean, ManagementFactory}
 import java.util.concurrent.atomic.AtomicLong
 import akka.actor.Scheduler
 import com.amazonaws.services.cloudwatch.model.{Dimension, StandardUnit}
-import play.api.{GlobalSettings, Logger}
+import play.api.Logger
 
-import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 
 object SystemMetrics {
 
@@ -31,7 +31,7 @@ object SystemMetrics {
   }
 
 
-  lazy val garbageCollectors: Seq[GcRateMetric] = ManagementFactory.getGarbageCollectorMXBeans.map(new GcRateMetric(_))
+  lazy val garbageCollectors: Seq[GcRateMetric] = ManagementFactory.getGarbageCollectorMXBeans.asScala.map(new GcRateMetric(_))
 
 
   // divide by 1048576 to convert bytes to MB

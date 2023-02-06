@@ -9,12 +9,12 @@ import org.apache.commons.io.IOUtils
 import play.api.Mode
 import play.api.{Logger, Configuration => PlayConfiguration}
 
-import scala.collection.JavaConversions._
 import scala.language.reflectiveCalls
+import scala.collection.JavaConverters._
 
 class BadConfigurationException(msg: String) extends RuntimeException(msg)
 
-class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val envMode: Mode.Mode) {
+class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val envMode: Mode) {
   private val propertiesFile = "/etc/gu/story-packages.properties"
   private val installVars = new File(propertiesFile) match {
     case f if f.exists => IOUtils.toString(new FileInputStream(f))
@@ -162,7 +162,7 @@ object Properties extends AutomaticResourceManagement {
   def apply(is: InputStream): Map[String, String] = {
     val properties = new java.util.Properties()
     withCloseable(is) { properties load _ }
-    properties.toMap
+    properties.asScala.toMap
   }
 
   def apply(text: String): Map[String, String] = apply(IOUtils.toInputStream(text))
