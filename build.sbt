@@ -55,7 +55,23 @@ resolvers ++= Seq(
     Resolver.file("Local", file(Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 )
 
-libraryDependencies ++= Seq(
+lazy val jacksonVersion = "2.13.4"
+lazy val jacksonDatabindVersion = "2.13.4.2"
+
+// these Jackson dependencies are required to resolve issues in Play 2.8.x https://github.com/orgs/playframework/discussions/11222
+val jacksonOverrides = Seq(
+    "com.fasterxml.jackson.core" % "jackson-core",
+    "com.fasterxml.jackson.core" % "jackson-annotations",
+    "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8",
+    "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala",
+).map(_ % jacksonVersion)
+
+val jacksonDatabindOverrides = Seq(
+    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion
+)
+
+libraryDependencies ++= jacksonOverrides ++ Seq(
     ws,
     filters,
     "com.amazonaws" % "aws-java-sdk-core" % awsVersion,

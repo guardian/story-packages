@@ -1,13 +1,10 @@
 package story_packages.metrics
 
 import java.util.concurrent.atomic.AtomicLong
-import akka.agent.Agent
 import com.amazonaws.services.cloudwatch.model.StandardUnit
 import org.joda.time.DateTime
 import story_packages.util.Box
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.util.Try
 
 sealed trait DataPoint {
