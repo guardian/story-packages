@@ -18,7 +18,7 @@ class Lifecycle(conf: SwitchboardConfiguration, scheduler: Scheduler) extends Lo
   lazy val client: S3client = new S3client(conf)
 
   Logger.info("Starting switchboard cache")
-  scheduler.schedule(initialDelay = 1.seconds, interval = 1.minute) { refreshSwitches() }
+  scheduler.scheduleWithFixedDelay(initialDelay = 1.seconds, delay = 1.minute) { () => refreshSwitches() }
 
   def refreshSwitches() {
     Logger.info("Refreshing switches from switchboard")

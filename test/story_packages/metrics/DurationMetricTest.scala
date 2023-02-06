@@ -21,12 +21,8 @@ class DurationMetricTest extends FlatSpec with Matchers {
     durationMetric.recordDuration(1000)
     durationMetric.recordDuration(1000)
 
-    Await.result(durationMetric.getDataFuture, 10.seconds)
-
     durationMetric.getDataPoints.length should be (3)
     durationMetric.getAndResetDataPoints.forall(_.value == 1000) should be (true)
-
-    Await.result(durationMetric.getDataFuture, 10.seconds)
 
     durationMetric.getDataPoints.length should be(0)
   }
@@ -44,8 +40,6 @@ class DurationMetricTest extends FlatSpec with Matchers {
     durationMetric.recordDuration(1000)
     durationMetric.recordDuration(1000)
     durationMetric.putDataPoints(List(metricOne, metricTwo, metricThree, metricFour))
-
-    Await.result(durationMetric.getDataFuture, 10.seconds)
 
     val dataPoints = durationMetric.getDataPoints
     dataPoints.length should be (7)

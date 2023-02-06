@@ -1,7 +1,6 @@
 package story_packages.updates
 
 import java.nio.ByteBuffer
-
 import com.amazonaws.handlers.AsyncHandler
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClientBuilder
 import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry, PutRecordsResult}
