@@ -111,7 +111,23 @@ trait UpdateActionsTrait {
 
   def createCollectionJson(identity: User, update: UpdateList): CollectionJson = {
     val userName = getUserName(identity)
-    CollectionJson(List(Trail(update.item, DateTime.now.getMillis, Some(userName), update.itemMeta)), None, None, DateTime.now, userName, identity.email, None, None, None)
+    CollectionJson(
+      live = List(Trail(
+        id = update.item,
+        frontPublicationDate = DateTime.now.getMillis,
+        publishedBy = Some(userName),
+        meta = update.itemMeta)
+      ),
+      draft = None,
+      treats = None,
+      lastUpdated = DateTime.now,
+      updatedBy = userName,
+      updatedEmail = identity.email,
+      displayName = None,
+      href = None,
+      previously = None,
+      targetedTerritory = None
+    )
   }
 
   private def pruneBlock(collectionJson: CollectionJson): CollectionJson =

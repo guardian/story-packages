@@ -56,7 +56,7 @@ TwirlKeys.templateImports ++= Seq(
 
 val awsVersion = "1.11.999"
 val capiModelsVersion = "17.4.0"
-val json4sVersion = "3.5.0"
+val json4sVersion = "4.0.3"
 
 resolvers ++= Seq(
     Resolver.file("Local", file(Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
@@ -77,12 +77,14 @@ libraryDependencies ++= Seq(
     "com.gu" %% "content-api-client-aws" % "0.5",
     "com.gu" %% "fapi-client-play26" % "3.3.13",
     "com.gu" % "kinesis-logback-appender" % "1.3.0",
-    "com.gu" %% "pan-domain-auth-play_2-6" % "0.7.1",
+    "com.gu" %% "pan-domain-auth-play_2-6" % "0.7.2",
     "com.gu" %% "story-packages-model" % "2.0.1",
     "com.gu" %% "thrift-serializer" % "4.0.0",
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "5.0",
+    "com.typesafe.play" %% "play-json" % "2.6.13",
+    "com.typesafe.play" %% "play-iteratees" % "2.6.1",
     "org.julienrf" %% "play-json-derived-codecs" % "4.0.0",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
