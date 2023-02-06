@@ -12,11 +12,11 @@ import story_packages.updates._
 
 import scala.collection.JavaConverters._
 
-class DynamoReindexJobs(config: ApplicationConfiguration, awsEndpoints: AwsEndpoints) {
+class DynamoReindexJobs(config: ApplicationConfiguration) {
   private lazy val client =
     AmazonDynamoDBClientBuilder.standard
       .withCredentials(config.aws.mandatoryCredentials)
-      .withEndpointConfiguration(new EndpointConfiguration(awsEndpoints.dynamoDb, config.aws.region))
+      .withEndpointConfiguration(new EndpointConfiguration(config.aws.endpoints.dynamoDB, config.aws.region))
       .build
 
   private lazy val table = new DynamoDB(client).getTable(config.reindex.progressTable)

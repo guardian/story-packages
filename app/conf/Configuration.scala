@@ -5,6 +5,11 @@ import java.net.URL
 import com.amazonaws.AmazonClientException
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
+import com.amazonaws.regions.{Region, Regions}
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
+import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import org.apache.commons.io.IOUtils
 import play.api.Mode
 import play.api.{Logger, Configuration => PlayConfiguration}
@@ -27,15 +32,15 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
   private val stageFromProperties = properties.getOrElse("STAGE", "CODE")
 
   private def getString(property: String): Option[String] =
-    playConfiguration.getString(stageFromProperties + "." + property)
-      .orElse(playConfiguration.getString(property))
+    playConfiguration.getOptional[String](stageFromProperties + "." + property)
+      .orElse(playConfiguration.getOptional[String](property))
 
   private def getMandatoryString(property: String): String = getString(property)
     .getOrElse(throw new BadConfigurationException(s"$property of type string not configured for stage $stageFromProperties"))
 
   private def getBoolean(property: String): Option[Boolean] =
-    playConfiguration.getBoolean(stageFromProperties + "." + property)
-      .orElse(playConfiguration.getBoolean(property))
+    playConfiguration.getOptional[Boolean](stageFromProperties + "." + property)
+      .orElse(playConfiguration.getOptional[Boolean](property))
 
   private def getMandatoryBoolean(property: String): Boolean = getBoolean(property)
     .getOrElse(throw new BadConfigurationException(s"$property of type boolean not configured for stage $stageFromProperties"))
@@ -49,7 +54,13 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
   object aws {
     lazy val region = getMandatoryString("aws.region")
     lazy val bucket = getMandatoryString("aws.bucket")
-    lazy val crossAccount = getMandatoryBoolean("aws.crossAccount")
+
+    object endpoints {
+      private lazy val _region = Region.getRegion(Regions.fromName(region))
+      val monitoring: String = _region.getServiceEndpoint(AmazonCloudWatch.ENDPOINT_PREFIX)
+      val dynamoDB: String = _region.getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX)
+      val s3: String = _region.getServiceEndpoint(AmazonS3.ENDPOINT_PREFIX)
+    }
 
     def mandatoryCredentials: AWSCredentialsProvider = credentials.getOrElse(throw new BadConfigurationException("AWS credentials are not configured"))
     val credentials: Option[AWSCredentialsProvider] = {
@@ -73,6 +84,13 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
           None
       }
     }
+
+    val s3Client: Option[AmazonS3] = credentials.map { credentials =>
+      AmazonS3ClientBuilder.standard
+        .withCredentials(credentials)
+        .withEndpointConfiguration(new EndpointConfiguration(endpoints.s3, region))
+        .build
+    }
   }
 
   object cdn {
@@ -80,15 +98,12 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
   }
 
   object contentApi {
-    case class Auth(user: String, password: String)
-
     val contentApiLiveHost: String = getMandatoryString("content.api.host")
     val packagesLiveHost: String = getString("content.api.packages.host").getOrElse(contentApiLiveHost)
     val contentApiDraftHost: String = getMandatoryString("content.api.draft.iam-host")
     val packagesDraftHost: String = getString("content.api.packages.draft.host").getOrElse(contentApiDraftHost)
 
     lazy val key: Option[String] = getString("content.api.key")
-    lazy val timeout: Int = 2000
 
     lazy val previewRole = getMandatoryString("content.api.draft.role")
   }
@@ -120,6 +135,8 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
   object pandomain {
     lazy val host = getMandatoryString("pandomain.host")
     lazy val domain = getMandatoryString("pandomain.domain")
+    lazy val bucketName = getMandatoryString("pandomain.bucketName")
+    lazy val settingsFileKey = getMandatoryString("pandomain.settingsFileKey")
     lazy val service = getMandatoryString("pandomain.service")
     lazy val roleArn = getMandatoryString("pandomain.roleArn")
   }

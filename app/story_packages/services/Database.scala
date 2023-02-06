@@ -21,11 +21,11 @@ import scala.util.{Failure, Success, Try}
 
 class InvalidQueryResult(msg: String) extends Throwable(msg)
 
-class Database(config: ApplicationConfiguration, awsEndpoints: AwsEndpoints) {
+class Database(config: ApplicationConfiguration) {
   private lazy val client =
     AmazonDynamoDBClientBuilder.standard
       .withCredentials(config.aws.mandatoryCredentials)
-      .withEndpointConfiguration(new EndpointConfiguration(awsEndpoints.dynamoDb, config.aws.region))
+      .withEndpointConfiguration(new EndpointConfiguration(config.aws.endpoints.dynamoDB, config.aws.region))
       .build
 
   private lazy val table = new DynamoDB(client).getTable(config.storage.configTable)

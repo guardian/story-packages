@@ -17,10 +17,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NonFatal
 
-class FaciaToolController(val config: ApplicationConfiguration, frontsApi: FrontsApi, updateActions: UpdateActions,
-                          database: Database, updatesStream: UpdatesStream, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
-
-  override lazy val actorSystem = ActorSystem()
+class FaciaToolController(config: ApplicationConfiguration, controllerComponents: ControllerComponents, frontsApi: FrontsApi, updateActions: UpdateActions,
+                          database: Database, updatesStream: UpdatesStream, wsClient: WSClient)
+  extends StoryPackagesBaseController(config, controllerComponents, wsClient)
+  with PanDomainAuthActions {
 
   def getCollection(collectionId: String) = APIAuthAction.async { request =>
     FaciaToolMetrics.ApiUsageCount.increment()

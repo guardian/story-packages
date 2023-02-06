@@ -19,8 +19,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NonFatal
 
-class StoryPackagesController(val config: ApplicationConfiguration, database: Database, updatesStream: UpdatesStream,
-                              frontsApi: FrontsApi, reindexJob: Reindex, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
+class StoryPackagesController(config: ApplicationConfiguration, components: ControllerComponents, database: Database, updatesStream: UpdatesStream,
+                              frontsApi: FrontsApi, reindexJob: Reindex, wsClient: WSClient) extends StoryPackagesBaseController(config, components, wsClient) with PanDomainAuthActions {
 
   private def serializeSuccess(result: StoryPackage): Future[Result] = {
     Future.successful(Ok(Json.toJson(result)))}
