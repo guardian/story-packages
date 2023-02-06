@@ -4,12 +4,12 @@ import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.handlers.AsyncHandler
 import com.amazonaws.services.cloudwatch.{AmazonCloudWatchAsync, AmazonCloudWatchAsyncClientBuilder}
 import com.amazonaws.services.cloudwatch.model._
-import play.api.Logger
 import conf.ApplicationConfiguration
+import story_packages.services.Logging
 
 import scala.collection.JavaConverters._
 
-class CloudWatch(config: ApplicationConfiguration) {
+class CloudWatch(config: ApplicationConfiguration) extends Logging {
 
   lazy val cloudwatch: Option[AmazonCloudWatchAsync] = config.aws.credentials.map { credentials =>
     AmazonCloudWatchAsyncClientBuilder.standard

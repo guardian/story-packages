@@ -65,6 +65,7 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
     ws,
     filters,
+    "com.typesafe.akka" %% "akka-agent" % "2.5.23",
     "com.amazonaws" % "aws-java-sdk-core" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
@@ -83,7 +84,7 @@ libraryDependencies ++= Seq(
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "5.0",
-    "com.typesafe.play" %% "play-json" % "2.6.13",
+    "com.typesafe.play" %% "play-json" % "2.9.4",
     "com.typesafe.play" %% "play-iteratees" % "2.6.1",
     "org.julienrf" %% "play-json-derived-codecs" % "4.0.0",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test"
