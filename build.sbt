@@ -47,13 +47,6 @@ Compile / doc / sources := Seq.empty
 
 Compile / packageDoc / publishArtifact := false
 
-TwirlKeys.templateImports ++= Seq(
-    "conf._",
-    "play.api.Play",
-    "play.api.Play.current"
-)
-
-
 val awsVersion = "1.11.999"
 val capiModelsVersion = "17.4.0"
 val json4sVersion = "4.0.3"
@@ -65,7 +58,6 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
     ws,
     filters,
-    "com.typesafe.akka" %% "akka-agent" % "2.5.23",
     "com.amazonaws" % "aws-java-sdk-core" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
