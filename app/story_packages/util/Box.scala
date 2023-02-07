@@ -4,6 +4,9 @@ import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent.Future
 
+/**
+ * A synchronous replacement for Akka Agents, which were deprecated in Akka 2.5.
+ */
 abstract class Box[T] {
   def get(): T
   def apply(): T
@@ -20,8 +23,6 @@ object Box {
 }
 
 private class AtomicRefBox[T](initialValue: T) extends Box[T] {
-  // Note the name of this initial value. This has a different name those in
-  // the methods below to ensure the correct scope of named variables.
   private val ref: AtomicReference[T] = new AtomicReference[T](initialValue)
 
   def apply(): T = ref.get()
