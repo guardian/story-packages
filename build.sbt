@@ -95,7 +95,7 @@ libraryDependencies ++= jacksonOverrides ++ Seq(
     "com.typesafe.play" %% "play-json" % "2.9.4",
     "com.typesafe.play" %% "play-iteratees" % "2.6.1",
     "org.julienrf" %% "play-json-derived-codecs" % "4.0.0",
-    "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+    "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 )
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin)
