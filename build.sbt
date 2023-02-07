@@ -91,7 +91,7 @@ libraryDependencies ++= jacksonOverrides ++ Seq(
     "com.gu" %% "thrift-serializer" % "4.0.0",
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
-    "net.logstash.logback" % "logstash-logback-encoder" % "5.0",
+    "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
     "com.typesafe.play" %% "play-json" % "2.9.4",
     "com.typesafe.play" %% "play-iteratees" % "2.6.1",
     "org.julienrf" %% "play-json-derived-codecs" % "10.1.0",
