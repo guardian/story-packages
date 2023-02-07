@@ -17,7 +17,6 @@ import play.filters.gzip.GzipFilter
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context)
   with AhcWSComponents
   with AssetsComponents {
-  controllerComponents
   val isTest = context.environment.mode == Mode.Test
   val isDev = context.environment.mode == Mode.Dev
   val config = new ApplicationConfiguration(configuration, context.environment.mode)
