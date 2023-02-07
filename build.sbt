@@ -94,7 +94,7 @@ libraryDependencies ++= jacksonOverrides ++ Seq(
     "net.logstash.logback" % "logstash-logback-encoder" % "5.0",
     "com.typesafe.play" %% "play-json" % "2.9.4",
     "com.typesafe.play" %% "play-iteratees" % "2.6.1",
-    "org.julienrf" %% "play-json-derived-codecs" % "4.0.0",
+    "org.julienrf" %% "play-json-derived-codecs" % "10.1.0",
     "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 )
 
