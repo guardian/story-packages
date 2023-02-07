@@ -137,7 +137,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
     lazy val host = getMandatoryString("pandomain.host")
     lazy val domain = getMandatoryString("pandomain.domain")
     lazy val bucketName = getMandatoryString("pandomain.bucketName")
-    lazy val settingsFileKey = getMandatoryString("pandomain.settingsFileKey")
+    lazy val settingsFileKey = s"$domain.settings"
     lazy val service = getMandatoryString("pandomain.service")
     lazy val roleArn = getMandatoryString("pandomain.roleArn")
   }
