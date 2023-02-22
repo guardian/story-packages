@@ -16,6 +16,7 @@ import story_packages.updates._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Success, Failure}
 import scala.util.control.NonFatal
 
 class StoryPackagesController(config: ApplicationConfiguration, components: ControllerComponents, database: Database, updatesStream: UpdatesStream,
@@ -79,10 +80,13 @@ class StoryPackagesController(config: ApplicationConfiguration, components: Cont
       val json: JsValue = Json.parse(response.body)
       val packageIds = (json \ "response" \ "results" \\ "packageId").map(_.as[String])
       for {
-        packages <- Future.sequence(packageIds.map(id => database.getPackage(id)))
+        packages <- Future.sequence(packageIds.map(id => database.getPackage(id).transformWith {
+          case Success(result) => Future.successful(Some(result))
+          case Failure(_) => Future.successful(None)
+        }))
       } yield {
         Cached(60) {
-          Ok(Json.toJson(packages)).as("application/javascript")
+          Ok(Json.toJson(packages.flatten)).as("application/javascript")
         }
       }
     }
