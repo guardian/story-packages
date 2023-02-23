@@ -57,7 +57,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
     lazy val bucket = getMandatoryString("aws.bucket")
 
     object endpoints {
-      private lazy val _region = Region.getRegion(Regions.fromName(region))
+      private val _region = Region.getRegion(Regions.fromName(region))
       val monitoring: String = _region.getServiceEndpoint(AmazonCloudWatch.ENDPOINT_PREFIX)
       val dynamoDB: String = _region.getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX)
       val s3: String = _region.getServiceEndpoint(AmazonS3.ENDPOINT_PREFIX)
