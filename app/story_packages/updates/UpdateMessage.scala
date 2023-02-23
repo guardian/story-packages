@@ -1,7 +1,7 @@
 package story_packages.updates
 
 import com.gu.facia.client.models.{CollectionJson, TrailMetaData}
-import julienrf.variants.Variants
+import julienrf.json.derived
 import story_packages.model.StoryPackage
 import org.joda.time.DateTime
 import play.api.libs.json._
@@ -31,7 +31,7 @@ case class Remove(remove: UpdateList) extends UpdateMessage
 
 /* Macro - Watch out, this needs to be after the case classes */
 object UpdateMessage {
-  implicit val format: Format[UpdateMessage] = Variants.format[UpdateMessage]((__ \ "type").format[String])
+  implicit val format = derived.flat.oformat[UpdateMessage]((__ \ "type").format[String])
 }
 
 /* Kinesis messages */

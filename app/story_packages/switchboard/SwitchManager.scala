@@ -1,9 +1,9 @@
 package story_packages.switchboard
 
-import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
+import story_packages.services.Logging
 
-object SwitchManager {
+object SwitchManager extends Logging {
 
   var switches: Map[String, Boolean] = Map()
 

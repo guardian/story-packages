@@ -6,10 +6,11 @@ import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider
 import com.gu.logback.appender.kinesis.KinesisAppender
 import net.logstash.logback.layout.LogstashLayout
 import org.slf4j.LoggerFactory
-import play.api.{LoggerLike, Logger => PlayLogger}
+import play.api.{LoggerLike, Logger}
 import conf.ApplicationConfiguration
+import story_packages.services.Logging
 
-object LogStash {
+object LogStash extends Logging {
 
   lazy val loggingContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
 
@@ -55,9 +56,9 @@ object LogStash {
 
   def init(config: ApplicationConfiguration) = {
     if(config.logging.enabled) {
-      PlayLogger.info("LogConfig initializing")
+      Logger.info("LogConfig initializing")
       (for {
-        lb <- asLogBack(PlayLogger)
+        lb <- asLogBack(Logger)
       } yield {
         lb.info("Configuring Logback")
         val context = lb.getLoggerContext
@@ -80,9 +81,9 @@ object LogStash {
         )
         lb.addAppender(appender)
         lb.info("Configured Logback")
-      })getOrElse(PlayLogger.info("not running using logback"))
+      })getOrElse(Logger.info("not running using logback"))
     } else {
-      PlayLogger.info("Logging disabled")
+      Logger.info("Logging disabled")
     }
   }
 }

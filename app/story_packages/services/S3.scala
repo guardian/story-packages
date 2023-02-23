@@ -8,27 +8,17 @@ import com.amazonaws.util.StringInputStream
 import com.gu.pandomainauth.model.User
 import story_packages.metrics.S3Metrics.S3ClientExceptionsMetric
 import org.joda.time.DateTime
-import play.api.Logger
 import conf.ApplicationConfiguration
 
 import scala.io.{Codec, Source}
 
-trait S3 {
+trait S3 extends Logging {
   def config: ApplicationConfiguration
-  def awsEndpoints: AwsEndpoints
 
   lazy val bucket = config.aws.bucket
 
-  lazy val client: Option[AmazonS3] = config.aws.credentials.map { credentials =>
-    AmazonS3ClientBuilder.standard
-      .withCredentials(credentials)
-      .withEndpointConfiguration(new EndpointConfiguration(awsEndpoints.s3, config.aws.region))
-      .build
-  }
-
-  private def withS3Result[T](key: String)(action: S3Object => T): Option[T] = client.flatMap { client =>
+  private def withS3Result[T](key: String)(action: S3Object => T): Option[T] = config.aws.s3Client.flatMap { client =>
     try {
-
       val request = new GetObjectRequest(bucket, key)
       val result = client.getObject(request)
 
@@ -85,7 +75,7 @@ trait S3 {
     val request = new PutObjectRequest(bucket, key, new StringInputStream(value), metadata).withCannedAcl(accessControlList)
 
     try {
-      client.foreach(_.putObject(request))
+      config.aws.s3Client.foreach(_.putObject(request))
     } catch {
       case e: Exception =>
         S3ClientExceptionsMetric.increment()
@@ -94,7 +84,7 @@ trait S3 {
   }
 }
 
-class S3FrontsApi(val config: ApplicationConfiguration, isTest: Boolean, val awsEndpoints: AwsEndpoints) extends S3 {
+class S3FrontsApi(val config: ApplicationConfiguration, isTest: Boolean) extends S3 {
 
   lazy val stage = if (isTest) "TEST" else config.facia.stage.toUpperCase
   val namespace = "frontsapi"

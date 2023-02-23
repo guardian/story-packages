@@ -9,7 +9,6 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.gu.contentapi.client.{IAMEncoder, IAMSigner}
 import story_packages.metrics.FaciaToolMetrics
 import story_packages.model.Cached
-import play.api.Logger
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import conf.ApplicationConfiguration
@@ -19,13 +18,11 @@ import story_packages.util.ContentUpgrade.rewriteBody
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class FaciaContentApiProxy(val config: ApplicationConfiguration, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
+class FaciaContentApiProxy(config: ApplicationConfiguration, components: ControllerComponents, wsClient: WSClient) extends StoryPackagesBaseController(config, components, wsClient) with PanDomainAuthActions {
 
   implicit class string2encodings(s: String) {
     lazy val urlEncoded = URLEncoder.encode(s, "utf-8")
   }
-
-  override lazy val actorSystem = ActorSystem()
 
   private val previewSigner = {
     val capiPreviewCredentials = new AWSCredentialsProviderChain(
@@ -55,7 +52,7 @@ class FaciaContentApiProxy(val config: ApplicationConfiguration, val wsClient: W
 
     Logger.info(s"Proxying preview API query to: $url")
 
-    wsClient.url(url).withHeaders(getPreviewHeaders(url): _*).get().map { response =>
+    wsClient.url(url).withHttpHeaders(getPreviewHeaders(url): _*).get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/javascript")
       }
@@ -96,7 +93,7 @@ class FaciaContentApiProxy(val config: ApplicationConfiguration, val wsClient: W
     FaciaToolMetrics.ProxyCount.increment()
     Logger.info(s"Proxying json request to: $url")
 
-    wsClient.url(url).withHeaders(getPreviewHeaders(url): _*).get().map { response =>
+    wsClient.url(url).withHttpHeaders(getPreviewHeaders(url): _*).get().map { response =>
       Cached(60) {
         Ok(rewriteBody(response.body)).as("application/json")
       }

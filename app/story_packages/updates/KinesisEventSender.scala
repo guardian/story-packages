@@ -1,7 +1,6 @@
 package story_packages.updates
 
 import java.nio.ByteBuffer
-
 import com.amazonaws.handlers.AsyncHandler
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClientBuilder
 import com.amazonaws.services.kinesis.model.{PutRecordsRequest, PutRecordsRequestEntry, PutRecordsResult}
@@ -9,10 +8,10 @@ import com.gu.facia.client.models.CollectionJson
 import com.gu.storypackage.model.v1._
 import com.gu.thrift.serializer.{GzipType, ThriftSerializer}
 import org.joda.time.DateTime
-import play.api.Logger
 import conf.ApplicationConfiguration
+import story_packages.services.Logging
 
-class KinesisEventSender(config: ApplicationConfiguration) {
+class KinesisEventSender(config: ApplicationConfiguration) extends Logging {
 
   val streamName: String = config.updates.capi
 

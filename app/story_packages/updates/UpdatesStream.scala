@@ -1,7 +1,6 @@
 package story_packages.updates
 
 import story_packages.model.StoryPackage
-import play.api.Logger
 
 class UpdatesStream(auditingUpdates: AuditingUpdates, kinesisEventSender: KinesisEventSender) {
 

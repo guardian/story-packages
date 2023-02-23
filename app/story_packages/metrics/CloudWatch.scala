@@ -4,17 +4,16 @@ import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.handlers.AsyncHandler
 import com.amazonaws.services.cloudwatch.{AmazonCloudWatchAsync, AmazonCloudWatchAsyncClientBuilder}
 import com.amazonaws.services.cloudwatch.model._
-import play.api.Logger
-import story_packages.services.AwsEndpoints
 import conf.ApplicationConfiguration
+import story_packages.services.Logging
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
-class CloudWatch(config: ApplicationConfiguration, awsEndpoints: AwsEndpoints) {
+class CloudWatch(config: ApplicationConfiguration) extends Logging {
 
   lazy val cloudwatch: Option[AmazonCloudWatchAsync] = config.aws.credentials.map { credentials =>
     AmazonCloudWatchAsyncClientBuilder.standard
-      .withEndpointConfiguration(new EndpointConfiguration(awsEndpoints.monitoring, config.aws.region))
+      .withEndpointConfiguration(new EndpointConfiguration(config.aws.endpoints.monitoring, config.aws.region))
       .withCredentials(credentials)
       .build
   }
@@ -57,13 +56,15 @@ class CloudWatch(config: ApplicationConfiguration, awsEndpoints: AwsEndpoints) {
       val request = new PutMetricDataRequest()
         .withNamespace(metricNamespace)
         .withMetricData {
-          for(metricStatistic <- metricsAsStatistics) yield {
+          val metricData = for(metricStatistic <- metricsAsStatistics) yield {
             new MetricDatum()
               .withStatisticValues(frontendMetricToStatisticSet(metricStatistic))
               .withUnit(metricStatistic.metric.metricUnit)
               .withMetricName(metricStatistic.metric.name)
-              .withDimensions(dimensions)
+              .withDimensions(dimensions.asJava)
           }
+
+          metricData.asJava
         }
       cloudwatch.foreach(_.putMetricDataAsync(request, AsyncHandlerForMetric(metricsAsStatistics)))
     }

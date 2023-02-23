@@ -7,12 +7,12 @@ import conf.ApplicationConfiguration
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class FrontsApi(config: ApplicationConfiguration, awsEndpoints: AwsEndpoints) {
-  val amazonClient: ApiClient = {
+class FrontsApi(config: ApplicationConfiguration) {
+  lazy val amazonClient: ApiClient = {
 
     val client = AmazonS3ClientBuilder.standard
       .withCredentials(config.aws.mandatoryCredentials)
-      .withEndpointConfiguration(new EndpointConfiguration(awsEndpoints.s3, config.aws.region))
+      .withEndpointConfiguration(new EndpointConfiguration(config.aws.endpoints.s3, config.aws.region))
       .build
 
     val bucket = config.aws.bucket

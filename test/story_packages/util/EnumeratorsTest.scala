@@ -1,14 +1,15 @@
 package story_packages.util
 
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{DoNotDiscover, FlatSpec, ShouldMatchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import play.api.libs.iteratee.Iteratee
 import story_packages.util.Enumerators._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-@DoNotDiscover class EnumeratorsTest extends FlatSpec with ShouldMatchers with ScalaFutures {
+class EnumeratorsTest extends AnyFlatSpec with Matchers with ScalaFutures {
   "enumerate" should "simply enumerate the list if the function applied lifts the value into a Future" in {
     enumerate(List(1, 2, 3))(Future.successful).run(Iteratee.getChunks).futureValue should equal(List(
       1, 2, 3

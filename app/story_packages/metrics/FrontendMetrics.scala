@@ -1,13 +1,10 @@
 package story_packages.metrics
 
 import java.util.concurrent.atomic.AtomicLong
-
-import akka.agent.Agent
 import com.amazonaws.services.cloudwatch.model.StandardUnit
 import org.joda.time.DateTime
+import story_packages.util.Box
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.util.Try
 
 sealed trait DataPoint {
@@ -67,11 +64,9 @@ case class CountMetric(name: String, description: String) extends FrontendMetric
 
 case class DurationMetric(name: String, metricUnit: StandardUnit) extends FrontendMetric {
 
-  private val dataPoints: Agent[List[DataPoint]] = Agent(List[DurationDataPoint]())
+  private val dataPoints: Box[List[DataPoint]] = Box(List[DurationDataPoint]())
 
   def getDataPoints: List[DataPoint] = dataPoints.get()
-
-  def getDataFuture: Future[List[DataPoint]] = dataPoints.future()
 
   def getAndResetDataPoints: List[DataPoint] = {
     val points = dataPoints.get()

@@ -26,7 +26,7 @@ case class Defaults(
   linkingCap: Int
 )
 
-class DefaultsController(val config: ApplicationConfiguration, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
+class DefaultsController(config: ApplicationConfiguration, components: ControllerComponents, wsClient: WSClient) extends StoryPackagesBaseController(config, components, wsClient) with PanDomainAuthActions {
   def configuration = APIAuthAction { request =>
     Cached(60) {
       Ok(Json.toJson(Defaults(

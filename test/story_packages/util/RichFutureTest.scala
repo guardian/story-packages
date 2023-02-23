@@ -1,13 +1,14 @@
 package story_packages.util
 
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{DoNotDiscover, FlatSpec, ShouldMatchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import story_packages.util.Futures._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-@DoNotDiscover class RichFutureTest extends FlatSpec with ShouldMatchers with ScalaFutures {
+class RichFutureTest extends AnyFlatSpec with Matchers with ScalaFutures {
   "mapTry" should "transform a failed Future into a Future of Failure of the error" in {
     val error = new RuntimeException("Blargh!")
     Future.failed(error).mapTry.futureValue should equal(Failure(error))

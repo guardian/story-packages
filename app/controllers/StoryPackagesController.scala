@@ -6,7 +6,6 @@ import com.gu.facia.client.models.CollectionJson
 import story_packages.metrics.FaciaToolMetrics
 import story_packages.model.{Cached, StoryPackage}
 import story_packages.permissions.APIKeyAuthAction
-import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -17,10 +16,11 @@ import story_packages.updates._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Success, Failure}
 import scala.util.control.NonFatal
 
-class StoryPackagesController(val config: ApplicationConfiguration, database: Database, updatesStream: UpdatesStream,
-                              frontsApi: FrontsApi, reindexJob: Reindex, val wsClient: WSClient) extends Controller with PanDomainAuthActions {
+class StoryPackagesController(config: ApplicationConfiguration, components: ControllerComponents, database: Database, updatesStream: UpdatesStream,
+                              frontsApi: FrontsApi, reindexJob: Reindex, wsClient: WSClient) extends StoryPackagesBaseController(config, components, wsClient) with PanDomainAuthActions {
 
   private def serializeSuccess(result: StoryPackage): Future[Result] = {
     Future.successful(Ok(Json.toJson(result)))}
@@ -80,10 +80,12 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
       val json: JsValue = Json.parse(response.body)
       val packageIds = (json \ "response" \ "results" \\ "packageId").map(_.as[String])
       for {
-        packages <- Future.sequence(packageIds.map(id => database.getPackage(id)))
+        packages <- Future.sequence(
+          packageIds.map(id => database.getPackage(id).map(Some.apply).recover { case _ => None })
+        )
       } yield {
         Cached(60) {
-          Ok(Json.toJson(packages)).as("application/javascript")
+          Ok(Json.toJson(packages.flatten)).as("application/javascript")
         }
       }
     }
@@ -128,7 +130,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     })
   }
 
-  def reindex(isHidden: Boolean) = new APIKeyAuthAction(config).async { request =>
+  def reindex(isHidden: Boolean) = new APIKeyAuthAction(config, components.parsers.defaultBodyParser, defaultExecutionContext).async { request =>
     if (SwitchManager.getStatus("story-packages-disable-reindex-endpoint")) {
       Future.successful(Forbidden("Reindex endpoint disabled by a switch"))
     } else {
@@ -139,7 +141,7 @@ class StoryPackagesController(val config: ApplicationConfiguration, database: Da
     }
   }
 
-  def reindexProgress(isHidden: Boolean) = (new APIKeyAuthAction(config)) { request =>
+  def reindexProgress(isHidden: Boolean) = (new APIKeyAuthAction(config, components.parsers.defaultBodyParser, defaultExecutionContext)) { request =>
     reindexJob.getJobProgress(isHidden) match {
       case Some(progress) => Ok(Json.toJson(progress))
       case None => NotFound("Reindex never run")
