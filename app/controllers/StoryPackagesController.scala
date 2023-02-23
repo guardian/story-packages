@@ -80,10 +80,9 @@ class StoryPackagesController(config: ApplicationConfiguration, components: Cont
       val json: JsValue = Json.parse(response.body)
       val packageIds = (json \ "response" \ "results" \\ "packageId").map(_.as[String])
       for {
-        packages <- Future.sequence(packageIds.map(id => database.getPackage(id).transformWith {
-          case Success(result) => Future.successful(Some(result))
-          case Failure(_) => Future.successful(None)
-        }))
+        packages <- Future.sequence(
+          packageIds.map(id => database.getPackage(id).map(Some.apply).recover { case _ => None })
+        )
       } yield {
         Cached(60) {
           Ok(Json.toJson(packages.flatten)).as("application/javascript")
