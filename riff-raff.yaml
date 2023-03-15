@@ -28,7 +28,7 @@ deployments:
       prependStackToCloudFormationStackName: false
       cloudFormationStackName: story-packages
       amiTags:
-        Recipe: editorial-tools-focal-java8
+        Recipe: editorial-tools-focal-java8-ARM
         AmigoStage: PROD
       amiParameter: MachineImageID
 
