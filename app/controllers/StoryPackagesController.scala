@@ -73,7 +73,7 @@ class StoryPackagesController(config: ApplicationConfiguration, components: Cont
     else
       config.contentApi.packagesLiveHost
 
-    val url = s"$contentApiHost/packages?order-by=newest&q=$encodedTerm${config.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
+    val url = s"$contentApiHost/packages?order-by=relevance&q=$encodedTerm${config.contentApi.key.map(key => s"&api-key=$key").getOrElse("")}"
 
     Logger.info(s"Proxying search query to: $url")
     wsClient.url(url).get().flatMap { response =>
