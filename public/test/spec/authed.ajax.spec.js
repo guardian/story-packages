@@ -1,7 +1,7 @@
 import * as ajax from 'modules/authed-ajax';
 import * as mockjax from 'test/utils/mockjax';
 import $ from 'jquery';
-import * as panda from '../../src/js/utils/panda-session';
+import * as panda from 'utils/panda-session';
 import {CONST} from 'modules/vars';
 
 describe('Authed Ajax', function () {
