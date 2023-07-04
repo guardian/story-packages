@@ -1,5 +1,5 @@
 import {CONST} from 'modules/vars';
-import * as panda from 'panda-session';
+import * as panda from './panda-session';
 
 function locationRedirect() {
     window.location = '/logout';
