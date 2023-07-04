@@ -1,7 +1,7 @@
-export class ReEstablishTimeout extends Error {};
-export class GoogleAuthException extends Error {};
+export class ReEstablishTimeout extends Error {}
+export class GoogleAuthException extends Error {}
 
-class NotReadyException extends Error {};
+class NotReadyException extends Error {}
 
 export const reEstablishSession = oneAtATime(reEstablishSessionImpl);
 
@@ -13,7 +13,7 @@ function reEstablishSessionImpl(loginUrl, maxWait) {
 
     loadIframe(iframe);
     return Promise.race([reEstablished, timeout]).then(
-        _ => { unloadIframe(iframe); },
+        () => { unloadIframe(iframe); },
         e => { unloadIframe(iframe); throw e; }
     );
 }
@@ -22,9 +22,9 @@ function reEstablishSessionImpl(loginUrl, maxWait) {
 /* Helpers to observe the iframe */
 
 function waitForIframe(iframe, timeout) {
-    return new Promise((resolve, _) => {
+    return new Promise((resolve) => {
         iframe.addEventListener('load', resolve);
-    }).then(event => {
+    }).then(() => {
         return waitForLocation(iframe, timeout);
     });
 }
@@ -56,12 +56,11 @@ function tryReadingIframeLocation(iframe) {
             // Heuristic to detect google auth error in the iframe document
             const textContent = iframe.contentDocument.body.textContent;
             if (textContent.indexOf('google-auth-exception') !== -1) {
-                console.log('Google Auth Exception: ', textContent);
                 reject(new GoogleAuthException(textContent));
             } else {
                 resolve(iframe.contentDocument.location);
             }
-        } catch(e) {
+        } catch (e) {
             reject(new NotReadyException);
         }
     });
@@ -93,7 +92,7 @@ function unloadIframe(iframe) {
 
 // Returns a promise that resolves with undefined after a delay
 function delay(duration) {
-    return new Promise((resolve, _) => {
+    return new Promise((resolve) => {
         setTimeout(resolve, duration);
     });
 }
