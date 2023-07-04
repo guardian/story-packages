@@ -64,7 +64,7 @@ sudo npm -g install grunt-cli
 
 Ubuntu/Mac:
 ```bash
-sudo npm -g install jspm
+npm -g install jspm@0.16.55
 jspm registry config github
 ```
 
