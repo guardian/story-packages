@@ -43,3 +43,7 @@ screenshots
 
 # Scala test framework #
 *.local.conf
+
+.bsp
+.java-version
+importmap.json
