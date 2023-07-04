@@ -17,6 +17,7 @@ logs
 ivy-sbt
 
 tmp
+public/story-packages
 target
 .target
 /*/bin/

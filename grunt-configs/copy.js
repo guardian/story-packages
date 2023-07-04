@@ -4,7 +4,7 @@ module.exports = function() {
             files: [{
                 expand: true,
                 src: ['**'],
-                cwd: 'tmp/bundles',
+                cwd: 'public/story-packages/bundles',
                 dest: 'tmp/riffraff/packages/static-story-packages/'
             }]
         },

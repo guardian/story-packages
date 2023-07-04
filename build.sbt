@@ -21,11 +21,10 @@ riffRaffPackageType := (Debian / packageBin).value
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
 riffRaffUploadManifestBucket := Option("riffraff-builds")
 riffRaffArtifactResources := {
-    val jsBundlesDir = baseDirectory.value / "tmp" / "bundles"
     Seq(
         (Debian / packageBin).value -> s"${name.value}/${name.value}_${version.value}_all.deb",
         baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml"
-    ) ++ ((jsBundlesDir * "*") pair rebase(jsBundlesDir, "static-story-packages"))
+    )
 }
 
 javacOptions := Seq("-g","-encoding", "utf8")
