@@ -30,7 +30,6 @@ System.config({
     "jquery-ui": "github:jquery/jquery-ui@1.11.4",
     "knockout": "npm:knockout@3.4.0",
     "numeral": "npm:numeral@1.5.3",
-    "panda-session": "github:guardian/panda-session@0.1.6",
     "raven-js": "npm:raven-js@2.3.0",
     "text": "github:systemjs/plugin-text@0.0.7",
     "underscore": "npm:underscore@1.8.3",
