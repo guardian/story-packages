@@ -53,5 +53,5 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
 
   override lazy val assets = new Assets(httpErrorHandler, assetsMetadata)
 
-  val router: Router = new Routes(httpErrorHandler, status, publicAssets, pandaAuth, views, faciaTool, defaults, storyPackages, faciaProxy, vanity, assets)
+  val router: Router = new Routes(httpErrorHandler, status, pandaAuth, views, faciaTool, defaults, storyPackages, faciaProxy, vanity, publicAssets, assets)
 }
