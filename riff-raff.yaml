@@ -18,8 +18,6 @@ deployments:
       bucket: cms-fronts-static-assets
   story-packages:
     type: autoscaling
-    parameters:
-      bucket: story-packages-dist
     dependencies: [packages-ami]
   packages-ami:
     type: ami-cloudformation-parameter
