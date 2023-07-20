@@ -51,7 +51,5 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
     new CORSFilter
   )
 
-  override lazy val assets = new Assets(httpErrorHandler, assetsMetadata)
-
-  val router: Router = new Routes(httpErrorHandler, status, pandaAuth, views, faciaTool, defaults, storyPackages, faciaProxy, vanity, publicAssets, assets)
+  val router: Router = new Routes(httpErrorHandler, status, pandaAuth, views, faciaTool, defaults, storyPackages, faciaProxy, vanity, publicAssets)
 }
