@@ -40,27 +40,7 @@ module.exports = function (grunt) {
     /**
      * Compile tasks
      */
-    grunt.registerTask('compile', function () {
-        grunt.task.run(['clean', 'shell:packages', 'replace', 'cacheBust']);
-    });
     grunt.registerTask('bundle', function () {
-        grunt.task.run(['compile', 'copy:static', 'copy:debian', 'copy:deploy', 'compress:riffraff']);
-    });
-    grunt.registerTask('upload', function () {
-        var done = this.async();
-        process.env.ARTEFACT_PATH = __dirname;
-        var riffraff = require('node-riffraff-artefact');
-        var path = require('path');
-        riffraff.settings.leadDir = path.join(__dirname, 'tmp');
-        riffraff.settings.manifestProjectName = 'cms-fronts::story-packages';
-        riffraff.s3Upload()
-        .then(function () {
-            grunt.log.writeln('Artifacts uploaded!');
-            done();
-        })
-        .catch(function () {
-            grunt.log.error('Error uploading artifacts.');
-            done(false);
-        });
+        grunt.task.run(['clean', 'shell:packages', 'replace', 'cacheBust']);
     });
 };
