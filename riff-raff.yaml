@@ -4,7 +4,8 @@ deployments:
   story-packages:
     type: autoscaling
     parameters:
-      bucket: story-packages-dist
+      bucketSsmLookup: true
+      bucketSsmKey: /account/services/artifact.bucket.story-packages
     dependencies: [packages-ami]
   packages-ami:
     type: ami-cloudformation-parameter
