@@ -17,6 +17,6 @@ jspm registry export github
 jspm install
 
 grunt --stack validate test
-sbt compile test assets
 grunt --stack bundle
+sbt compile test assets
 sbt riffRaffUpload
