@@ -11,7 +11,6 @@ packageDescription := "Guardian story packages editor"
 scalaVersion := "2.12.16"
 
 import sbt.Resolver
-import sbt.io.Path._
 
 debianPackageDependencies := Seq("openjdk-8-jre-headless")
 
