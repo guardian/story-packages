@@ -19,7 +19,7 @@ case class Bundles (packages: String)
 
 
 class AssetsManager(config: ApplicationConfiguration, isDev: Boolean) {
-  val resourcePath = "/public/story-packages/bundles/assets-map.json"
+  val resourcePath = "public/story-packages/bundles/assets-map.json"
   val assetsMap = if (isDev) None else Some(readFromPath(resourcePath))
 
   private def readFromPath(path: String): Bundles = {
