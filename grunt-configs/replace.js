@@ -11,8 +11,8 @@ module.exports = function() {
             files: [{
                 expand: true,
                 src: '*.js',
-                cwd: 'tmp/bundles',
-                dest: 'tmp/bundles/'
+                cwd: 'public/story-packages/bundles',
+                dest: 'public/story-packages/bundles/'
             }]
         }
     };

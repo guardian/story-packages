@@ -42,6 +42,7 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   val storyPackages = new StoryPackagesController(config, controllerComponents, database, updatesStream, frontsApi, reindex, wsClient)
   val vanity = new VanityRedirects(config, controllerComponents, wsClient)
   val views = new ViewsController(config, controllerComponents, assetsManager, wsClient)
+  val publicAssets = new PublicAssets(assets, config, controllerComponents, wsClient)
 
   val customGzipFilter = new GzipFilter(shouldGzip = (header, _) => !Responses.isImage(header))
 
@@ -50,7 +51,5 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
     new CORSFilter
   )
 
-  override lazy val assets = new Assets(httpErrorHandler, assetsMetadata)
-
-  val router: Router = new Routes(httpErrorHandler, status, pandaAuth, views, faciaTool, defaults, storyPackages, faciaProxy, vanity, assets)
+  val router: Router = new Routes(httpErrorHandler, status, pandaAuth, views, faciaTool, defaults, storyPackages, faciaProxy, vanity, publicAssets)
 }

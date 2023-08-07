@@ -2,7 +2,7 @@ module.exports = function() {
     return {
         static: {
             options: {
-                baseDir: 'tmp/bundles/',
+                baseDir: 'public/story-packages/bundles/',
                 assets: ['*.js'],
                 deleteOriginals: true,
                 jsonOutput: true,

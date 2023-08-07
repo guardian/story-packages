@@ -1,25 +1,11 @@
 stacks:
 - cms-fronts
 deployments:
-  static-story-packages:
-    type: aws-s3
-    parameters:
-      publicReadAcl: true
-      cacheControl:
-      - pattern: .*\.js$
-        value: public, max-age=315360000
-      - pattern: .*
-        value: public, max-age=60
-      mimeTypes:
-        js: application/javascript
-        json: application/json
-        map: text/plain
-      prefixStack: false
-      bucket: cms-fronts-static-assets
   story-packages:
     type: autoscaling
     parameters:
-      bucket: story-packages-dist
+      bucketSsmLookup: true
+      bucketSsmKey: /account/services/artifact.bucket.story-packages
     dependencies: [packages-ami]
   packages-ami:
     type: ami-cloudformation-parameter

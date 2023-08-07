@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Guardian story packages pages editor",
+  "scripts": {
+    "bundle": "grunt bundle"
+  },
   "dependencies": {
     "@babel/cli": "^7.19.3",
     "eslint-plugin-jasmine": "^1.8.1",

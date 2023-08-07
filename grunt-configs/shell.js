@@ -14,7 +14,7 @@ module.exports = function() {
                 'story-packages/widgets/fetch-latest-packages',
                 'story-packages/widgets/display-alerts',
                 'story-packages/widgets/sparklines-trails'
-            ].join(' + ') + ' tmp/bundles/packages.js'
+            ].join(' + ') + ' public/story-packages/bundles/packages.js'
         }
     };
 };

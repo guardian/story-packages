@@ -94,10 +94,6 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
     }
   }
 
-  object cdn {
-    lazy val host = getString("cdn.host").getOrElse("")
-  }
-
   object contentApi {
     val contentApiLiveHost: String = getMandatoryString("content.api.host")
     val packagesLiveHost: String = getString("content.api.packages.host").getOrElse(contentApiLiveHost)

@@ -57,4 +57,4 @@ GET         /add-trail/*id                           controllers.VanityRedirects
 GET         /*path/                                  controllers.VanityRedirects.untrail(path: String)
 
 # static files
-GET         /assets/*file  controllers.Assets.at(path = "/public/src", file)
+GET         /assets/*file                            controllers.PublicAssets.at(file)
