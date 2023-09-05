@@ -47,3 +47,6 @@ screenshots
 .bsp
 .java-version
 importmap.json
+
+jspm-snyk-workaround/package-lock.json
+jspm-snyk-workaround/result
