@@ -23,7 +23,7 @@ module.exports = function (grunt) {
     /**
      * Validate tasks
      */
-    grunt.registerTask('validate', ['eslint']);
+    grunt.registerTask('validate', ['clean','eslint']);
 
     /**
      * Test tasks
