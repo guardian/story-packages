@@ -6,7 +6,7 @@
   "scripts": {
     "bundle": "grunt bundle"
   },
-  "dependencies": {
+  "devDependencies": {
     "@babel/cli": "^7.19.3",
     "eslint-plugin-jasmine": "^1.8.1",
     "grunt": "1.0.3",
