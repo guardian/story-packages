@@ -56,7 +56,6 @@ resolvers ++= Seq(
 )
 
 buildInfoPackage := "app"
-buildInfoOptions += BuildInfoOption.BuildTime
 buildInfoKeys += "gitCommitId" -> env.getOrElse("GITHUB_SHA", "Unknown")
 
 lazy val jacksonVersion = "2.13.4"
