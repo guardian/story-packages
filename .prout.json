@@ -1,0 +1,5 @@
+{
+    "checkpoints": {
+        "PROD": { "url": "https://packages.gutools.co.uk/_healthcheck", "overdue": "20M" }
+    }
+}

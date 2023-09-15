@@ -1,3 +1,5 @@
+import scala.sys.env
+
 name := "story-packages"
 
 version := "1.0.0"
@@ -53,6 +55,10 @@ resolvers ++= Seq(
     Resolver.file("Local", file(Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 )
 
+buildInfoPackage := "app"
+buildInfoOptions += BuildInfoOption.BuildTime
+buildInfoKeys += "gitCommitId" -> env.getOrElse("GITHUB_SHA", "Unknown")
+
 lazy val jacksonVersion = "2.13.4"
 lazy val jacksonDatabindVersion = "2.13.4.2"
 
@@ -93,4 +99,4 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 )
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin, BuildInfoPlugin)
