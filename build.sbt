@@ -1,3 +1,5 @@
+import com.gu.riffraff.artifact.BuildInfo
+
 import scala.sys.env
 
 name := "story-packages"
@@ -56,7 +58,7 @@ resolvers ++= Seq(
 )
 
 buildInfoPackage := "app"
-buildInfoKeys += "gitCommitId" -> env.getOrElse("GITHUB_SHA", "Unknown")
+buildInfoKeys += "gitCommitId" -> BuildInfo(baseDirectory.value).revision
 
 lazy val jacksonVersion = "2.13.4"
 lazy val jacksonDatabindVersion = "2.13.4.2"
