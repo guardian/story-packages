@@ -63,7 +63,7 @@ jobs:
                   grunt --stack bundle
 
             - name: SBT
-              run: sbt clean;compile;test;assets;Debian/packageBin
+              run: sbt clean compile test assets Debian/packageBin
 
             - uses: guardian/actions-riff-raff@v2
               with:
