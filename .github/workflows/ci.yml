@@ -18,9 +18,9 @@ jobs:
             id-token: write
             contents: read
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
 
-            - uses: aws-actions/configure-aws-credentials@v2
+            - uses: aws-actions/configure-aws-credentials@v4
               with:
                   role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
                   aws-region: eu-west-1
@@ -36,6 +36,7 @@ jobs:
               with:
                   java-version: '8'
                   distribution: 'corretto'
+                  cache: 'sbt'
 
             - name: Install Grunt
               run: npm install -g grunt-cli
@@ -62,7 +63,7 @@ jobs:
                   grunt --stack bundle
 
             - name: SBT
-              run: sbt "clean;compile;test;assets;Debian / packageBin"
+              run: sbt clean;compile;test;assets;Debian/packageBin
 
             - uses: guardian/actions-riff-raff@v2
               with:
