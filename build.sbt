@@ -1,5 +1,3 @@
-import com.gu.riffraff.artifact.BuildInfo
-
 import scala.sys.env
 
 name := "story-packages"
@@ -17,18 +15,6 @@ scalaVersion := "2.12.16"
 import sbt.Resolver
 
 debianPackageDependencies := Seq("openjdk-8-jre-headless")
-
-riffRaffPackageName := s"cms-fronts::${name.value}"
-riffRaffManifestProjectName := riffRaffPackageName.value
-riffRaffPackageType := (Debian / packageBin).value
-riffRaffUploadArtifactBucket := Option("riffraff-artifact")
-riffRaffUploadManifestBucket := Option("riffraff-builds")
-riffRaffArtifactResources := {
-    Seq(
-        (Debian / packageBin).value -> s"${name.value}/${name.value}_${version.value}_all.deb",
-        baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml"
-    )
-}
 
 javacOptions := Seq("-g","-encoding", "utf8")
 
@@ -58,7 +44,7 @@ resolvers ++= Seq(
 )
 
 buildInfoPackage := "app"
-buildInfoKeys += "gitCommitId" -> BuildInfo(baseDirectory.value).revision
+buildInfoKeys += "gitCommitId" -> env.getOrElse("GITHUB_SHA", "Unknown")
 
 lazy val jacksonVersion = "2.13.4"
 lazy val jacksonDatabindVersion = "2.13.4.2"
@@ -100,4 +86,4 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 )
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin, BuildInfoPlugin)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, JDebPackaging, SystemdPlugin, BuildInfoPlugin)
