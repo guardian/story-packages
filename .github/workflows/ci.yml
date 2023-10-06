@@ -1,0 +1,75 @@
+# Find full documentation here https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+name: CI
+
+on:
+    pull_request:
+
+    # Manual invocation.
+    workflow_dispatch:
+
+    push:
+        branches:
+            - main
+jobs:
+    CI:
+        runs-on: ubuntu-latest
+        permissions:
+            # required by aws-actions/configure-aws-credentials
+            id-token: write
+            contents: read
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+                  aws-region: eu-west-1
+
+            - uses: actions/setup-node@v3
+              with:
+                  node-version-file: '.nvmrc'
+                  cache: npm
+                  cache-dependency-path: 'package-lock.json'
+
+            - name: Setup Java
+              uses: actions/setup-java@v3
+              with:
+                  java-version: '8'
+                  distribution: 'corretto'
+                  cache: 'sbt'
+
+            - name: Install Grunt
+              run: npm install -g grunt-cli
+
+            - name: Install JSPM
+              run: npm install -g jspm@0.16.55
+
+            - name: Install NPM dependencies
+              run: npm ci
+
+            - name: JSPM Install
+              env:
+                  JSPM_GITHUB_AUTH_SECRET: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  jspm config registries.github.auth ${{ secrets.GITHUB_TOKEN }}
+                  jspm config registries.github.remote https://github.jspm.io
+                  jspm config registries.github.handler jspm-github
+                  jspm registry export github
+                  jspm install
+
+            - name: Grunt
+              run: |
+                  grunt --stack validate test
+                  grunt --stack bundle
+
+            - name: SBT
+              run: sbt clean compile test assets Debian/packageBin
+
+            - uses: guardian/actions-riff-raff@v2
+              with:
+                  projectName: cms-fronts::story-packages
+                  buildNumberOffset: 700
+                  configPath: riff-raff.yaml
+                  contentDirectories: |
+                      story-packages:
+                        - target/story-packages_1.0.0_all.deb
