@@ -1,4 +1,3 @@
-import story_packages.logging.LogStashConfig
 import story_packages.metrics.CloudWatchApplicationMetrics
 import play.api.ApplicationLoader.Context
 import play.api.{Application, ApplicationLoader, Logger, LoggerConfigurator}
@@ -17,7 +16,6 @@ class Loader extends ApplicationLoader {
       components.actorSystem.scheduler,
       components.isDev
     )
-    new LogStashConfig(components.config)
     new SwitchboardLifecycle(SwitchboardConfiguration(
       objectKey = components.config.switchBoard.objectKey,
       bucket = components.config.switchBoard.bucket,

@@ -73,7 +73,6 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "0.7",
     "com.gu" %% "fapi-client-play28" % "4.0.4",
-    "com.gu" % "kinesis-logback-appender" % "1.3.0",
     "com.gu" %% "pan-domain-auth-play_2-8" % "1.3.0",
     "com.gu" %% "story-packages-model" % "2.2.0",
     "com.gu" %% "thrift-serializer" % "4.0.0",
