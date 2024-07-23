@@ -50,3 +50,8 @@ importmap.json
 
 jspm-snyk-workaround/package-lock.json
 jspm-snyk-workaround/result
+
+# Metals
+.metals/
+metals.sbt
+.bloop/
