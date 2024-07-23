@@ -10,7 +10,7 @@ packageSummary := "Story packages"
 
 packageDescription := "Guardian story packages editor"
 
-scalaVersion := "2.12.16"
+scalaVersion := "2.13.14"
 
 import sbt.Resolver
 
@@ -28,7 +28,7 @@ Universal / javaOptions ++= Seq(
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
 )
 
-scalacOptions := Seq("-unchecked", "-deprecation", "-target:jvm-1.8",
+scalacOptions := Seq("-unchecked", "-deprecation", "-release:8",
       "-Xcheckinit", "-encoding", "utf8", "-feature", "-Xfatal-warnings")
 
 Compile / doc / sources := Seq.empty
@@ -75,12 +75,11 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.gu" %% "fapi-client-play28" % "4.0.4",
     "com.gu" %% "pan-domain-auth-play_2-8" % "4.0.0",
     "com.gu" %% "story-packages-model" % "2.2.0",
-    "com.gu" %% "thrift-serializer" % "4.0.0",
+    "com.gu" %% "thrift-serializer" % "4.0.2",
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
     "com.typesafe.play" %% "play-json" % "2.9.4",
-    "com.typesafe.play" %% "play-iteratees" % "2.6.1",
     "org.julienrf" %% "play-json-derived-codecs" % "10.1.0",
     "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 )
