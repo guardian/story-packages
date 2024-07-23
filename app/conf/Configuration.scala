@@ -16,7 +16,7 @@ import play.api.{Configuration => PlayConfiguration}
 import story_packages.services.Logging
 
 import scala.language.reflectiveCalls
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class BadConfigurationException(msg: String) extends RuntimeException(msg)
 

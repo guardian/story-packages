@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import conf.ApplicationConfiguration
 import story_packages.services.Logging
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class AuditingUpdates(config: ApplicationConfiguration) extends Logging {
 
