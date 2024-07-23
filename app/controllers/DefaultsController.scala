@@ -8,9 +8,10 @@ import conf.ApplicationConfiguration
 import play.api.Mode.Dev
 import play.api.libs.ws.WSClient
 import story_packages.switchboard.SwitchManager
+import play.api.libs.json.OWrites
 
 object Defaults {
-  implicit val jsonFormat = Json.writes[Defaults]
+  implicit val jsonFormat: OWrites[Defaults] = Json.writes[Defaults]
 }
 
 case class Defaults(

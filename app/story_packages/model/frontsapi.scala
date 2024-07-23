@@ -19,7 +19,7 @@ trait UpdateActionsTrait extends Logging {
   def frontsApi: FrontsApi
   def config: ApplicationConfiguration
 
-  implicit val updateListWrite = Json.writes[UpdateList]
+  implicit val updateListWrite: OWrites[UpdateList] = Json.writes[UpdateList]
 
   def insertIntoLive(update: UpdateList, identity: User, collectionJson: CollectionJson): CollectionJson = {
     val live = updateList(update, identity, collectionJson.live)

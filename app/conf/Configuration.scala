@@ -185,7 +185,7 @@ object Properties extends AutomaticResourceManagement {
 }
 
 trait AutomaticResourceManagement {
-  def withCloseable[T <: { def close() }](closeable: T) = new {
+  def withCloseable[T <: { def close(): Unit }](closeable: T) = new {
     def apply[S](body: T => S) = try {
       body(closeable)
     } finally {
