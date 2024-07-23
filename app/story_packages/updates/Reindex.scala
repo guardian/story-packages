@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
+import play.api.libs.json.OFormat
 
 case class ReindexPage(
   totalCount: Int,
@@ -39,7 +40,7 @@ case class ReindexProgress(
   documentsExpected: Int
 )
 object ReindexProgress {
-  implicit val jsonFormat = Json.format[ReindexProgress]
+  implicit val jsonFormat: OFormat[ReindexProgress] = Json.format[ReindexProgress]
 }
 
 sealed trait ReindexStatus{val label: String}

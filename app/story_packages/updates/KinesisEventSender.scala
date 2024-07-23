@@ -121,7 +121,7 @@ class KinesisEventSender(config: ApplicationConfiguration) extends Logging {
         articles = createUpdatePayload(collectionJson)))
   }
 
-  def sendUpdate(streamName: String, collectionId: String, event: Event) {
+  def sendUpdate(streamName: String, collectionId: String, event: Event): Unit = {
     val request = new PutRecordsRequest().withStreamName(streamName)
     val bytes = ThriftSerializer.serializeToBytes(event, Some(GzipType), Some(128))
     if (bytes.length > config.updates.maxDataSize) {

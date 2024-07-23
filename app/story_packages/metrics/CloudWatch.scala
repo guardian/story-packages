@@ -19,11 +19,11 @@ class CloudWatch(config: ApplicationConfiguration) extends Logging {
   }
 
   trait LoggingAsyncHandler extends AsyncHandler[PutMetricDataRequest, PutMetricDataResult] {
-    def onError(exception: Exception)
+    def onError(exception: Exception): Unit =
     {
       Logger.info(s"CloudWatch PutMetricDataRequest error: ${exception.getMessage}}")
     }
-    def onSuccess(request: PutMetricDataRequest, result: PutMetricDataResult )
+    def onSuccess(request: PutMetricDataRequest, result: PutMetricDataResult ): Unit =
     {
       Logger.info("CloudWatch PutMetricDataRequest - success")
     }

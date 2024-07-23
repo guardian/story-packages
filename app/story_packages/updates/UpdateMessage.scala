@@ -31,7 +31,7 @@ case class Remove(remove: UpdateList) extends UpdateMessage
 
 /* Macro - Watch out, this needs to be after the case classes */
 object UpdateMessage {
-  implicit val format = derived.flat.oformat[UpdateMessage]((__ \ "type").format[String])
+  implicit val format: OFormat[UpdateMessage] = derived.flat.oformat[UpdateMessage]((__ \ "type").format[String])
 }
 
 /* Kinesis messages */
