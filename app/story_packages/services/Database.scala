@@ -14,7 +14,7 @@ import conf.ApplicationConfiguration
 import story_packages.updates.ReindexPage
 import story_packages.util.Identity._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 

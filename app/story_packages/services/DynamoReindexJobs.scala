@@ -9,7 +9,7 @@ import story_packages.metrics.ReindexMetrics
 import conf.ApplicationConfiguration
 import story_packages.updates._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class DynamoReindexJobs(config: ApplicationConfiguration) extends Logging {
   private lazy val client =

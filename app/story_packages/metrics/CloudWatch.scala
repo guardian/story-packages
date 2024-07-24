@@ -7,7 +7,7 @@ import com.amazonaws.services.cloudwatch.model._
 import conf.ApplicationConfiguration
 import story_packages.services.Logging
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class CloudWatch(config: ApplicationConfiguration) extends Logging {
 
