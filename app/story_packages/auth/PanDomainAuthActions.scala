@@ -3,6 +3,7 @@ package story_packages.auth
 import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import com.gu.pandomainauth.PanDomain
+import com.gu.permissions.{PermissionDefinition, PermissionsProvider}
 import play.api.mvc._
 import conf.ApplicationConfiguration
 import story_packages.services.Logging
@@ -10,7 +11,14 @@ import story_packages.services.Logging
 trait PanDomainAuthActions extends AuthActions with Results with Logging {
   def config: ApplicationConfiguration
 
+  val permissions = PermissionsProvider(config.permissions)
+
+  val StoryPackagesAccess = PermissionDefinition("story-packages-access", "story-packages")
+
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {
+    if (!permissions.hasPermission(StoryPackagesAccess, authedUser.user.email)) {
+      Logger.warn(s"User ${authedUser.user.email} does not have ${StoryPackagesAccess.name} permission")
+    }
     PanDomain.guardianValidation(authedUser)
   }
 

@@ -10,6 +10,7 @@ import com.amazonaws.regions.{Region, RegionUtils}
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
+import com.gu.permissions.PermissionsConfig
 import org.apache.commons.io.IOUtils
 import play.api.Mode
 import play.api.{Configuration => PlayConfiguration}
@@ -170,6 +171,12 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
   object latest {
     lazy val pageSize = 20
   }
+
+  val permissions = PermissionsConfig(
+    stage = environment.stage,
+    region = aws.region,
+    awsCredentials = aws.mandatoryCredentials,
+  )
 }
 
 object Properties extends AutomaticResourceManagement {
