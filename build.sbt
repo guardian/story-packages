@@ -73,7 +73,7 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
-    "com.typesafe.play" %% "play-json" % "2.10.5",
+    "org.playframework" %% "play-json" % "3.0.4",
     "org.julienrf" %% "play-json-derived-codecs" % "11.0.0",
     "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 )
