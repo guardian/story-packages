@@ -31,8 +31,8 @@ Compile / doc / sources := Seq.empty
 Compile / packageDoc / publishArtifact := false
 
 val awsVersion = "1.11.999"
-val capiModelsVersion = "17.4.0"
-val json4sVersion = "4.0.3"
+val capiModelsVersion = "25.1.0"
+val json4sVersion = "4.0.7"
 
 resolvers ++= Seq(
     Resolver.file("Local", file(Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
