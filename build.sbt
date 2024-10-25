@@ -14,7 +14,7 @@ scalaVersion := "2.13.14"
 
 import sbt.Resolver
 
-debianPackageDependencies := Seq("openjdk-8-jre-headless")
+debianPackageDependencies := Seq("java11-runtime-headless")
 
 javacOptions := Seq("-g","-encoding", "utf8")
 
