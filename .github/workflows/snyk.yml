@@ -13,7 +13,7 @@ jobs:
       DEBUG: true
       ORG: guardian
       SKIP_NODE: true
-      JAVA_VERSION: 8
+      JAVA_VERSION: 11
       EXCLUDE: package.json,package-lock.json # since we use the jspm workaround below
     secrets:
        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
