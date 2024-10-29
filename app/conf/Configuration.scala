@@ -6,7 +6,7 @@ import com.amazonaws.AmazonClientException
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.regions.{Region, Regions}
+import com.amazonaws.regions.{Region, RegionUtils}
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
@@ -57,7 +57,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
     lazy val bucket = getMandatoryString("aws.bucket")
 
     object endpoints {
-      private val _region = Region.getRegion(Regions.fromName(region))
+      private val _region = RegionUtils.getRegion(region)
       val monitoring: String = _region.getServiceEndpoint(AmazonCloudWatch.ENDPOINT_PREFIX)
       val dynamoDB: String = _region.getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX)
       val s3: String = _region.getServiceEndpoint(AmazonS3.ENDPOINT_PREFIX)

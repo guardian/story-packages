@@ -30,9 +30,9 @@ Compile / doc / sources := Seq.empty
 
 Compile / packageDoc / publishArtifact := false
 
-val awsVersion = "1.11.999"
-val capiModelsVersion = "17.4.0"
-val json4sVersion = "4.0.3"
+val awsVersion = "1.12.770"
+val capiModelsVersion = "25.1.0"
+val json4sVersion = "4.0.7"
 
 resolvers ++= Seq(
     Resolver.file("Local", file(Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
@@ -41,8 +41,7 @@ resolvers ++= Seq(
 buildInfoPackage := "app"
 buildInfoKeys += "gitCommitId" -> env.getOrElse("GITHUB_SHA", "Unknown")
 
-lazy val jacksonVersion = "2.13.4"
-lazy val jacksonDatabindVersion = "2.13.4.2"
+lazy val jacksonVersion = "2.17.2"
 
 // these Jackson dependencies are required to resolve issues in Play 2.8.x https://github.com/orgs/playframework/discussions/11222
 val jacksonOverrides = Seq(
@@ -51,7 +50,7 @@ val jacksonOverrides = Seq(
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion,
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
-    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonDatabindVersion
+    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
 )
 
 libraryDependencies ++= jacksonOverrides ++  Seq(
@@ -66,16 +65,16 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
-    "com.gu" %% "content-api-client-aws" % "0.7",
-    "com.gu" %% "fapi-client-play28" % "4.0.4",
-    "com.gu" %% "pan-domain-auth-play_2-8" % "4.0.0",
+    "com.gu" %% "content-api-client-aws" % "0.7.5",
+    "com.gu" %% "fapi-client-play30" % "12.0.0",
+    "com.gu" %% "pan-domain-auth-play_3-0" % "4.0.0",
     "com.gu" %% "story-packages-model" % "2.2.0",
     "com.gu" %% "thrift-serializer" % "4.0.2",
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
-    "com.typesafe.play" %% "play-json" % "2.9.4",
-    "org.julienrf" %% "play-json-derived-codecs" % "10.1.0",
+    "org.playframework" %% "play-json" % "3.0.4",
+    "org.julienrf" %% "play-json-derived-codecs" % "11.0.0",
     "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 )
 

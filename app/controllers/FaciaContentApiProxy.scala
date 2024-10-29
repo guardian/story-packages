@@ -2,7 +2,7 @@ package controllers
 
 import java.net.{URI, URLEncoder}
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import story_packages.auth.PanDomainAuthActions
 import com.amazonaws.auth.{AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
 import com.amazonaws.auth.profile.ProfileCredentialsProvider

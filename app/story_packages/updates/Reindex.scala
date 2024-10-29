@@ -1,6 +1,6 @@
 package story_packages.updates
 
-import akka.actor.Scheduler
+import org.apache.pekko.actor.Scheduler
 import com.amazonaws.services.dynamodbv2.document.Item
 import story_packages.model.StoryPackage
 import org.joda.time.DateTime
