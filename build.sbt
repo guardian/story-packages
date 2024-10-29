@@ -14,17 +14,12 @@ scalaVersion := "2.13.14"
 
 import sbt.Resolver
 
-debianPackageDependencies := Seq("openjdk-8-jre-headless")
+debianPackageDependencies := Seq("java11-runtime-headless")
 
 javacOptions := Seq("-g","-encoding", "utf8")
 
 Universal / javaOptions ++= Seq(
     "-Dpidfile.path=/dev/null",
-    "-J-XX:MaxRAMFraction=2",
-    "-J-XX:InitialRAMFraction=2",
-    "-J-XX:MaxMetaspaceSize=500m",
-    "-J-XX:+PrintGCDetails",
-    "-J-XX:+PrintGCDateStamps",
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
 )
 
