@@ -13,7 +13,7 @@ trait PanDomainAuthActions extends AuthActions with Results with Logging {
 
   val permissions = PermissionsProvider(config.permissions)
 
-  val StoryPackagesAccess = PermissionDefinition("story-packages-access", "story-packages")
+  val StoryPackagesAccess = PermissionDefinition("story_packages_access", "story-packages")
 
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {
     if (!permissions.hasPermission(StoryPackagesAccess, authedUser.user.email)) {
