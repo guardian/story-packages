@@ -68,6 +68,7 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.gu" %% "content-api-client-aws" % "0.7.5",
     "com.gu" %% "fapi-client-play30" % "12.0.0",
     "com.gu" %% "pan-domain-auth-play_3-0" % "4.0.0",
+    "com.gu" %% "editorial-permissions-client" % "2.15",
     "com.gu" %% "story-packages-model" % "2.2.0",
     "com.gu" %% "thrift-serializer" % "4.0.2",
     "org.json4s" %% "json4s-native" % json4sVersion,
