@@ -173,7 +173,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
   }
 
   val permissions = PermissionsConfig(
-    stage = environment.stage,
+    stage = environment.stage.toUpperCase,
     region = aws.region,
     awsCredentials = aws.mandatoryCredentials,
   )
