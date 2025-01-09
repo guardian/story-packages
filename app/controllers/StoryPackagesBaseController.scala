@@ -1,6 +1,6 @@
 package controllers
 
-import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
 import conf.ApplicationConfiguration
 import play.api.libs.ws.WSClient
 import play.api.mvc.{BaseController, ControllerComponents}
@@ -14,11 +14,12 @@ abstract class StoryPackagesBaseController(
   final override val controllerComponents: ControllerComponents = components
 
   lazy val panDomainSettings: PanDomainAuthSettingsRefresher =
-    new PanDomainAuthSettingsRefresher(
-      config.pandomain.domain,
-      config.pandomain.service,
-      config.pandomain.bucketName,
-      config.pandomain.settingsFileKey,
-      config.aws.s3Client.get
+    PanDomainAuthSettingsRefresher(
+      domain = config.pandomain.domain,
+      system = config.pandomain.service,
+      S3BucketLoader.forAwsSdkV1(
+      config.aws.s3Client.get,
+        "pan-domain-auth-settings"
+      )
     )
 }
