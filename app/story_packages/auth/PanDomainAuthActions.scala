@@ -18,8 +18,10 @@ trait PanDomainAuthActions extends AuthActions with Results with Logging {
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {
     if (!permissions.hasPermission(StoryPackagesAccess, authedUser.user.email)) {
       Logger.warn(s"User ${authedUser.user.email} does not have ${StoryPackagesAccess.name} permission")
+      false
+    } else {
+      PanDomain.guardianValidation(authedUser)
     }
-    PanDomain.guardianValidation(authedUser)
   }
 
   override def authCallbackUrl: String = config.pandomain.host  + "/oauthCallback"
