@@ -4,6 +4,7 @@ deployments:
   story-packages:
     type: autoscaling
     parameters:
+      asgMigrationInProgress: true
       bucketSsmLookup: true
       bucketSsmKey: /account/services/artifact.bucket.story-packages
     dependencies: [packages-ami]
