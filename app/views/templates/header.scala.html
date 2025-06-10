@@ -51,4 +51,16 @@
     <div style="display: none;" class="header__group state__pending" data-bind="visible: pending">
         <div class="updating">Updating</div>
     </div>
+
+    <script>
+        const image = new Image();
+        @if(stage == "PROD"){
+            const telemetryURL = "https://user-telemetry.gutools.co.uk";
+        } else if (stage == "CODE"){
+            const telemetryURL = "https://user-telemetry.code.dev-gutools.co.uk";
+        } else {
+            const telemetryURL = "https://user-telemetry.local.dev-gutools.co.uk";
+        }
+        image.src = `${telemetryURL}/guardian-tool-accessed?app=ten-four_quiz-builder&path=${window.location.pathname}`;
+    </script>
 </header>
