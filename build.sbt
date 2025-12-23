@@ -31,6 +31,7 @@ Compile / doc / sources := Seq.empty
 Compile / packageDoc / publishArtifact := false
 
 val awsVersion = "1.12.770"
+val awsV2Version = "2.40.14"
 val capiModelsVersion = "34.0.0"
 val json4sVersion = "4.0.7"
 
@@ -59,8 +60,8 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
 //    "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
-    "software.amazon.awssdk" % "s3" % "2.40.9",
-    "software.amazon.awssdk" % "sts" % "2.40.9",
+    "software.amazon.awssdk" % "s3" % awsV2Version,
+    "software.amazon.awssdk" % "sts" % awsV2Version,
     "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
@@ -71,6 +72,7 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.gu" %% "editorial-permissions-client" % "2.15",
     "com.gu" %% "story-packages-model" % "2.2.0",
     "com.gu" %% "thrift-serializer" % "4.0.2",
+    "commons-io" % "commons-io" % "2.21.0",
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
