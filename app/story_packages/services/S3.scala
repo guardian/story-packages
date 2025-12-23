@@ -14,7 +14,7 @@ import scala.io.{Codec, Source}
 trait S3 extends Logging {
   def config: ApplicationConfiguration
 
-  lazy val bucket = config.awsV2.bucket
+  private lazy val bucket = config.awsV2.bucket
 
   private def withS3Result[T](key: String)(action: ResponseInputStream[GetObjectResponse] => T): Option[T] = config.awsV2.s3Client.flatMap { client =>
     try {
@@ -34,14 +34,12 @@ trait S3 extends Logging {
         result.close()
       }
     } catch {
-      case e: NoSuchKeyException if e.statusCode() == 404 => {
+      case e: NoSuchKeyException if e.statusCode() == 404 =>
         Logger.warn("not found at %s - %s" format(bucket, key))
         None
-      }
-      case e: Exception => {
+      case e: Exception =>
         S3ClientExceptionsMetric.increment()
         throw e
-      }
     }
   }
 
@@ -87,18 +85,18 @@ trait S3 extends Logging {
 
 class S3FrontsApi(val config: ApplicationConfiguration, isTest: Boolean) extends S3 {
 
-  lazy val stage = if (isTest) "TEST" else config.facia.stage.toUpperCase
+  private lazy val stage = if (isTest) "TEST" else config.facia.stage.toUpperCase
   val namespace = "frontsapi"
   lazy val location = s"$stage/$namespace"
 
-  def putCollectionJson(id: String, json: String) = {
+  def putCollectionJson(id: String, json: String): Unit = {
     val putLocation: String = s"$location/collection/$id/collection.json"
     putPrivate(putLocation, json, "application/json")
   }
 
-  def archive(id: String, json: String, identity: User) = {
+  def archive(id: String, json: String, identity: User): Unit = {
     val now = DateTime.now
-    putPrivate(s"$location/history/collection/${now.year.get}/${"%02d".format(now.monthOfYear.get)}/${"%02d".format(now.dayOfMonth.get)}/$id/${now}.${identity.email}.json", json, "application/json")
+    putPrivate(s"$location/history/collection/${now.year.get}/${"%02d".format(now.monthOfYear.get)}/${"%02d".format(now.dayOfMonth.get)}/$id/$now.${identity.email}.json", json, "application/json")
   }
 
   def getCollectionLastModified(path: String): Option[String] =

@@ -22,7 +22,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class FaciaContentApiProxy(config: ApplicationConfiguration, components: ControllerComponents, wsClient: WSClient) extends StoryPackagesBaseController(config, components, wsClient) with PanDomainAuthActions {
 
   implicit class string2encodings(s: String) {
-    lazy val urlEncoded = URLEncoder.encode(s, "utf-8")
+    lazy val urlEncoded: String = URLEncoder.encode(s, "utf-8")
   }
 
   private val previewSigner = {
@@ -44,7 +44,7 @@ class FaciaContentApiProxy(config: ApplicationConfiguration, components: Control
   private def getPreviewHeaders(url: String): Seq[(String,String)] =
     previewSigner.addIAMHeaders(headers = Map.empty, URI.create(url)).toSeq
 
-  def capiPreview(path: String) = APIAuthAction.async { request =>
+  def capiPreview(path: String): Action[AnyContent] = APIAuthAction.async { request =>
     FaciaToolMetrics.ProxyCount.increment()
     val queryString = IAMEncoder.encodeParams(request.queryString)
 
@@ -64,7 +64,7 @@ class FaciaContentApiProxy(config: ApplicationConfiguration, components: Control
     }
   }
 
-  def capiLive(path: String) = APIAuthAction.async { request =>
+  def capiLive(path: String): Action[AnyContent] = APIAuthAction.async { request =>
     FaciaToolMetrics.ProxyCount.increment()
     val queryString = request.queryString.filter(_._2.exists(_.nonEmpty)).map { p =>
        "%s=%s".format(p._1, p._2.head.urlEncoded)
@@ -83,7 +83,7 @@ class FaciaContentApiProxy(config: ApplicationConfiguration, components: Control
     }
   }
 
-  def http(url: String) = APIAuthAction.async { request =>
+  def http(url: String): Action[AnyContent] = APIAuthAction.async { request =>
     FaciaToolMetrics.ProxyCount.increment()
     Logger.info(s"Proxying http request to: $url")
 
@@ -94,7 +94,7 @@ class FaciaContentApiProxy(config: ApplicationConfiguration, components: Control
     }
   }
 
-  def json(url: String) = APIAuthAction.async { request =>
+  def json(url: String): Action[AnyContent] = APIAuthAction.async { request =>
     FaciaToolMetrics.ProxyCount.increment()
     Logger.info(s"Proxying json request to: $url")
 
@@ -105,7 +105,7 @@ class FaciaContentApiProxy(config: ApplicationConfiguration, components: Control
     }
   }
 
-  def ophan(path: String) = APIAuthAction.async { request =>
+  def ophan(path: String): Action[AnyContent] = APIAuthAction.async { request =>
     FaciaToolMetrics.ProxyCount.increment()
     val paths = request.queryString.get("path").map(_.mkString("path=", "&path=", "")).getOrElse("")
     val queryString = request.queryString.filterNot(_._1 == "path").filter(_._2.exists(_.nonEmpty)).map { p =>

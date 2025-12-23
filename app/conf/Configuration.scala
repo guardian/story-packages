@@ -19,6 +19,7 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import story_packages.services.Logging
 
+import java.nio.charset.Charset
 import scala.language.reflectiveCalls
 import scala.jdk.CollectionConverters._
 
@@ -27,7 +28,7 @@ class BadConfigurationException(msg: String) extends RuntimeException(msg)
 class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val envMode: Mode) extends Logging  {
   private val propertiesFile = "/etc/gu/story-packages.properties"
   private val installVars = new File(propertiesFile) match {
-    case f if f.exists => IOUtils.toString(new FileInputStream(f))
+    case f if f.exists => IOUtils.toString(new FileInputStream(f), Charset.defaultCharset())
     case _ =>
       Logger.warn("Missing configuration file $propertiesFile")
       ""
@@ -53,12 +54,12 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
   object environment {
     lazy val applicationName: String = getMandatoryString("environment.applicationName")
     val stage: String = stageFromProperties.toLowerCase
-    val mode = envMode
+    val mode: Mode = envMode
   }
 
   object aws {
-    lazy val region = getMandatoryString("aws.region")
-    lazy val bucket = getMandatoryString("aws.bucket")
+    lazy val region: String = getMandatoryString("aws.region")
+    lazy val bucket: String = getMandatoryString("aws.bucket")
 
     object endpoints {
       private val _region = RegionUtils.getRegion(region)
@@ -99,8 +100,8 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
   }
 
   object awsV2 {
-    lazy val region = getMandatoryString("aws.region")
-    lazy val bucket = getMandatoryString("aws.bucket")
+    lazy val region: String = getMandatoryString("aws.region")
+    lazy val bucket: String = getMandatoryString("aws.bucket")
 
     object endpoints {
       private val _region = Region.of(region)
@@ -149,56 +150,56 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
 
     lazy val key: Option[String] = getString("content.api.key")
 
-    lazy val previewRole = getMandatoryString("content.api.draft.role")
+    lazy val previewRole: String = getMandatoryString("content.api.draft.role")
   }
 
   object facia {
-    lazy val stage = getString("facia.stage").getOrElse(stageFromProperties)
+    lazy val stage: String = getString("facia.stage").getOrElse(stageFromProperties)
     val includedCollectionCap: Int = 12
     val linkingCollectionCap: Int = 50
   }
 
   object logging {
-    lazy val stream = getMandatoryString("logging.kinesis.stream")
-    lazy val streamRegion = getMandatoryString("logging.kinesis.region")
-    lazy val streamRole = getMandatoryString("logging.kinesis.roleArn")
-    lazy val app = getMandatoryString("logging.fields.app")
-    lazy val enabled = getBoolean("logging.enabled").getOrElse(false)
+    lazy val stream: String = getMandatoryString("logging.kinesis.stream")
+    lazy val streamRegion: String = getMandatoryString("logging.kinesis.region")
+    lazy val streamRole: String = getMandatoryString("logging.kinesis.roleArn")
+    lazy val app: String = getMandatoryString("logging.fields.app")
+    lazy val enabled: Boolean = getBoolean("logging.enabled").getOrElse(false)
   }
 
   object media {
-    lazy val baseUrl = getString("media.base.url")
-    lazy val apiUrl = getString("media.api.url")
+    lazy val baseUrl: Option[String] = getString("media.base.url")
+    lazy val apiUrl: Option[String] = getString("media.api.url")
   }
 
   object ophanApi {
-    lazy val key = getString("ophan.api.key")
-    lazy val host = getString("ophan.api.host")
+    lazy val key: Option[String] = getString("ophan.api.key")
+    lazy val host: Option[String] = getString("ophan.api.host")
   }
 
   object pandomain {
-    lazy val host = getMandatoryString("pandomain.host")
-    lazy val domain = getMandatoryString("pandomain.domain")
-    lazy val bucketName = getMandatoryString("pandomain.bucketName")
+    lazy val host: String = getMandatoryString("pandomain.host")
+    lazy val domain: String = getMandatoryString("pandomain.domain")
+    lazy val bucketName: String = getMandatoryString("pandomain.bucketName")
     lazy val settingsFileKey = s"$domain.settings"
-    lazy val service = getMandatoryString("pandomain.service")
-    lazy val roleArn = getMandatoryString("pandomain.roleArn")
+    lazy val service: String = getMandatoryString("pandomain.service")
+    lazy val roleArn: String = getMandatoryString("pandomain.roleArn")
   }
 
   object sentry {
-    lazy val publicDSN = getString("sentry.publicDSN").getOrElse("")
+    lazy val publicDSN: String = getString("sentry.publicDSN").getOrElse("")
   }
 
   object storage {
-    val configTable = properties.getOrElse("TABLE_CONFIG", throw new BadConfigurationException("Missing TABLE_CONFIG property"))
+    val configTable: String = properties.getOrElse("TABLE_CONFIG", throw new BadConfigurationException("Missing TABLE_CONFIG property"))
     val maxPageSize = 50
     val maxLatestDays = 15
     val maxLatestResults = 50
   }
 
   object switchBoard {
-    val bucket = getMandatoryString("switchboard.bucket")
-    val objectKey = getMandatoryString("switchboard.object")
+    val bucket: String = getMandatoryString("switchboard.bucket")
+    val objectKey: String = getMandatoryString("switchboard.object")
   }
 
   object updates {
@@ -218,7 +219,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
     lazy val pageSize = 20
   }
 
-  val permissions = PermissionsConfig(
+  val permissions: PermissionsConfig = PermissionsConfig(
     stage = environment.stage.toUpperCase,
     region = aws.region,
     awsCredentials = aws.mandatoryCredentials,
@@ -232,14 +233,14 @@ object Properties extends AutomaticResourceManagement {
     properties.asScala.toMap
   }
 
-  def apply(text: String): Map[String, String] = apply(IOUtils.toInputStream(text))
+  def apply(text: String): Map[String, String] = apply(IOUtils.toInputStream(text, Charset.defaultCharset()))
   def apply(file: File): Map[String, String] = apply(new FileInputStream(file))
   def apply(url: URL): Map[String, String] = apply(url.openStream)
 }
 
 trait AutomaticResourceManagement {
-  def withCloseable[T <: { def close(): Unit }](closeable: T) = new {
-    def apply[S](body: T => S) = try {
+  def withCloseable[T <: { def close(): Unit }](closeable: T): Object {def apply[S](body: T => S): S} = new {
+    def apply[S](body: T => S): S = try {
       body(closeable)
     } finally {
       closeable.close()
