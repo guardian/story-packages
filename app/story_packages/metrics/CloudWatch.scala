@@ -1,81 +1,84 @@
 package story_packages.metrics
 
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.handlers.AsyncHandler
-import com.amazonaws.services.cloudwatch.{AmazonCloudWatchAsync, AmazonCloudWatchAsyncClientBuilder}
-import com.amazonaws.services.cloudwatch.model._
 import conf.ApplicationConfiguration
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient
+import software.amazon.awssdk.services.cloudwatch.model.{Dimension, MetricDatum, PutMetricDataRequest, PutMetricDataResponse, StatisticSet}
 import story_packages.services.Logging
 
+import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters.CompletionStageOps
+import scala.util.{Failure, Success}
 
 class CloudWatch(config: ApplicationConfiguration) extends Logging {
 
-  lazy val cloudwatch: Option[AmazonCloudWatchAsync] = config.aws.credentials.map { credentials =>
-    AmazonCloudWatchAsyncClientBuilder.standard
-      .withEndpointConfiguration(new EndpointConfiguration(config.aws.endpoints.monitoring, config.aws.region))
-      .withCredentials(credentials)
+  lazy val cloudwatch: Option[CloudWatchAsyncClient] = config.awsV2.credentials.map { credentials =>
+    CloudWatchAsyncClient.builder()
+      .credentialsProvider(credentials)
+      .region(Region.of(config.awsV2.region))
+      .endpointOverride(config.awsV2.endpoints.monitoring)
       .build
   }
 
-  trait LoggingAsyncHandler extends AsyncHandler[PutMetricDataRequest, PutMetricDataResult] {
-    def onError(exception: Exception): Unit =
-    {
+  case class AsyncHandlerForMetric(frontendStatisticSets: List[FrontendStatisticSet]) {
+    def onError(exception: Throwable): Unit = {
+      Logger.warn(s"Failed to put ${frontendStatisticSets.size} metrics: $exception")
+      Logger.warn(s"Failed to put ${frontendStatisticSets.map(_.metric.name).mkString(",")}")
+      frontendStatisticSets.foreach { _.reset() }
       Logger.info(s"CloudWatch PutMetricDataRequest error: ${exception.getMessage}}")
     }
-    def onSuccess(request: PutMetricDataRequest, result: PutMetricDataResult ): Unit =
-    {
+    def onSuccess(request: PutMetricDataRequest, result: PutMetricDataResponse ): Unit = {
+      Logger.info(s"Successfully put ${frontendStatisticSets.size} metrics")
+      Logger.info(s"Successfully put ${frontendStatisticSets.map(_.metric.name).mkString(",")}")
       Logger.info("CloudWatch PutMetricDataRequest - success")
     }
   }
 
-  case class AsyncHandlerForMetric(frontendStatisticSets: List[FrontendStatisticSet]) extends LoggingAsyncHandler {
-    override def onError(exception: Exception) = {
-      Logger.warn(s"Failed to put ${frontendStatisticSets.size} metrics: $exception")
-      Logger.warn(s"Failed to put ${frontendStatisticSets.map(_.metric.name).mkString(",")}")
-      frontendStatisticSets.foreach { _.reset() }
-      super.onError(exception)
-    }
-    override def onSuccess(request: PutMetricDataRequest, result: PutMetricDataResult ) = {
-      Logger.info(s"Successfully put ${frontendStatisticSets.size} metrics")
-      Logger.info(s"Successfully put ${frontendStatisticSets.map(_.metric.name).mkString(",")}")
-
-      super.onSuccess(request, result)
-    }
-  }
-
-  def putMetricsWithStage(metrics: List[FrontendMetric], applicationDimension: Dimension, stageDimension: Dimension): Unit =
+  def putMetricsWithStage(metrics: List[FrontendMetric], applicationDimension: Dimension, stageDimension: Dimension)(implicit ec:ExecutionContext): Unit =
     putMetrics("Application", metrics, List(stageDimension, applicationDimension))
 
-  def putMetrics(metricNamespace: String, metrics: List[FrontendMetric], dimensions: List[Dimension]): Unit = {
+  def putMetrics(metricNamespace: String, metrics: List[FrontendMetric], dimensions: List[Dimension])(implicit ec:ExecutionContext): Unit = {
     for {
       metricGroup <- metrics.filterNot(_.isEmpty).grouped(20)
     } {
       val metricsAsStatistics: List[FrontendStatisticSet] =
         metricGroup.map( metric => FrontendStatisticSet(metric, metric.getAndResetDataPoints))
-      val request = new PutMetricDataRequest()
-        .withNamespace(metricNamespace)
-        .withMetricData {
+      val request = PutMetricDataRequest.builder()
+        .namespace(metricNamespace)
+        .metricData {
           val metricData = for(metricStatistic <- metricsAsStatistics) yield {
-            new MetricDatum()
-              .withStatisticValues(frontendMetricToStatisticSet(metricStatistic))
-              .withUnit(metricStatistic.metric.metricUnit)
-              .withMetricName(metricStatistic.metric.name)
-              .withDimensions(dimensions.asJava)
+            MetricDatum.builder()
+              .statisticValues(frontendMetricToStatisticSet(metricStatistic))
+              .unit(metricStatistic.metric.metricUnit)
+              .metricName(metricStatistic.metric.name)
+              .dimensions(dimensions.asJava)
+              .build()
           }
-
           metricData.asJava
         }
-      cloudwatch.foreach(_.putMetricDataAsync(request, AsyncHandlerForMetric(metricsAsStatistics)))
+        .build()
+      val handler = AsyncHandlerForMetric(metricsAsStatistics)
+
+      cloudwatch.foreach { client =>
+        client
+          .putMetricData(request)
+          .asScala
+          .onComplete {
+            case Success(response) => handler.onSuccess(request, response)
+            case Failure(e) => handler.onError(e)
+          }
+      }
     }
   }
 
   private def frontendMetricToStatisticSet(metricStatistics: FrontendStatisticSet): StatisticSet =
-    new StatisticSet()
-      .withMaximum(metricStatistics.maximum)
-      .withMinimum(metricStatistics.minimum)
-      .withSampleCount(metricStatistics.sampleCount)
-      .withSum(metricStatistics.sum)
+    StatisticSet.builder()
+      .maximum(metricStatistics.maximum)
+      .minimum(metricStatistics.minimum)
+      .sampleCount(metricStatistics.sampleCount)
+      .sum(metricStatistics.sum)
+      .build()
 
 }
 

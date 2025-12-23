@@ -1,19 +1,19 @@
 package story_packages.metrics
 
-import com.amazonaws.services.cloudwatch.model.StandardUnit
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit
 
 class DurationMetricTest extends AnyFlatSpec with Matchers {
 
   "DurationMetric" should "start off empty" in {
-    val durationMetric: DurationMetric = DurationMetric("TestMetric", StandardUnit.Count)
+    val durationMetric: DurationMetric = DurationMetric("TestMetric", StandardUnit.COUNT)
 
     durationMetric.getAndResetDataPoints should be (List())
   }
 
   it should "record some metrics" in {
-    val durationMetric: DurationMetric = DurationMetric("TestMetric", StandardUnit.Count)
+    val durationMetric: DurationMetric = DurationMetric("TestMetric", StandardUnit.COUNT)
 
     durationMetric.recordDuration(1000)
     durationMetric.recordDuration(1000)
@@ -26,7 +26,7 @@ class DurationMetricTest extends AnyFlatSpec with Matchers {
   }
 
   it should "add datapoints to the head of the list" in {
-    val durationMetric: DurationMetric = DurationMetric("TestMetric", StandardUnit.Count)
+    val durationMetric: DurationMetric = DurationMetric("TestMetric", StandardUnit.COUNT)
 
     val metricOne = DurationDataPoint(1000, None)
     val metricTwo = DurationDataPoint(1000, None)

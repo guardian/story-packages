@@ -4,14 +4,12 @@ import java.io.File
 import java.lang.management.{GarbageCollectorMXBean, ManagementFactory}
 import java.util.concurrent.atomic.AtomicLong
 import org.apache.pekko.actor.Scheduler
-import com.amazonaws.services.cloudwatch.model.{Dimension, StandardUnit}
-import play.api.Logger
+import software.amazon.awssdk.services.cloudwatch.model.{Dimension, StandardUnit}
 import story_packages.services.Logging
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
-import scala.collection.mutable.Buffer
 
 object SystemMetrics {
 
@@ -171,7 +169,7 @@ object ReindexMetrics {
 
 class CloudWatchApplicationMetrics(appName: String, stage: String, cloudWatch: CloudWatch, scheduler: Scheduler, isDev: Boolean) extends Logging {
   val applicationMetricsNamespace: String = "Application"
-  val applicationDimension: Dimension = new Dimension().withName("ApplicationName").withValue(appName)
+  val applicationDimension: Dimension = Dimension.builder().name("ApplicationName").value(appName).build()
   def applicationMetrics: List[FrontendMetric] = List(
     StoryPackagesMetrics.QueryCount,
     StoryPackagesMetrics.ScanCount,
@@ -195,18 +193,18 @@ class CloudWatchApplicationMetrics(appName: String, stage: String, cloudWatch: C
     SystemMetrics.OpenFileDescriptorsMetric) ++ SystemMetrics.garbageCollectors.flatMap{ gc => List(
       GaugeMetric(s"${gc.name}-gc-count-per-min" , "Used heap memory (MB)",
         () => gc.gcCount.toLong,
-        StandardUnit.Count
+        StandardUnit.COUNT
       ),
       GaugeMetric(s"${gc.name}-gc-time-per-min", "Used heap memory (MB)",
         () => gc.gcTime.toLong,
-        StandardUnit.Count
+        StandardUnit.COUNT
       )
     )}
 
   private def report(): Unit = {
     val allMetrics: List[FrontendMetric] = this.systemMetrics ::: this.applicationMetrics
     if (!isDev) {
-      val stageDimension = new Dimension().withName("Stage").withValue(stage)
+      val stageDimension = Dimension.builder().name("Stage").value(stage).build()
       cloudWatch.putMetricsWithStage(allMetrics, applicationDimension, stageDimension)
     }
   }
