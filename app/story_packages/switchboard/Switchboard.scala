@@ -1,17 +1,19 @@
 package story_packages.switchboard
 
 import org.apache.pekko.actor.Scheduler
-import com.amazonaws.auth.AWSCredentialsProvider
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import story_packages.services.Logging
 
+import java.net.URI
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
 case class SwitchboardConfiguration (
   bucket: String,
   objectKey: String,
-  credentials: AWSCredentialsProvider,
-  endpoint: String
+  credentials: AwsCredentialsProvider,
+  region: String,
+  endpoint: URI
 )
 
 class Lifecycle(conf: SwitchboardConfiguration, scheduler: Scheduler) extends Logging {
