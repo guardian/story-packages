@@ -1,12 +1,12 @@
 package conf
 
 import java.io.{File, FileInputStream, InputStream}
-import java.net.URL
+import java.net.{URI, URL}
 import com.amazonaws.AmazonClientException
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
+import com.amazonaws.auth.profile.{ProfileCredentialsProvider => ProfileCredentialsProviderV1}
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider => InstanceProfileCredentialsProviderV1}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.regions.{Region, RegionUtils}
+import com.amazonaws.regions.RegionUtils
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
@@ -14,6 +14,9 @@ import com.gu.permissions.PermissionsConfig
 import org.apache.commons.io.IOUtils
 import play.api.Mode
 import play.api.{Configuration => PlayConfiguration}
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, AwsCredentialsProviderChain, InstanceProfileCredentialsProvider, ProfileCredentialsProvider}
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
 import story_packages.services.Logging
 
 import scala.language.reflectiveCalls
@@ -67,8 +70,8 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
     def mandatoryCredentials: AWSCredentialsProvider = credentials.getOrElse(throw new BadConfigurationException("AWS credentials are not configured"))
     val credentials: Option[AWSCredentialsProvider] = {
       val provider = new AWSCredentialsProviderChain(
-        new ProfileCredentialsProvider("cmsFronts"),
-        InstanceProfileCredentialsProvider.getInstance
+        new ProfileCredentialsProviderV1("cmsFronts"),
+        InstanceProfileCredentialsProviderV1.getInstance
       )
 
       // this is a bit of a convoluted way to check whether we actually have credentials.
@@ -93,6 +96,48 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
         .withEndpointConfiguration(new EndpointConfiguration(endpoints.s3, region))
         .build
     }
+  }
+
+  object awsV2 {
+    lazy val region = getMandatoryString("aws.region")
+    lazy val bucket = getMandatoryString("aws.bucket")
+
+    object endpoints {
+      private val _region = Region.of(region)
+      //      val monitoring: String = ServiceMetadata.of().endpointFor(_region) // _region.getServiceEndpoint(AmazonCloudWatch.ENDPOINT_PREFIX)
+      //      val dynamoDB: String = _region.getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX)
+      val s3: URI = S3Client.serviceMetadata().endpointFor(_region)
+    }
+
+    def mandatoryCredentials: AwsCredentialsProvider = credentials.getOrElse(throw new BadConfigurationException("AWS credentials are not configured"))
+    val credentials: Option[AwsCredentialsProvider] = {
+      val provider = AwsCredentialsProviderChain.of(
+        ProfileCredentialsProvider.create("cmsFronts"),
+        InstanceProfileCredentialsProvider.create()
+      )
+
+      // this is a bit of a convoluted way to check whether we actually have credentials.
+      // I guess in an ideal world there would be some sort of isConfigued() method...
+      try {
+        val creds = provider.resolveCredentials()
+        Some(provider)
+      } catch {
+        case ex: AmazonClientException =>
+          Logger.error("amazon client exception")
+
+          // We really, really want to ensure that PROD is configured before saying a box is OK
+          if (envMode == Mode.Prod) throw ex
+          // this means that on dev machines you only need to configure keys if you are actually going to use them
+          None
+      }
+    }
+
+//    val s3Client: Option[S3Client] = credentials.map { credentials =>
+//      AmazonS3ClientBuilder.standard
+//        .withCredentials(credentials)
+//        .withEndpointConfiguration(new EndpointConfiguration(endpoints.s3, region))
+//        .build
+//    }
   }
 
   object contentApi {

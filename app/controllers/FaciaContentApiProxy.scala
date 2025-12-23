@@ -1,17 +1,19 @@
 package controllers
 
 import java.net.{URI, URLEncoder}
-
 import org.apache.pekko.actor.ActorSystem
 import story_packages.auth.PanDomainAuthActions
-import com.amazonaws.auth.{AWSCredentialsProviderChain, STSAssumeRoleSessionCredentialsProvider}
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.gu.contentapi.client.{IAMEncoder, IAMSigner}
 import story_packages.metrics.FaciaToolMetrics
 import story_packages.model.Cached
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import conf.ApplicationConfiguration
+import software.amazon.awssdk.auth.credentials.{AwsCredentialsProviderChain, ProfileCredentialsProvider}
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.sts.StsClient
+import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider
+import software.amazon.awssdk.services.sts.model.AssumeRoleRequest
 import story_packages.switchboard.SwitchManager
 import story_packages.util.ContentUpgrade.rewriteBody
 
@@ -25,9 +27,13 @@ class FaciaContentApiProxy(config: ApplicationConfiguration, components: Control
   }
 
   private val previewSigner = {
-    val capiPreviewCredentials = new AWSCredentialsProviderChain(
-      new ProfileCredentialsProvider("capi"),
-      new STSAssumeRoleSessionCredentialsProvider.Builder(config.contentApi.previewRole, "capi").build()
+    val region = Region.of(config.awsV2.region)
+    val stsClient = StsClient.builder.region(region).build()
+    val assumeRoleRequest = AssumeRoleRequest.builder.roleSessionName("capi").roleArn(config.contentApi.previewRole).build
+
+    val capiPreviewCredentials = AwsCredentialsProviderChain.of(
+      ProfileCredentialsProvider.create("capi"),
+      StsAssumeRoleCredentialsProvider.builder().stsClient(stsClient).refreshRequest(assumeRoleRequest).build()
     )
 
     new IAMSigner(

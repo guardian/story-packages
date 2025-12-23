@@ -10,7 +10,7 @@ packageSummary := "Story packages"
 
 packageDescription := "Guardian story packages editor"
 
-scalaVersion := "2.13.14"
+scalaVersion := "2.13.18"
 
 import sbt.Resolver
 
@@ -31,7 +31,7 @@ Compile / doc / sources := Seq.empty
 Compile / packageDoc / publishArtifact := false
 
 val awsVersion = "1.12.770"
-val capiModelsVersion = "25.1.0"
+val capiModelsVersion = "34.0.0"
 val json4sVersion = "4.0.7"
 
 resolvers ++= Seq(
@@ -56,17 +56,17 @@ val jacksonOverrides = Seq(
 libraryDependencies ++= jacksonOverrides ++  Seq(
     ws,
     filters,
-    "com.amazonaws" % "aws-java-sdk-core" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsVersion,
     "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
-    "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
-    "com.amazonaws" % "aws-java-sdk-sqs" % awsVersion,
-    "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
+//    "com.amazonaws" % "aws-java-sdk-sts" % awsVersion,
+    "software.amazon.awssdk" % "s3" % "2.40.9",
+    "software.amazon.awssdk" % "sts" % "2.40.9",
     "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
-    "com.gu" %% "content-api-client-aws" % "0.7.5",
-    "com.gu" %% "fapi-client-play30" % "12.0.0",
+    "com.gu" %% "content-api-client-aws" % "1.0.1",
+    "com.gu.etag-caching" %% "aws-s3-sdk-v2" % "7.0.0",
+    "com.gu" %% "fapi-client-play30" % "28.0.0",
     "com.gu" %% "pan-domain-auth-play_3-0" % "7.0.0",
     "com.gu" %% "editorial-permissions-client" % "2.15",
     "com.gu" %% "story-packages-model" % "2.2.0",

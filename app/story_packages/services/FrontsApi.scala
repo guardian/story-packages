@@ -1,22 +1,31 @@
 package story_packages.services
 
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.gu.facia.client.{AmazonSdkS3Client, ApiClient}
+import com.gu.etagcaching.aws.sdkv2.s3.S3ObjectFetching
+import com.gu.facia.client.{ApiClient, Environment}
 import conf.ApplicationConfiguration
+import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3AsyncClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class FrontsApi(config: ApplicationConfiguration) {
   lazy val amazonClient: ApiClient = {
 
-    val client = AmazonS3ClientBuilder.standard
-      .withCredentials(config.aws.mandatoryCredentials)
-      .withEndpointConfiguration(new EndpointConfiguration(config.aws.endpoints.s3, config.aws.region))
-      .build
+    val client = S3AsyncClient
+      .builder()
+      .httpClient(NettyNioAsyncHttpClient.builder().build())
+      .credentialsProvider(config.awsV2.mandatoryCredentials)
+      .region(Region.EU_WEST_1)
+      .build()
 
     val bucket = config.aws.bucket
     val stage = config.facia.stage.toUpperCase
-    ApiClient(bucket, stage, AmazonSdkS3Client(client))
+
+    ApiClient.withCaching(
+      bucket,
+      Environment(stage),
+      S3ObjectFetching.byteArraysWith(client),
+    )
   }
 }

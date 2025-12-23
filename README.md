@@ -30,14 +30,16 @@ This is needed on Mac only:
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
-#### JDK 8
+#### JDK
+
+See [.tool-versions](.tool-versions)
 
 Ubuntu:
 ```bash
 sudo apt-get install openjdk-8-jdk
 ```
 
-Mac: Install from [Oracle web site](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+Mac: Use `sdkman` or install from [Oracle web site](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
 #### Node.JS
 
@@ -77,6 +79,8 @@ Mac:
 brew install nginx
 ```
 
+[dev-nginx](https://github.com/guardian/dev-nginx)
+
 #### sbt
 
 Mac:
@@ -105,21 +109,9 @@ This will fetch the required config files, set the nginx mappings, and install t
 
 #### 2. Run the application
 ```bash
-sbt
+./scripts/start.sh
 ```
 
-Wait for SBT to be up and running. This may take a while the first time, you'll know it's done when you get a prompt.
-
-If it is your first time, compile the project.
-```
-compile
-```
-
-Then run the project locally by typing
-```
-run
-```
-This also can take a while the first time.
 
 Now check that you are up and running by hitting the following URL
 
