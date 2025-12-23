@@ -1,7 +1,6 @@
 package controllers
 
 import java.net.{URI, URLEncoder}
-import org.apache.pekko.actor.ActorSystem
 import story_packages.auth.PanDomainAuthActions
 import com.gu.contentapi.client.{IAMEncoder, IAMSigner}
 import story_packages.metrics.FaciaToolMetrics
