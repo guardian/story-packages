@@ -17,8 +17,8 @@ abstract class StoryPackagesBaseController(
     PanDomainAuthSettingsRefresher(
       domain = config.pandomain.domain,
       system = config.pandomain.service,
-      S3BucketLoader.forAwsSdkV1(
-      config.aws.s3Client.get,
+      S3BucketLoader.forAwsSdkV2(
+      config.awsV2.s3Client.get,
         "pan-domain-auth-settings"
       )
     )
