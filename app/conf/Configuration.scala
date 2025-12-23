@@ -107,7 +107,8 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
       private val _region = Region.of(region)
       //      val monitoring: String = ServiceMetadata.of().endpointFor(_region) // _region.getServiceEndpoint(AmazonCloudWatch.ENDPOINT_PREFIX)
       //      val dynamoDB: String = _region.getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX)
-      val s3: URI = S3Client.serviceMetadata().endpointFor(_region)
+      val s3Endpoint = S3Client.serviceMetadata().endpointFor(_region)
+      val s3: URI = if (s3Endpoint.isAbsolute) s3Endpoint else new URI(s"https://$s3Endpoint")
     }
 
     def mandatoryCredentials: AwsCredentialsProvider = credentials.getOrElse(throw new BadConfigurationException("AWS credentials are not configured"))
@@ -137,6 +138,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
       S3Client
         .builder()
         .credentialsProvider(credentials)
+        .region(Region.of(region))
         .endpointOverride(endpoints.s3)
         .build
     }
