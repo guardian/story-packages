@@ -1,25 +1,24 @@
 package story_packages.services
 
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
-import com.amazonaws.services.s3.model.CannedAccessControlList.Private
-import com.amazonaws.services.s3.model._
-import com.amazonaws.util.StringInputStream
 import com.gu.pandomainauth.model.User
 import story_packages.metrics.S3Metrics.S3ClientExceptionsMetric
 import org.joda.time.DateTime
 import conf.ApplicationConfiguration
+import software.amazon.awssdk.core.ResponseInputStream
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResponse, NoSuchKeyException, ObjectCannedACL, PutObjectRequest}
 
+import java.nio.charset.StandardCharsets
 import scala.io.{Codec, Source}
 
 trait S3 extends Logging {
   def config: ApplicationConfiguration
 
-  lazy val bucket = config.aws.bucket
+  lazy val bucket = config.awsV2.bucket
 
-  private def withS3Result[T](key: String)(action: S3Object => T): Option[T] = config.aws.s3Client.flatMap { client =>
+  private def withS3Result[T](key: String)(action: ResponseInputStream[GetObjectResponse] => T): Option[T] = config.awsV2.s3Client.flatMap { client =>
     try {
-      val request = new GetObjectRequest(bucket, key)
+      val request = GetObjectRequest.builder().bucket(bucket).key(key).build()
       val result = client.getObject(request)
 
       // http://stackoverflow.com/questions/17782937/connectionpooltimeoutexception-when-iterating-objects-in-s3
@@ -35,7 +34,7 @@ trait S3 extends Logging {
         result.close()
       }
     } catch {
-      case e: AmazonS3Exception if e.getStatusCode == 404 => {
+      case e: NoSuchKeyException if e.statusCode() == 404 => {
         Logger.warn("not found at %s - %s" format(bucket, key))
         None
       }
@@ -47,35 +46,37 @@ trait S3 extends Logging {
   }
 
   def get(key: String)(implicit codec: Codec): Option[String] = withS3Result(key) {
-    result => Source.fromInputStream(result.getObjectContent).mkString
+    result => Source.fromInputStream(result).mkString
   }
 
 
   def getWithLastModified(key: String): Option[(String, DateTime)] = withS3Result(key) {
     result =>
-      val content = Source.fromInputStream(result.getObjectContent).mkString
-      val lastModified = new DateTime(result.getObjectMetadata.getLastModified)
+      val content = Source.fromInputStream(result).mkString
+      val lastModified = new DateTime(result.response().lastModified())
       (content, lastModified)
   }
 
   def getLastModified(key: String): Option[DateTime] = withS3Result(key) {
-    result => new DateTime(result.getObjectMetadata.getLastModified)
+    result => new DateTime(result.response().lastModified)
   }
 
   def putPrivate(key: String, value: String, contentType: String): Unit = {
-    put(key: String, value: String, contentType: String, Private)
+    put(key: String, value: String, contentType: String, ObjectCannedACL.PRIVATE)
   }
 
-  private def put(key: String, value: String, contentType: String, accessControlList: CannedAccessControlList): Unit = {
-    val metadata = new ObjectMetadata()
-    metadata.setCacheControl("no-cache,no-store")
-    metadata.setContentType(contentType)
-    metadata.setContentLength(value.getBytes("UTF-8").length)
-
-    val request = new PutObjectRequest(bucket, key, new StringInputStream(value), metadata).withCannedAcl(accessControlList)
+  private def put(key: String, value: String, contentType: String, accessControlList: ObjectCannedACL): Unit = {
+    val request = PutObjectRequest
+      .builder()
+      .bucket(bucket)
+      .key(key)
+      .acl(accessControlList)
+      .cacheControl("no-cache,no-store")
+      .contentType(contentType)
+      .build()
 
     try {
-      config.aws.s3Client.foreach(_.putObject(request))
+      config.awsV2.s3Client.foreach(_.putObject(request, RequestBody.fromString(value, StandardCharsets.UTF_8)))
     } catch {
       case e: Exception =>
         S3ClientExceptionsMetric.increment()

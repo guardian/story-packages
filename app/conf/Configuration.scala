@@ -132,12 +132,13 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
       }
     }
 
-//    val s3Client: Option[S3Client] = credentials.map { credentials =>
-//      AmazonS3ClientBuilder.standard
-//        .withCredentials(credentials)
-//        .withEndpointConfiguration(new EndpointConfiguration(endpoints.s3, region))
-//        .build
-//    }
+    val s3Client: Option[S3Client] = credentials.map { credentials =>
+      S3Client
+        .builder()
+        .credentialsProvider(credentials)
+        .endpointOverride(endpoints.s3)
+        .build
+    }
   }
 
   object contentApi {
