@@ -6,7 +6,6 @@ import com.amazonaws.AmazonClientException
 import com.amazonaws.auth.profile.{ProfileCredentialsProvider => ProfileCredentialsProviderV1}
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider => InstanceProfileCredentialsProviderV1}
 import com.amazonaws.regions.RegionUtils
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.gu.permissions.PermissionsConfig
 import org.apache.commons.io.IOUtils
 import play.api.Mode
@@ -14,6 +13,7 @@ import play.api.{Configuration => PlayConfiguration}
 import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, AwsCredentialsProviderChain, InstanceProfileCredentialsProvider, ProfileCredentialsProvider}
 import software.amazon.awssdk.regions.{Region, ServiceMetadata}
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.s3.S3Client
 import story_packages.services.Logging
 
@@ -62,7 +62,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
     object endpoints {
       private val _region = RegionUtils.getRegion(region)
 //      val monitoring: String = _region.getServiceEndpoint(AmazonCloudWatch.ENDPOINT_PREFIX)
-      val dynamoDB: String = _region.getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX)
+//      val dynamoDB: String = _region.getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX)
 //      val s3: String = _region.getServiceEndpoint(AmazonS3.ENDPOINT_PREFIX)
     }
 
@@ -109,7 +109,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
       }
 
       val monitoring: URI = endpointFor(CloudWatchClient.serviceMetadata())
-      //      val dynamoDB: String = _region.getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX)
+      val dynamoDB: URI = endpointFor(DynamoDbClient.serviceMetadata())
       val s3: URI = endpointFor(S3Client.serviceMetadata())
     }
 
