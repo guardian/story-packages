@@ -57,14 +57,6 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
 
   object aws {
     lazy val region: String = getMandatoryString("aws.region")
-    lazy val bucket: String = getMandatoryString("aws.bucket")
-
-    object endpoints {
-      private val _region = RegionUtils.getRegion(region)
-//      val monitoring: String = _region.getServiceEndpoint(AmazonCloudWatch.ENDPOINT_PREFIX)
-//      val dynamoDB: String = _region.getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX)
-//      val s3: String = _region.getServiceEndpoint(AmazonS3.ENDPOINT_PREFIX)
-    }
 
     def mandatoryCredentials: AWSCredentialsProvider = credentials.getOrElse(throw new BadConfigurationException("AWS credentials are not configured"))
     val credentials: Option[AWSCredentialsProvider] = {
@@ -88,13 +80,6 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
           None
       }
     }
-
-//    val s3Client: Option[AmazonS3] = credentials.map { credentials =>
-//      AmazonS3ClientBuilder.standard
-//        .withCredentials(credentials)
-//        .withEndpointConfiguration(new EndpointConfiguration(endpoints.s3, region))
-//        .build
-//    }
   }
 
   object awsV2 {

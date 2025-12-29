@@ -19,7 +19,7 @@ class FrontsApi(config: ApplicationConfiguration) {
       .region(Region.EU_WEST_1)
       .build()
 
-    val bucket = config.aws.bucket
+    val bucket = config.awsV2.bucket
     val stage = config.facia.stage.toUpperCase
 
     ApiClient.withCaching(

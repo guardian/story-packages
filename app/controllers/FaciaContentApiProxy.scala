@@ -37,7 +37,7 @@ class FaciaContentApiProxy(config: ApplicationConfiguration, components: Control
 
     new IAMSigner(
       credentialsProvider = capiPreviewCredentials,
-      awsRegion = config.aws.region
+      awsRegion = config.awsV2.region
     )
   }
 
