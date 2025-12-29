@@ -57,12 +57,11 @@ val jacksonOverrides = Seq(
 libraryDependencies ++= jacksonOverrides ++  Seq(
     ws,
     filters,
-    "com.amazonaws" % "aws-java-sdk-kinesis" % awsVersion,
+    "software.amazon.awssdk" % "kinesis" % awsV2Version,
     "software.amazon.awssdk" % "cloudwatch" % awsV2Version,
     "software.amazon.awssdk" % "dynamodb-enhanced" % awsV2Version,
     "software.amazon.awssdk" % "s3" % awsV2Version,
     "software.amazon.awssdk" % "sts" % awsV2Version,
-//    "com.amazonaws" % "aws-java-sdk-dynamodb" % awsVersion,
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "1.0.1",

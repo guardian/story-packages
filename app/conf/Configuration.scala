@@ -2,15 +2,12 @@ package conf
 
 import java.io.{File, FileInputStream, InputStream}
 import java.net.{URI, URL}
-import com.amazonaws.AmazonClientException
-import com.amazonaws.auth.profile.{ProfileCredentialsProvider => ProfileCredentialsProviderV1}
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider => InstanceProfileCredentialsProviderV1}
-import com.amazonaws.regions.RegionUtils
 import com.gu.permissions.PermissionsConfig
 import org.apache.commons.io.IOUtils
 import play.api.Mode
 import play.api.{Configuration => PlayConfiguration}
 import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, AwsCredentialsProviderChain, InstanceProfileCredentialsProvider, ProfileCredentialsProvider}
+import software.amazon.awssdk.core.exception.SdkClientException
 import software.amazon.awssdk.regions.{Region, ServiceMetadata}
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
@@ -55,33 +52,6 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
     val mode: Mode = envMode
   }
 
-  object aws {
-    lazy val region: String = getMandatoryString("aws.region")
-
-    def mandatoryCredentials: AWSCredentialsProvider = credentials.getOrElse(throw new BadConfigurationException("AWS credentials are not configured"))
-    val credentials: Option[AWSCredentialsProvider] = {
-      val provider = new AWSCredentialsProviderChain(
-        new ProfileCredentialsProviderV1("cmsFronts"),
-        InstanceProfileCredentialsProviderV1.getInstance
-      )
-
-      // this is a bit of a convoluted way to check whether we actually have credentials.
-      // I guess in an ideal world there would be some sort of isConfigued() method...
-      try {
-        val creds = provider.getCredentials
-        Some(provider)
-      } catch {
-        case ex: AmazonClientException =>
-          Logger.error("amazon client exception")
-
-          // We really, really want to ensure that PROD is configured before saying a box is OK
-          if (envMode == Mode.Prod) throw ex
-          // this means that on dev machines you only need to configure keys if you are actually going to use them
-          None
-      }
-    }
-  }
-
   object awsV2 {
     lazy val region: String = getMandatoryString("aws.region")
     lazy val bucket: String = getMandatoryString("aws.bucket")
@@ -111,7 +81,7 @@ class ApplicationConfiguration(val playConfiguration: PlayConfiguration, val env
         val creds = provider.resolveCredentials()
         Some(provider)
       } catch {
-        case ex: AmazonClientException =>
+        case ex: SdkClientException =>
           Logger.error("amazon client exception")
 
           // We really, really want to ensure that PROD is configured before saying a box is OK

@@ -2,6 +2,8 @@ package story_packages.updates
 
 import story_packages.model.StoryPackage
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class UpdatesStream(auditingUpdates: AuditingUpdates, kinesisEventSender: KinesisEventSender) {
 
   def putStreamUpdate(streamUpdate: AuditUpdate): Unit = {
