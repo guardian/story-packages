@@ -131,6 +131,7 @@ class DynamoReindexJobs(config: ApplicationConfiguration) extends Logging {
 
 object DynamoReindexJobs {
   def jobAsItem(job: RunningJob): EnhancedDocument = EnhancedDocument.builder()
+      .attributeConverterProviders(AttributeConverterProvider.defaultProvider())
       .putString("reindexStatus", job.status.label)
       .putString("startTime", job.startTime.toString)
       .putNumber("documentsIndexed", job.documentsIndexed)

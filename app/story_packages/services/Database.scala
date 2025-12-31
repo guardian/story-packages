@@ -6,19 +6,17 @@ import story_packages.model.StoryPackage
 import org.joda.time.{DateTime, DateTimeZone}
 import conf.ApplicationConfiguration
 import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
-import software.amazon.awssdk.enhanced.dynamodb.model.{PageIterable, ScanEnhancedRequest, UpdateItemEnhancedRequest}
+import software.amazon.awssdk.enhanced.dynamodb.model.{PageIterable, ScanEnhancedRequest}
 import software.amazon.awssdk.enhanced.dynamodb.{AttributeConverterProvider, AttributeValueType, DynamoDbEnhancedClient, Expression, Key, TableMetadata, TableSchema}
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
-import software.amazon.awssdk.services.dynamodb.model.{AttributeValue, PutItemRequest, PutRequest}
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import story_packages.updates.ReindexPage
 import story_packages.util.Identity._
 
 import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-
-class InvalidQueryResult(msg: String) extends Throwable(msg)
 
 class Database(config: ApplicationConfiguration) extends Logging {
   private lazy val client =
@@ -156,6 +154,7 @@ object DynamoToScala {
       lazy val now = new DateTime().withZone(DateTimeZone.UTC)
 
       EnhancedDocument.builder()
+        .attributeConverterProviders(AttributeConverterProvider.defaultProvider())
         .putString("id", story.id.getOrElse(IdGeneration.nextId))
         .putOptString("packageName", story.name)
         .putOptString("searchName", story.name.map(_.toLowerCase))
