@@ -1,8 +1,8 @@
 package story_packages.metrics
 
 import java.util.concurrent.atomic.AtomicLong
-import com.amazonaws.services.cloudwatch.model.StandardUnit
 import org.joda.time.DateTime
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit
 import story_packages.util.Box
 
 import scala.util.Try
@@ -41,7 +41,7 @@ sealed trait FrontendMetric {
   def isEmpty: Boolean
 }
 
-case class GaugeMetric(name: String, description: String, get: () => Long, metricUnit: StandardUnit = StandardUnit.Megabytes) extends FrontendMetric {
+case class GaugeMetric(name: String, description: String, get: () => Long, metricUnit: StandardUnit = StandardUnit.MEGABYTES) extends FrontendMetric {
   def getAndResetDataPoints: List[DataPoint] = List(GaugeDataPoint(get()))
   def putDataPoints(points: List[DataPoint]): Unit = ()
   def isEmpty: Boolean = false
@@ -49,7 +49,7 @@ case class GaugeMetric(name: String, description: String, get: () => Long, metri
 
 case class CountMetric(name: String, description: String) extends FrontendMetric {
   private val count: AtomicLong = new AtomicLong(0L)
-  val metricUnit = StandardUnit.Count
+  val metricUnit = StandardUnit.COUNT
 
   def getAndResetDataPoints: List[DataPoint] = List(CountDataPoint(count.getAndSet(0L)))
   def getAndReset: Long = getAndResetDataPoints.map(_.value).reduce(_ + _)

@@ -19,8 +19,9 @@ class Loader extends ApplicationLoader {
     new SwitchboardLifecycle(SwitchboardConfiguration(
       objectKey = components.config.switchBoard.objectKey,
       bucket = components.config.switchBoard.bucket,
-      credentials = components.config.aws.mandatoryCredentials,
-      endpoint = components.config.aws.endpoints.s3
+      credentials = components.config.awsV2.mandatoryCredentials,
+      region = components.config.awsV2.region,
+      endpoint = components.config.awsV2.endpoints.s3
     ), components.actorSystem.scheduler)
 
     components.application

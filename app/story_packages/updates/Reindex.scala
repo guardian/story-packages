@@ -1,7 +1,6 @@
 package story_packages.updates
 
 import org.apache.pekko.actor.Scheduler
-import com.amazonaws.services.dynamodbv2.document.Item
 import story_packages.model.StoryPackage
 import org.joda.time.DateTime
 import play.api.libs.json.Json
@@ -12,6 +11,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 import play.api.libs.json.OFormat
+import software.amazon.awssdk.enhanced.dynamodb.document.EnhancedDocument
 
 case class ReindexPage(
   totalCount: Int,
@@ -50,8 +50,8 @@ case class Completed(label: String = "completed") extends ReindexStatus
 case class Cancelled(label: String = "cancelled") extends ReindexStatus
 
 object SortItemsByLastStartTime {
-  implicit def sortByStartTime: Ordering[Item] = {
-    def convertToDateTime(item: Item) = new DateTime(item.getString("startTime"))
+  implicit def sortByStartTime: Ordering[EnhancedDocument] = {
+    def convertToDateTime(item: EnhancedDocument) = new DateTime(item.getString("startTime"))
     Ordering.fromLessThan(convertToDateTime(_) isAfter convertToDateTime(_))
   }
 }
