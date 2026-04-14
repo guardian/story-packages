@@ -25,7 +25,7 @@ class DynamoReindexJobs(config: ApplicationConfiguration) extends Logging {
     .dynamoDbClient(client)
     .build();
 
-  private lazy val table = enhancedClient.table(config.storage.configTable,
+  private lazy val table = enhancedClient.table(config.reindex.progressTable,
     TableSchema.documentSchemaBuilder()
       .addIndexPartitionKey(TableMetadata.primaryIndexName(), "reindexStatus", AttributeValueType.S)
       .addIndexSortKey(TableMetadata.primaryIndexName(), "startTime", AttributeValueType.S)
