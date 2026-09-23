@@ -28,6 +28,10 @@ forwardPorts:
 # mounts:
 #   - "source=${localEnv:HOME}/.gu/example,target=/home/vscode/.gu/example,readonly,type=bind,consistency=cached"
 
+containerEnv:
+  - name: DEVCONTAINER
+    value: "true"
+
 # Optional: IDE plugins - shared project plugins like language support
 # plugins:
 #   vscode: []
