@@ -1,4 +1,6 @@
 module.exports = function(grunt, options) {
+    process.env.CHROME_BIN = require('playwright-chromium').chromium.executablePath();
+
     return {
         options: {
             frameworks: ['jasmine'],
@@ -11,7 +13,7 @@ module.exports = function(grunt, options) {
             colors: options.color,
             port: 9876,
             autoWatch: true,
-            browsers: ['PhantomJS'],
+            browsers: ['ChromeHeadless'],
             captureTimeout: 60000
         },
         'static': {

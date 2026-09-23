@@ -125,7 +125,7 @@ Unit tests run with `grunt`, `karma` and `jasmine`.
 ```bash
 grunt test
 ```
-Runs the tests once in PhantomJS and exits with an error if tests fails
+Runs the tests once in headless Chromium and exits with an error if tests fail.
 
 ```bash
 grunt test --no-single-run
