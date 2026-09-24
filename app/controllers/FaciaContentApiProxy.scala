@@ -27,14 +27,15 @@ class FaciaContentApiProxy(config: ApplicationConfiguration, components: Control
 
   private val previewSigner = {
     val region = Region.of(config.awsV2.region)
-    val stsClient = StsClient.builder.region(region).build()
+    val stsClient = StsClient
+      .builder()
+      .credentialsProvider(config.awsV2.credentials.get)
+      .region(region)
+      .build()
     val assumeRoleRequest = AssumeRoleRequest.builder.roleSessionName("capi").roleArn(config.contentApi.previewRole).build
 
-    val capiPreviewCredentials = AwsCredentialsProviderChain.of(
-      ProfileCredentialsProvider.create("capi"),
-      StsAssumeRoleCredentialsProvider.builder().stsClient(stsClient).refreshRequest(assumeRoleRequest).build()
-    )
-
+    val capiPreviewCredentials = StsAssumeRoleCredentialsProvider.builder().stsClient(stsClient).refreshRequest(assumeRoleRequest).build()
+  
     new IAMSigner(
       credentialsProvider = capiPreviewCredentials,
       awsRegion = config.awsV2.region
