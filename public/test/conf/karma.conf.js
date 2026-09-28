@@ -1,5 +1,7 @@
 /* eslint-env node */
 module.exports = function(config) {
+  process.env.CHROME_BIN = require('playwright-chromium').chromium.executablePath();
+
   config.set({
     basePath: '../../..',
     proxies: {
@@ -33,7 +35,7 @@ module.exports = function(config) {
     logLevel: config.LOG_ERROR,
     autoWatch: true,
 
-    browsers: ['PhantomJS'],
+    browsers: ['ChromeHeadless'],
     captureTimeout: 60000,
     singleRun: false
   });

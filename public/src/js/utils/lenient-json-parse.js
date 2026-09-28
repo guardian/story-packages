@@ -19,6 +19,11 @@ function reportUnexpectedToken (jsonString, error, listOfErrors) {
     const match = error.match(/^unexpected token (.*)/i);
     if (match) {
         const parts = jsonString.split(match[1]);
+        if (parts.length < 2) {
+            listOfErrors.push(error);
+            return;
+        }
+
         const firstQuote = parts[0].lastIndexOf('"');
         const lastQuote = parts[1].indexOf('"');
         const firstPart = parts[0].substring(firstQuote + 1);
