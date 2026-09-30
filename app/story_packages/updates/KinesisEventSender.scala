@@ -126,7 +126,7 @@ class KinesisEventSender(config: ApplicationConfiguration) extends Logging {
   }
 
   private def sendUpdate(streamName: String, collectionId: String, event: Event)(implicit ec:ExecutionContext): Unit = {
-    val bytes = ThriftSerializer.serializeToBytes(event, Some(GzipType), Some(128))
+    val bytes = ThriftSerializer.serializeToBytes(event, Some(GzipType), Some(128)).array()
     if (bytes.length > config.updates.maxDataSize) {
       Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max size (${config.updates.maxDataSize})")
     } else {
