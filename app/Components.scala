@@ -13,6 +13,7 @@ import conf.{ApplicationConfiguration, Responses}
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.EssentialFilter
 import play.filters.gzip.GzipFilter
+import filters.RequestLoggingFilter
 
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context)
   with AhcWSComponents
@@ -48,7 +49,8 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
 
   override lazy val httpFilters: Seq[EssentialFilter] = Seq(
     customGzipFilter,
-    new CORSFilter
+    new CORSFilter,
+    new RequestLoggingFilter
   )
 
   val router: Router = new Routes(httpErrorHandler, status, pandaAuth, views, faciaTool, defaults, storyPackages, faciaProxy, vanity, publicAssets)
