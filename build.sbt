@@ -31,9 +31,11 @@ Compile / doc / sources := Seq.empty
 Compile / packageDoc / publishArtifact := false
 
 val awsVersion = "1.12.770"
-val awsV2Version = "2.40.14"
+val awsV2Version = "2.57.9"
 val capiModelsVersion = "38.0.0"
 val json4sVersion = "4.0.7"
+
+dependencyOverrides += "org.bouncycastle" % "bcprov-jdk18on" % "1.86"
 
 resolvers ++= Seq(
     Resolver.file("Local", file(Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
