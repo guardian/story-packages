@@ -42,12 +42,13 @@ resolvers ++= Seq(
 buildInfoPackage := "app"
 buildInfoKeys += "gitCommitId" -> env.getOrElse("GITHUB_SHA", "Unknown")
 
-lazy val jacksonVersion = "2.17.2"
+lazy val jacksonVersion = "2.21.7"
+lazy val jacksonAnnotationsVersion = "2.21"
 
 // these Jackson dependencies are required to resolve issues in Play 2.8.x https://github.com/orgs/playframework/discussions/11222
 val jacksonOverrides = Seq(
     "com.fasterxml.jackson.core" % "jackson-core"  % jacksonVersion,
-    "com.fasterxml.jackson.core" % "jackson-annotations"  % jacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-annotations"  % jacksonAnnotationsVersion,
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % jacksonVersion,
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion,
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
@@ -67,7 +68,7 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.gu" %% "content-api-client-aws" % "1.0.1",
     "com.gu.etag-caching" %% "aws-s3-sdk-v2" % "7.0.0",
     "com.gu" %% "fapi-client-play30" % "30.0.0",
-    "com.gu" %% "pan-domain-auth-play_3-0" % "13.0.0",
+    "com.gu" %% "pan-domain-auth-play_3-0" % "22.2.0",
     "com.gu" %% "editorial-permissions-client" % "6.0.2",
     "com.gu" %% "story-packages-model" % "2.2.0",
     "com.gu" %% "thrift-serializer" % "4.0.2",
