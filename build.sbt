@@ -45,6 +45,8 @@ buildInfoKeys += "gitCommitId" -> env.getOrElse("GITHUB_SHA", "Unknown")
 lazy val jacksonVersion = "2.21.7"
 lazy val jacksonAnnotationsVersion = "2.21"
 
+dependencyOverrides += "org.typelevel" %% "jawn-parser" % "1.7.0"
+
 // these Jackson dependencies are required to resolve issues in Play 2.8.x https://github.com/orgs/playframework/discussions/11222
 val jacksonOverrides = Seq(
     "com.fasterxml.jackson.core" % "jackson-core"  % jacksonVersion,
