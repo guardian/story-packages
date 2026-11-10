@@ -45,7 +45,8 @@ buildInfoKeys += "gitCommitId" -> env.getOrElse("GITHUB_SHA", "Unknown")
 lazy val jacksonVersion = "2.21.7"
 lazy val jacksonAnnotationsVersion = "2.21"
 
-dependencyOverrides += "org.typelevel" %% "jawn-parser" % "1.7.0"
+// This version a Jawn dependency with CVE-2026-61814 and CVE-2026-59990 fixed
+dependencyOverrides += "io.circe" %% "circe-parser" % "0.14.17"
 
 // these Jackson dependencies are required to resolve issues in Play 2.8.x https://github.com/orgs/playframework/discussions/11222
 val jacksonOverrides = Seq(
