@@ -127,13 +127,13 @@ class KinesisEventSender(config: ApplicationConfiguration) extends Logging {
 
   private def sendUpdate(streamName: String, collectionId: String, event: Event)(implicit ec:ExecutionContext): Unit = {
     val bytes = ThriftSerializer.serializeToBytes(event, Some(GzipType), Some(128))
-    if (bytes.length > config.updates.maxDataSize) {
-      Logger.error(s"$streamName - NOT sending because size (${bytes.length} bytes) is larger than max size (${config.updates.maxDataSize})")
+    if (bytes.remaining() > config.updates.maxDataSize) {
+      Logger.error(s"$streamName - NOT sending because size (${bytes.remaining()} bytes) is larger than max size (${config.updates.maxDataSize})")
     } else {
-      Logger.info(s"$streamName - sending thrift update with size of ${bytes.length} bytes")
+      Logger.info(s"$streamName - sending thrift update with size of ${bytes.remaining()} bytes")
       val record = PutRecordsRequestEntry.builder()
         .partitionKey(event.packageId)
-        .data(SdkBytes.fromByteArray(bytes))
+        .data(SdkBytes.fromByteBuffer(bytes))
         .build()
 
       val request = PutRecordsRequest.builder()

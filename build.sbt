@@ -74,7 +74,7 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.gu" %% "pan-domain-auth-play_3-0" % "23.0.1",
     "com.gu" %% "editorial-permissions-client" % "6.0.2",
     "com.gu" %% "story-packages-model" % "2.2.0",
-    "com.gu" %% "thrift-serializer" % "4.0.2",
+    "com.gu" %% "thrift-serializer" % "5.0.8",
     "commons-io" % "commons-io" % "2.21.0",
     "org.json4s" %% "json4s-native" % json4sVersion,
     "org.json4s" %% "json4s-jackson" % json4sVersion,
