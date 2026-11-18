@@ -71,7 +71,7 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.gu" %% "content-api-client-aws" % "1.0.1",
     "com.gu.etag-caching" %% "aws-s3-sdk-v2" % "7.0.0",
     "com.gu" %% "fapi-client-play30" % "30.0.0",
-    "com.gu" %% "pan-domain-auth-play_3-0" % "22.2.0",
+    "com.gu" %% "pan-domain-auth-play_3-0" % "23.0.1",
     "com.gu" %% "editorial-permissions-client" % "6.0.2",
     "com.gu" %% "story-packages-model" % "2.2.0",
     "com.gu" %% "thrift-serializer" % "4.0.2",
