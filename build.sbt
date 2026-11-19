@@ -32,7 +32,7 @@ Compile / packageDoc / publishArtifact := false
 
 val awsVersion = "1.12.770"
 val awsV2Version = "2.57.9"
-val capiModelsVersion = "38.0.0"
+val capiModelsVersion = "53.0.0"
 val json4sVersion = "4.0.7"
 
 resolvers ++= Seq(
@@ -69,9 +69,9 @@ libraryDependencies ++= jacksonOverrides ++  Seq(
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "1.0.1",
-    "com.gu.etag-caching" %% "aws-s3-sdk-v2" % "7.0.0",
-    "com.gu" %% "fapi-client-play30" % "30.0.0",
-    "com.gu" %% "pan-domain-auth-play_3-0" % "23.0.1",
+    "com.gu.etag-caching" %% "aws-s3-sdk-v2" % "19.0.2",
+    "com.gu" %% "fapi-client-play30" % "47.2.4",
+    "com.gu" %% "pan-domain-auth-play_3-0" % "23.1.0",
     "com.gu" %% "editorial-permissions-client" % "6.0.2",
     "com.gu" %% "story-packages-model" % "2.2.0",
     "com.gu" %% "thrift-serializer" % "5.0.8",

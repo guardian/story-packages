@@ -56,7 +56,6 @@ class KinesisEventSender(config: ApplicationConfiguration) extends Logging {
             } else {
               None
             },
-            isBoosted = trailMetaData.isBoosted,
             imageHide = trailMetaData.imageHide,
             showMainVideo = trailMetaData.showMainVideo,
             showKickerTag = trailMetaData.showKickerTag,
