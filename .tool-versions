@@ -1,4 +1,4 @@
-java corretto-11.0.25.9.1
+java corretto-11.0.33.1.1
 node 14.17.0
 github:guardian/devenv 20261111-131338
 aws-cli 2.34.62
