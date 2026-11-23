@@ -86,7 +86,7 @@ trait UpdateActionsTrait extends Logging {
         val newMeta = for (updateMeta <- update.itemMeta) yield updateMeta
         currentTrail.copy(meta = newMeta)
       }
-      .getOrElse(Trail(update.item, DateTime.now.getMillis, Some(getUserName(identity)), update.itemMeta))
+      .getOrElse(Trail(update.item, DateTime.now.getMillis, Some(getUserName(identity)), update.itemMeta, None))
 
     val listWithoutItem = blocks.filterNot(_.id == update.item)
 
@@ -115,8 +115,9 @@ trait UpdateActionsTrait extends Logging {
         id = update.item,
         frontPublicationDate = DateTime.now.getMillis,
         publishedBy = Some(userName),
-        meta = update.itemMeta)
-      ),
+        meta = update.itemMeta,
+        tests = None
+      )),
       draft = None,
       treats = None,
       lastUpdated = DateTime.now,
